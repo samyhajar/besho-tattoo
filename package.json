@@ -7,10 +7,19 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db-types": "supabase gen types typescript --local > src/types/supabase.ts",
+    "db-types": "npx supabase gen types typescript --project-id bjjqoffogqzzkxygyrtr > src/types/supabase.ts",
     "db-reset": "supabase db reset",
     "db-push": "supabase db push",
     "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",

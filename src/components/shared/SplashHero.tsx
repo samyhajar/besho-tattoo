@@ -18,12 +18,12 @@ export default function SplashHero() {
         width={600}
         height={600}
         priority
-        className="w-full max-w-[600px] h-auto"
+        className="w-4/5 max-w-[300px] sm:max-w-[500px] md:max-w-[600px] h-auto"
       />
 
       <Link
         href="/landing"
-        className="group inline-flex items-center gap-2 border border-white px-6 py-3 rounded-full text-lg font-medium transition-colors hover:bg-white hover:text-black"
+        className="group inline-flex items-center gap-2 border border-white px-6 py-3 rounded-full text-base sm:text-lg font-medium transition-colors hover:bg-white hover:text-black"
       >
         Enter the website
         <ArrowRight
