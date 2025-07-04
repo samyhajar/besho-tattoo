@@ -115,19 +115,6 @@ export default function RecentWorkGrid() {
           </Link>
         );
       })}
-
-      {/* Fill remaining slots with placeholders if we have fewer than 8 tattoos */}
-      {Array.from({ length: Math.max(0, 8 - recentTattoos.length) }, (_, i) => (
-        <div
-          key={`placeholder-${i}`}
-          className="aspect-square bg-gray-800 rounded-xl flex items-center justify-center"
-        >
-          <div className="text-center">
-            <Palette className="w-8 h-8 text-gray-500 mx-auto mb-2" />
-            <p className="text-xs text-gray-500">Coming Soon</p>
-          </div>
-        </div>
-      ))}
     </div>
   );
 }
