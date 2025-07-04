@@ -15,7 +15,7 @@ export default function CalendarHeader({
 }: CalendarHeaderProps) {
   return (
     <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-      <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+      <CardTitle className="flex items-center gap-2 text-lg sm:text-xl text-white">
         <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
         <span className="truncate">{monthName}</span>
       </CardTitle>

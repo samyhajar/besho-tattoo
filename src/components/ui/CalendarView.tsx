@@ -96,14 +96,14 @@ export default function CalendarView({
   });
 
   return (
-    <Card className="w-full h-fit">
+    <Card className="w-full h-fit bg-gray-800 border-gray-700">
       <CardHeader className="pb-3 sm:pb-4">
         <CalendarHeader
           monthName={monthName}
           loading={loading}
           onNavigateMonth={navigateMonth}
         />
-        <CardDescription className="text-sm">
+        <CardDescription className="text-sm text-gray-300">
           Click on any available date to see time slots
         </CardDescription>
       </CardHeader>
@@ -116,8 +116,8 @@ export default function CalendarView({
 
         {loading ? (
           <div className="text-center py-8 sm:py-12">
-            <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-gray-900 mx-auto"></div>
-            <p className="mt-2 text-sm sm:text-base text-gray-600">
+            <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-white mx-auto"></div>
+            <p className="mt-2 text-sm sm:text-base text-gray-300">
               Loading available slots...
             </p>
           </div>

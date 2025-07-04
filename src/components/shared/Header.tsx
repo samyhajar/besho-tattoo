@@ -86,8 +86,8 @@ export default function Header() {
 
       {/* Mobile Menu */}
       <div
-        className={`fixed top-0 right-0 h-full w-80 max-w-[80vw] bg-black border-l border-gray-800 z-40 lg:hidden transform transition-transform duration-300 ease-in-out ${
-          isMenuOpen ? "translate-x-0" : "translate-x-full"
+        className={`fixed top-0 left-0 h-full w-80 max-w-[80vw] bg-black border-r border-gray-800 z-40 lg:hidden transform transition-transform duration-300 ease-in-out ${
+          isMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <nav className="flex flex-col pt-20 px-6 space-y-1">
