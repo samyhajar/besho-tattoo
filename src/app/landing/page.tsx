@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Calendar, Palette, Award, ArrowRight } from "lucide-react";
 import Footer from "@/components/shared/Footer";
 import Header from "@/components/shared/Header";
+import RecentWorkGrid from "@/components/shared/RecentWorkGrid";
 
 export default function LandingPage() {
   return (
@@ -22,8 +23,8 @@ export default function LandingPage() {
               </span>
             </h1>
             <p className="text-lg sm:text-xl text-gray-400 mb-8 max-w-2xl mx-auto leading-relaxed">
-              Where artistry meets skin. Discover unique tattoo designs and experience
-              world-class craftsmanship in our premium studio.
+              Where artistry meets skin. Discover unique tattoo designs and
+              experience world-class craftsmanship in our premium studio.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <Link
@@ -44,19 +45,27 @@ export default function LandingPage() {
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-2xl mx-auto">
               <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-white mb-1">500+</div>
+                <div className="text-2xl sm:text-3xl font-bold text-white mb-1">
+                  500+
+                </div>
                 <div className="text-sm text-gray-400">Happy Clients</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-white mb-1">5+</div>
+                <div className="text-2xl sm:text-3xl font-bold text-white mb-1">
+                  5+
+                </div>
                 <div className="text-sm text-gray-400">Years Experience</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-white mb-1">50+</div>
+                <div className="text-2xl sm:text-3xl font-bold text-white mb-1">
+                  50+
+                </div>
                 <div className="text-sm text-gray-400">Unique Designs</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-white mb-1">4.9</div>
+                <div className="text-2xl sm:text-3xl font-bold text-white mb-1">
+                  4.9
+                </div>
                 <div className="text-sm text-gray-400">Star Rating</div>
               </div>
             </div>
@@ -68,9 +77,12 @@ export default function LandingPage() {
       <section className="px-4 sm:px-6 lg:px-8 py-20 bg-gray-900">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">Our Services</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+              Our Services
+            </h2>
             <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              Professional tattoo services with attention to detail and artistic excellence
+              Professional tattoo services with attention to detail and artistic
+              excellence
             </p>
           </div>
 
@@ -81,8 +93,8 @@ export default function LandingPage() {
               </div>
               <h3 className="text-xl font-semibold mb-4">Custom Designs</h3>
               <p className="text-gray-400 leading-relaxed">
-                Unique, personalized tattoo designs created specifically for you.
-                From concept to completion, every piece is one-of-a-kind.
+                Unique, personalized tattoo designs created specifically for
+                you. From concept to completion, every piece is one-of-a-kind.
               </p>
             </div>
 
@@ -103,8 +115,8 @@ export default function LandingPage() {
               </div>
               <h3 className="text-xl font-semibold mb-4">Easy Booking</h3>
               <p className="text-gray-400 leading-relaxed">
-                Simple online booking system. Schedule your consultation
-                and get started on your tattoo journey today.
+                Simple online booking system. Schedule your consultation and get
+                started on your tattoo journey today.
               </p>
             </div>
           </div>
@@ -117,20 +129,12 @@ export default function LandingPage() {
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">Recent Work</h2>
             <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              Explore our latest tattoo creations and get inspired for your next piece
+              Explore our latest tattoo creations and get inspired for your next
+              piece
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-            {Array.from({ length: 8 }, (_, i) => (
-              <div key={i} className="aspect-square bg-gray-800 rounded-xl flex items-center justify-center hover:bg-gray-700 transition-colors cursor-pointer">
-                <div className="text-center">
-                  <Palette className="w-8 h-8 text-gray-500 mx-auto mb-2" />
-                  <p className="text-xs text-gray-500">Tattoo {i + 1}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <RecentWorkGrid />
 
           <div className="text-center">
             <Link
@@ -151,8 +155,8 @@ export default function LandingPage() {
             Ready to Start Your Tattoo Journey?
           </h2>
           <p className="text-gray-400 text-lg mb-8 max-w-2xl mx-auto">
-            Book your consultation today and let&apos;s create something extraordinary together.
-            Your story, our artistry.
+            Book your consultation today and let&apos;s create something
+            extraordinary together. Your story, our artistry.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
