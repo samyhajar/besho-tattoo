@@ -193,7 +193,9 @@ export async function fetchAppointmentStats() {
   // Get start of current week (Monday)
   const now = new Date();
   const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - now.getDay() + 1);
+  // Calculate days to go back to Monday: (getDay() + 6) % 7
+  // Monday=0 days back, Tuesday=1 day back, ..., Sunday=6 days back
+  startOfWeek.setDate(now.getDate() - ((now.getDay() + 6) % 7));
   const weekStart = startOfWeek.toISOString().split("T")[0];
 
   const [todayResult, weekResult, pendingResult, completedResult] =
