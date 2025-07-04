@@ -29,18 +29,28 @@ export default function Sidebar({ className }: { className?: string }) {
     <>
       {/* Mobile menu button */}
       <div className="lg:hidden bg-white border-b border-gray-200 p-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">Admin Panel</h2>
+        <div className="flex items-center gap-3">
           <button
             onClick={toggleMobileMenu}
             className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500"
             aria-expanded="false"
             aria-label="Toggle navigation menu"
           >
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
             </svg>
           </button>
+          <h2 className="text-lg font-semibold text-gray-900">Admin Panel</h2>
         </div>
       </div>
 
@@ -51,7 +61,7 @@ export default function Sidebar({ className }: { className?: string }) {
             className="fixed inset-0 bg-gray-600 bg-opacity-75 cursor-pointer"
             onClick={toggleMobileMenu}
             onKeyDown={(e) => {
-              if (e.key === 'Escape') {
+              if (e.key === "Escape") {
                 toggleMobileMenu();
               }
             }}
@@ -59,22 +69,36 @@ export default function Sidebar({ className }: { className?: string }) {
             tabIndex={0}
             aria-label="Close mobile menu"
           />
-          <div className="relative flex flex-col w-full max-w-xs h-full bg-white shadow-xl">
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">Admin Panel</h2>
+          <div className="relative flex flex-col w-full max-w-xs h-full bg-white shadow-xl transform transition-transform duration-300 ease-in-out">
+            <div className="flex items-center gap-3 p-4 border-b border-gray-200">
               <button
                 onClick={toggleMobileMenu}
                 className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
                 aria-label="Close menu"
               >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Admin Panel
+              </h2>
             </div>
             <div className="flex-1 overflow-y-auto p-4">
               {user && (
-                <p className="mb-6 text-sm text-gray-500 truncate">{user.email}</p>
+                <p className="mb-6 text-sm text-gray-500 truncate">
+                  {user.email}
+                </p>
               )}
               <nav className="space-y-2">
                 {links.map((link) => {
@@ -118,7 +142,9 @@ export default function Sidebar({ className }: { className?: string }) {
         )}
       >
         <div>
-          <h2 className="mb-2 text-xl font-semibold text-gray-900">Admin Panel</h2>
+          <h2 className="mb-2 text-xl font-semibold text-gray-900">
+            Admin Panel
+          </h2>
           {user && (
             <p className="mb-8 text-sm text-gray-500 truncate">{user.email}</p>
           )}
