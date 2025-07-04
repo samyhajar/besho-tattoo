@@ -1,17 +1,41 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/Button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/Card";
-import { Alert, AlertDescription } from "@/components/ui/Alert";
-import ImageUploadField from "./ImageUploadField";
-import ContactInformationFields from "./ContactInformationFields";
-import { createPublicAppointment } from "@/services/appointments";
+import { Card, CardContent } from "@/components/ui/Card";
+import BookingFormContent from "./BookingFormContent";
 import type { Availability } from "@/services/appointments";
+
+// No Slot Selected Component
+function NoSlotSelected({ onCancel }: { onCancel: () => void }) {
+  return (
+    <Card className="w-full max-w-md mx-auto">
+      <CardContent className="text-center py-8 sm:py-12">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg
+            className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </div>
+        <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-2">
+          No Time Slot Selected
+        </h3>
+        <p className="text-sm sm:text-base text-gray-600 mb-6">
+          Please select an appointment slot first
+        </p>
+        <Button onClick={onCancel} className="w-full sm:w-auto">
+          Back to Calendar
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
 
 interface BookingFormProps {
   selectedSlot: Availability | null;
@@ -24,181 +48,17 @@ export default function BookingForm({
   onSuccess,
   onCancel,
 }: BookingFormProps) {
-  const [formData, setFormData] = useState({
-    full_name: "",
-    email: "",
-    phone: "",
-    notes: "",
-  });
-
-  const updateFormData = (field: keyof typeof formData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-  const [referenceImage, setReferenceImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const formatTime = (timeStr: string): string => {
-    const [hours, minutes] = timeStr.split(":");
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const hour12 = hour % 12 || 12;
-    return `${hour12}:${minutes} ${ampm}`;
-  };
-
-  const handleImageSelect = (file: File | null) => {
-    setReferenceImage(file);
-
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setImagePreview(null);
-    }
-    setError(null);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!selectedSlot) {
-      setError("No appointment slot selected");
-      return;
-    }
-
-    if (!formData.full_name.trim() || !formData.email.trim()) {
-      setError("Please fill in all required fields");
-      return;
-    }
-
-    try {
-      setSubmitting(true);
-      setError(null);
-
-      // Upload image first if provided
-      let imageUrl: string | undefined;
-      if (referenceImage) {
-        const supabase = await import("@/lib/supabase/browser-client").then(
-          (m) => m.createClient(),
-        );
-        const fileExt = referenceImage.name.split(".").pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
-        const filePath = `appointments/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from("tattoosappointment")
-          .upload(filePath, referenceImage);
-
-        if (uploadError) {
-          throw new Error("Failed to upload image: " + uploadError.message);
-        }
-
-        imageUrl = filePath;
-      }
-
-      await createPublicAppointment({
-        availability_id: selectedSlot.id,
-        full_name: formData.full_name.trim(),
-        email: formData.email.trim(),
-        phone: formData.phone.trim() || undefined,
-        notes: formData.notes.trim() || undefined,
-        image_url: imageUrl,
-      });
-
-      onSuccess();
-    } catch (err) {
-      console.error("Error creating appointment:", err);
-      setError("Failed to book appointment. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   if (!selectedSlot) {
-    return (
-      <Card>
-        <CardContent className="text-center py-8">
-          <p className="text-gray-600">
-            Please select an appointment slot first
-          </p>
-          <Button onClick={onCancel} className="mt-4">
-            Back to Calendar
-          </Button>
-        </CardContent>
-      </Card>
-    );
+    return <NoSlotSelected onCancel={onCancel} />;
   }
 
   return (
-    <Card className="max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle>Complete Your Booking</CardTitle>
-        <CardDescription>
-          Fill in your details to confirm your appointment for{" "}
-          {new Date(selectedSlot.date).toLocaleDateString("en-US", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}{" "}
-          at {formatTime(selectedSlot.time_start)} -{" "}
-          {formatTime(selectedSlot.time_end)}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {error && (
-          <Alert variant="destructive" className="mb-6">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
-          <ContactInformationFields
-            formData={formData}
-            onUpdate={updateFormData}
-            disabled={submitting}
-          />
-
-          {/* Reference Image Upload */}
-          <ImageUploadField
-            label="Reference Image (Optional)"
-            id="reference-image"
-            _file={referenceImage}
-            preview={imagePreview}
-            onFileSelect={handleImageSelect}
-            onError={setError}
-            disabled={submitting}
-            maxSizeMB={10}
-          />
-
-          {/* Submit Buttons */}
-          <div className="flex gap-4 pt-6 border-t">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              disabled={submitting}
-              className="flex-1"
-            >
-              Back
-            </Button>
-            <Button type="submit" disabled={submitting} className="flex-1">
-              {submitting ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                  Booking...
-                </div>
-              ) : (
-                "Book Appointment"
-              )}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+    <div className="w-full max-w-2xl mx-auto px-4 sm:px-0">
+      <BookingFormContent
+        selectedSlot={selectedSlot}
+        onSuccess={onSuccess}
+        onCancel={onCancel}
+      />
+    </div>
   );
 }

@@ -17,15 +17,10 @@ export default function AppointmentsPage() {
     useState<Appointment | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  useEffect(() => {
-    void loadAppointmentData();
-  }, []);
-
   const loadAppointmentData = async () => {
     try {
       setLoading(true);
       setError(null);
-
       const supabase = createClient();
       const { data, error } = await supabase
         .from("appointments")
@@ -43,15 +38,9 @@ export default function AppointmentsPage() {
     }
   };
 
-  const handleAppointmentClick = (appointment: Appointment) => {
-    setSelectedAppointment(appointment);
-    setModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setModalOpen(false);
-    setSelectedAppointment(null);
-  };
+  useEffect(() => {
+    void loadAppointmentData();
+  }, []);
 
   const handleConfirmAppointment = async (appointmentId: string) => {
     await confirmAppointment(appointmentId);
@@ -66,38 +55,63 @@ export default function AppointmentsPage() {
     await loadAppointmentData();
   };
 
+  const handleAppointmentClick = (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setSelectedAppointment(null);
+  };
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Appointments</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+          Appointments
+        </h1>
+        <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">
           Manage and track client appointments
         </p>
       </div>
 
+      {/* Error Alert */}
       {error && (
         <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription className="text-sm">{error}</AlertDescription>
         </Alert>
       )}
 
-      {/* Stats */}
-      <AppointmentStats appointments={appointments} />
+      {/* Loading State */}
+      {loading ? (
+        <div className="text-center py-8 sm:py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-sm sm:text-base text-gray-600">
+            Loading appointments...
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+          {/* Stats */}
+          <AppointmentStats appointments={appointments} />
 
-      {/* Upcoming Appointments */}
-      <UpcomingAppointments
-        appointments={appointments}
-        onAppointmentClick={handleAppointmentClick}
-        onRefresh={() => void loadAppointmentData()}
-        loading={loading}
-      />
+          {/* Appointments List */}
+          <UpcomingAppointments
+            appointments={appointments}
+            onAppointmentClick={handleAppointmentClick}
+            onRefresh={() => void loadAppointmentData()}
+            loading={loading}
+          />
+        </div>
+      )}
 
       {/* Appointment Modal */}
       <AppointmentModal
         appointment={selectedAppointment}
         isOpen={modalOpen}
-        onClose={handleCloseModal}
+        onClose={handleModalClose}
         onConfirm={handleConfirmAppointment}
         onCancel={handleCancelAppointment}
       />

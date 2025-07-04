@@ -91,12 +91,12 @@ export default function CalendarView({
   });
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="w-5 h-5" />
-            {monthName}
+    <Card className="w-full">
+      <CardHeader className="pb-3 sm:pb-4">
+        <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="truncate">{monthName}</span>
           </CardTitle>
           <div className="flex gap-2">
             <Button
@@ -104,34 +104,38 @@ export default function CalendarView({
               size="sm"
               onClick={() => navigateMonth("prev")}
               disabled={loading}
+              className="flex-1 sm:flex-none px-3 py-2 text-sm"
             >
-              ←
+              ← Prev
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => navigateMonth("next")}
               disabled={loading}
+              className="flex-1 sm:flex-none px-3 py-2 text-sm"
             >
-              →
+              Next →
             </Button>
           </div>
         </div>
-        <CardDescription>
+        <CardDescription className="text-sm">
           Click on any available date to see time slots
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-3 sm:p-6">
         {error && (
           <Alert variant="destructive" className="mb-4">
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription className="text-sm">{error}</AlertDescription>
           </Alert>
         )}
 
         {loading ? (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-            <p className="mt-2 text-gray-600">Loading available slots...</p>
+          <div className="text-center py-8 sm:py-12">
+            <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-gray-900 mx-auto"></div>
+            <p className="mt-2 text-sm sm:text-base text-gray-600">
+              Loading available slots...
+            </p>
           </div>
         ) : (
           <>
@@ -140,44 +144,65 @@ export default function CalendarView({
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
                 <div
                   key={day}
-                  className="text-center text-sm font-medium text-gray-500 py-2"
+                  className="text-center text-xs sm:text-sm font-medium text-gray-500 py-2"
                 >
-                  {day}
+                  <span className="hidden sm:inline">{day}</span>
+                  <span className="sm:hidden">{day.substring(0, 1)}</span>
                 </div>
               ))}
             </div>
 
             {/* Calendar Days */}
-            <div className="grid grid-cols-7 gap-1">
+            <div className="grid grid-cols-7 gap-1 sm:gap-2">
               {calendarDays.map((day) => (
                 <button
                   key={day.date}
                   type="button"
                   disabled={day.slots.length === 0}
                   className={`
-                    min-h-[80px] p-2 border rounded-lg transition-colors text-left w-full
-                    ${day.isCurrentMonth ? "bg-white hover:bg-gray-50" : "bg-gray-100"}
-                    ${day.isToday ? "ring-2 ring-blue-500" : ""}
-                    ${selectedDate === day.date ? "ring-2 ring-green-500 bg-green-50" : ""}
-                    ${day.slots.length > 0 ? "border-green-200 hover:border-green-300 cursor-pointer" : "border-gray-200 cursor-not-allowed"}
-                    ${day.slots.length === 0 ? "opacity-50" : ""}
+                    min-h-[60px] sm:min-h-[80px] lg:min-h-[90px]
+                    p-1 sm:p-2 border rounded-lg transition-all duration-200
+                    text-left w-full relative overflow-hidden
+                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                    ${
+                      day.isCurrentMonth
+                        ? "bg-white hover:bg-gray-50 active:bg-gray-100"
+                        : "bg-gray-50 hover:bg-gray-100"
+                    }
+                    ${day.isToday ? "ring-2 ring-blue-500 ring-offset-1" : ""}
+                    ${
+                      selectedDate === day.date
+                        ? "ring-2 ring-green-500 bg-green-50 ring-offset-1"
+                        : ""
+                    }
+                    ${
+                      day.slots.length > 0
+                        ? "border-green-200 hover:border-green-300 cursor-pointer shadow-sm hover:shadow-md"
+                        : "border-gray-200 cursor-not-allowed"
+                    }
+                    ${day.slots.length === 0 ? "opacity-60" : ""}
                   `}
                   onClick={() => onDateSelect(day.date)}
                 >
                   <div
-                    className={`text-sm font-medium ${day.isCurrentMonth ? "text-gray-900" : "text-gray-400"}`}
+                    className={`text-xs sm:text-sm font-medium mb-1 ${
+                      day.isCurrentMonth ? "text-gray-900" : "text-gray-400"
+                    }`}
                   >
                     {new Date(day.date).getDate()}
                   </div>
                   {day.slots.length > 0 && (
-                    <div className="mt-1">
-                      <div className="text-xs text-green-600 font-medium">
+                    <div className="space-y-1">
+                      <div className="text-xs font-medium text-green-600">
                         {day.slots.length} slot{day.slots.length > 1 ? "s" : ""}
                       </div>
-                      <div className="text-xs text-gray-500 mt-1">
+                      <div className="text-xs text-gray-500 leading-tight">
                         {formatTime(day.slots[0].time_start)}
-                        {day.slots.length > 1 &&
-                          ` +${day.slots.length - 1} more`}
+                        {day.slots.length > 1 && (
+                          <div className="text-xs opacity-75">
+                            +{day.slots.length - 1} more
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}

@@ -16,15 +16,9 @@ export default function AvailabilitiesPage() {
   const [error, setError] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
 
-  useEffect(() => {
-    void loadAvailabilities();
-  }, []);
-
   const loadAvailabilities = async () => {
     try {
       setLoading(true);
-      setError(null);
-
       const supabase = createClient();
       const { data, error } = await supabase
         .from("availabilities")
@@ -42,66 +36,81 @@ export default function AvailabilitiesPage() {
     }
   };
 
-  const handleFormSuccess = () => {
+  useEffect(() => {
+    void loadAvailabilities();
+  }, []);
+
+  const handleAddSuccess = () => {
     setShowAddForm(false);
     void loadAvailabilities();
   };
 
-  const handleFormCancel = () => {
+  const handleAddCancel = () => {
     setShowAddForm(false);
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Availability</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            Availability
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">
             Manage your schedule and time slots
           </p>
         </div>
         {!showAddForm && (
           <Button
             onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-2"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 py-2 sm:py-2"
           >
             <Plus className="w-4 h-4" />
-            Add Time Slot
+            <span>Add Time Slots</span>
           </Button>
         )}
       </div>
 
+      {/* Error Alert */}
       {error && (
         <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription className="text-sm">{error}</AlertDescription>
         </Alert>
       )}
 
-      {/* Add New Slot Form */}
+      {/* Add Form */}
       {showAddForm && (
-        <AddAvailabilityForm
-          onSuccess={handleFormSuccess}
-          onCancel={handleFormCancel}
-        />
+        <div className="space-y-4">
+          <AddAvailabilityForm
+            onSuccess={handleAddSuccess}
+            onCancel={handleAddCancel}
+          />
+        </div>
       )}
 
       {/* Stats */}
-      <AvailabilityStats availabilities={availabilities} />
+      {!showAddForm && (
+        <div className="space-y-4 sm:space-y-6">
+          <AvailabilityStats availabilities={availabilities} />
 
-      {/* Availability List */}
-      <AvailabilityList
-        availabilities={availabilities}
-        onUpdate={() => void loadAvailabilities()}
-      />
+          {/* List */}
+          <AvailabilityList
+            availabilities={availabilities}
+            onUpdate={() => void loadAvailabilities()}
+          />
+        </div>
+      )}
+
+      {/* Loading State */}
+      {loading && !showAddForm && (
+        <div className="text-center py-8 sm:py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-sm sm:text-base text-gray-600">
+            Loading availabilities...
+          </p>
+        </div>
+      )}
     </div>
   );
 }

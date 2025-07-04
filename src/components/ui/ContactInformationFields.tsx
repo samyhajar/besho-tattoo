@@ -20,66 +20,84 @@ export default function ContactInformationFields({
   disabled = false,
 }: ContactInformationFieldsProps) {
   return (
-    <>
-      {/* Contact Information */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Contact Information</h3>
-
-        <div>
-          <Label htmlFor="full_name">Full Name *</Label>
+    <div className="space-y-4 sm:space-y-5">
+      {/* Name and Email Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label
+            htmlFor="full_name"
+            className="text-sm sm:text-base font-medium"
+          >
+            Full Name <span className="text-red-500">*</span>
+          </Label>
           <Input
             id="full_name"
             type="text"
             value={formData.full_name}
             onChange={(e) => onUpdate("full_name", e.target.value)}
             placeholder="Enter your full name"
-            className="mt-1"
-            required
+            className="text-sm sm:text-base py-2 sm:py-3"
             disabled={disabled}
+            required
           />
         </div>
 
-        <div>
-          <Label htmlFor="email">Email Address *</Label>
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-sm sm:text-base font-medium">
+            Email Address <span className="text-red-500">*</span>
+          </Label>
           <Input
             id="email"
             type="email"
             value={formData.email}
             onChange={(e) => onUpdate("email", e.target.value)}
             placeholder="Enter your email address"
-            className="mt-1"
+            className="text-sm sm:text-base py-2 sm:py-3"
+            disabled={disabled}
             required
-            disabled={disabled}
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="phone">Phone Number (Optional)</Label>
-          <Input
-            id="phone"
-            type="tel"
-            value={formData.phone}
-            onChange={(e) => onUpdate("phone", e.target.value)}
-            placeholder="Enter your phone number"
-            className="mt-1"
-            disabled={disabled}
           />
         </div>
       </div>
 
+      {/* Phone Number */}
+      <div className="space-y-2">
+        <Label htmlFor="phone" className="text-sm sm:text-base font-medium">
+          Phone Number (Optional)
+        </Label>
+        <Input
+          id="phone"
+          type="tel"
+          value={formData.phone}
+          onChange={(e) => onUpdate("phone", e.target.value)}
+          placeholder="Enter your phone number"
+          className="text-sm sm:text-base py-2 sm:py-3"
+          disabled={disabled}
+        />
+        <p className="text-xs sm:text-sm text-gray-500">
+          We may contact you to confirm appointment details
+        </p>
+      </div>
+
       {/* Notes */}
-      <div>
-        <Label htmlFor="notes">Tattoo Ideas & Notes (Optional)</Label>
+      <div className="space-y-2">
+        <Label htmlFor="notes" className="text-sm sm:text-base font-medium">
+          Additional Notes (Optional)
+        </Label>
         <textarea
           id="notes"
           value={formData.notes}
           onChange={(e) => onUpdate("notes", e.target.value)}
           placeholder="Describe your tattoo ideas, size, placement, style preferences, etc."
           rows={4}
-          className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-3 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-md shadow-sm
+                     placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                     disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed resize-none"
           disabled={disabled}
         />
+        <p className="text-xs sm:text-sm text-gray-500">
+          Help us prepare for your appointment by sharing your vision
+        </p>
       </div>
-    </>
+    </div>
   );
 }
