@@ -8,7 +8,7 @@ import RecentWorkGrid from "@/components/shared/RecentWorkGrid";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[#0e1424] text-white">
       {/* Header */}
       <Header />
 
@@ -74,7 +74,7 @@ export default function LandingPage() {
       </section>
 
       {/* Services Section */}
-      <section className="px-4 sm:px-6 lg:px-8 py-20 bg-gray-900">
+      <section className="px-4 sm:px-6 lg:px-8 py-20 bg-[#0e1424]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
@@ -87,7 +87,7 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-8 rounded-2xl bg-black border border-gray-800 hover:border-gray-700 transition-colors">
+            <div className="text-center p-8 rounded-2xl bg-[#0e1424] border border-gray-800 hover:border-gray-700 transition-colors">
               <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-6">
                 <Palette className="w-8 h-8 text-black" />
               </div>
@@ -98,7 +98,7 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="text-center p-8 rounded-2xl bg-black border border-gray-800 hover:border-gray-700 transition-colors">
+            <div className="text-center p-8 rounded-2xl bg-[#0e1424] border border-gray-800 hover:border-gray-700 transition-colors">
               <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-6">
                 <Award className="w-8 h-8 text-black" />
               </div>
@@ -109,7 +109,7 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="text-center p-8 rounded-2xl bg-black border border-gray-800 hover:border-gray-700 transition-colors">
+            <div className="text-center p-8 rounded-2xl bg-[#0e1424] border border-gray-800 hover:border-gray-700 transition-colors">
               <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-6">
                 <Calendar className="w-8 h-8 text-black" />
               </div>
@@ -124,7 +124,7 @@ export default function LandingPage() {
       </section>
 
       {/* Portfolio Preview */}
-      <section className="px-4 sm:px-6 lg:px-8 py-20 bg-gray-900">
+      <section className="px-4 sm:px-6 lg:px-8 py-20 bg-[#0e1424]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">Recent Work</h2>

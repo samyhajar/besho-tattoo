@@ -26,9 +26,23 @@ export default function Header() {
   };
 
   return (
-    <header className="relative z-50">
+    <header className="relative z-50 bg-[#0e1424] border-b border-gray-800">
       <div className="flex items-center justify-between px-4 sm:px-6 lg:px-12 py-4 sm:py-6">
-        <Link href="/" className="flex items-center z-50" onClick={closeMenu}>
+        {/* Mobile Menu Button - moved to left */}
+        <button
+          onClick={toggleMenu}
+          className="lg:hidden z-50 p-2 rounded-md text-white hover:bg-white/10 transition-colors"
+          aria-label="Toggle menu"
+        >
+          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
+        {/* Logo - centered on mobile, left on desktop */}
+        <Link
+          href="/"
+          className="flex items-center z-50 lg:ml-0 absolute left-1/2 transform -translate-x-1/2 lg:relative lg:left-0 lg:transform-none"
+          onClick={closeMenu}
+        >
           <Image
             src="/logo-besho.png"
             alt="Besho Tattoo logo"
@@ -58,14 +72,8 @@ export default function Header() {
           </Link>
         </nav>
 
-        {/* Mobile Menu Button */}
-        <button
-          onClick={toggleMenu}
-          className="lg:hidden z-50 p-2 rounded-md text-white hover:bg-white/10 transition-colors"
-          aria-label="Toggle menu"
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        {/* Spacer for mobile to balance the layout */}
+        <div className="lg:hidden w-10"></div>
       </div>
 
       {/* Mobile Menu Overlay */}
@@ -86,7 +94,7 @@ export default function Header() {
 
       {/* Mobile Menu */}
       <div
-        className={`fixed top-0 left-0 h-full w-80 max-w-[80vw] bg-black border-r border-gray-800 z-40 lg:hidden transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 h-full w-80 max-w-[80vw] bg-[#0e1424] border-r border-gray-800 z-40 lg:hidden transform transition-transform duration-300 ease-in-out ${
           isMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >

@@ -10,7 +10,7 @@ import Image from "next/image";
  */
 export default function SplashHero() {
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen text-center gap-8 px-4">
+    <main className="flex flex-col items-center justify-center min-h-screen text-center gap-8 px-4 bg-[#0e1424]">
       {/* Logo */}
       <Image
         src="/Liberte.png"

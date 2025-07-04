@@ -1,47 +1,49 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { Tattoo } from '@/types/tattoo';
-import Header from '@/components/shared/Header';
-import Footer from '@/components/shared/Footer';
-import CategoryFilter from '@/components/ui/CategoryFilter';
-import PortfolioGrid from '@/components/ui/PortfolioGrid';
-import TattooModal from '@/components/ui/TattooModal';
-
+import type { Tattoo } from "@/types/tattoo";
+import Header from "@/components/shared/Header";
+import Footer from "@/components/shared/Footer";
+import CategoryFilter from "@/components/ui/CategoryFilter";
+import PortfolioGrid from "@/components/ui/PortfolioGrid";
+import TattooModal from "@/components/ui/TattooModal";
 
 export default function PortfolioPage() {
   const [tattoos, setTattoos] = useState<Tattoo[]>([]);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedTattoo, setSelectedTattoo] = useState<Tattoo | null>(null);
 
   useEffect(() => {
     void loadTattoos();
   }, []);
 
-    const loadTattoos = async () => {
+  const loadTattoos = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/portfolio', {
-        cache: 'no-store' // Ensure fresh data
+      const response = await fetch("/api/portfolio", {
+        cache: "no-store", // Ensure fresh data
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Portfolio API error:', {
+        console.error("Portfolio API error:", {
           status: response.status,
           statusText: response.statusText,
-          errorText
+          errorText,
         });
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json() as { tattoos: Tattoo[]; signedUrls: Record<string, string> };
+      const data = (await response.json()) as {
+        tattoos: Tattoo[];
+        signedUrls: Record<string, string>;
+      };
       setTattoos(data.tattoos || []);
       setSignedUrls(data.signedUrls || {});
     } catch (err) {
-      console.error('Error loading tattoos:', err);
+      console.error("Error loading tattoos:", err);
       // Set empty data on error to prevent crashes
       setTattoos([]);
       setSignedUrls({});
@@ -50,15 +52,19 @@ export default function PortfolioPage() {
     }
   };
 
-  const categories = ['all', ...new Set(tattoos.map(t => t.category).filter(Boolean) as string[])];
+  const categories = [
+    "all",
+    ...new Set(tattoos.map((t) => t.category).filter(Boolean) as string[]),
+  ];
 
-  const filteredTattoos = selectedCategory === 'all'
-    ? tattoos
-    : tattoos.filter(t => t.category === selectedCategory);
+  const filteredTattoos =
+    selectedCategory === "all"
+      ? tattoos
+      : tattoos.filter((t) => t.category === selectedCategory);
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-[#0e1424]">
         <Header />
         <div className="flex items-center justify-center min-h-[calc(100vh-120px)]">
           <div className="text-center">
@@ -71,7 +77,7 @@ export default function PortfolioPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-[#0e1424]">
       {/* Navigation Header */}
       <Header />
 

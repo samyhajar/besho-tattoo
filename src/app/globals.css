@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 /* Custom utilities */
 .line-clamp-3 {
@@ -9,7 +9,7 @@
 }
 
 :root {
-  --background: #000000;
+  --background: #0e1424;
   --foreground: #ffffff;
 }
 
@@ -22,7 +22,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #0e1424;
     --foreground: #ededed;
   }
 }

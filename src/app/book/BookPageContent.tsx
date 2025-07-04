@@ -67,9 +67,9 @@ export default function BookPageContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-[#0e1424]">
         <Header />
-        <div className="bg-gradient-to-br from-gray-900 to-black min-h-screen flex items-center justify-center">
+        <div className="bg-gradient-to-br from-[#0e1424] to-[#0e1424] min-h-screen flex items-center justify-center">
           <div className="text-center p-6">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
             <p className="text-gray-300">Loading appointment details...</p>
@@ -81,9 +81,9 @@ export default function BookPageContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-[#0e1424]">
         <Header />
-        <div className="bg-gradient-to-br from-gray-900 to-black min-h-screen flex items-center justify-center p-4">
+        <div className="bg-gradient-to-br from-[#0e1424] to-[#0e1424] min-h-screen flex items-center justify-center p-4">
           <Card className="w-full max-w-md bg-gray-800 border-gray-700">
             <CardContent className="text-center py-8 sm:py-12">
               <div className="w-16 h-16 sm:w-20 sm:h-20 bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -111,10 +111,10 @@ export default function BookPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-[#0e1424]">
       <Header />
 
-      <div className="bg-gradient-to-br from-gray-900 to-black min-h-screen">
+      <div className="bg-gradient-to-br from-[#0e1424] to-[#0e1424] min-h-screen">
         <div className="container mx-auto px-4 py-6 sm:py-8 lg:py-12">
           {/* Header */}
           <div className="text-center mb-6 sm:mb-8">
