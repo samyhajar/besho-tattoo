@@ -9,7 +9,10 @@ interface DashboardStatsProps {
   isLoading: boolean;
 }
 
-export default function DashboardStats({ tattooStats, isLoading }: DashboardStatsProps) {
+export default function DashboardStats({
+  tattooStats,
+  isLoading,
+}: DashboardStatsProps) {
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       <Card>
@@ -38,7 +41,7 @@ export default function DashboardStats({ tattooStats, isLoading }: DashboardStat
           </div>
           <p className="text-xs text-gray-600">
             {isLoading ? (
-              <div className="w-16 h-3 bg-gray-200 rounded animate-pulse" />
+              <span className="inline-block w-16 h-3 bg-gray-200 rounded animate-pulse"></span>
             ) : (
               `+${tattooStats.thisMonth} this month`
             )}

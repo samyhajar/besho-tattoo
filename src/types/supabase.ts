@@ -80,7 +80,6 @@ export type Database = {
       };
       order_items: {
         Row: {
-          created_at: string;
           id: string;
           order_id: string;
           price_cents: number;
@@ -88,7 +87,6 @@ export type Database = {
           quantity: number;
         };
         Insert: {
-          created_at?: string;
           id?: string;
           order_id: string;
           price_cents: number;
@@ -96,7 +94,6 @@ export type Database = {
           quantity: number;
         };
         Update: {
-          created_at?: string;
           id?: string;
           order_id?: string;
           price_cents?: number;
