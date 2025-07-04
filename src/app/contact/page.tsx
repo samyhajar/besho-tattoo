@@ -70,15 +70,16 @@ export default function ContactPage() {
     <div className="min-h-screen bg-black">
       <Header />
 
-      <div className="bg-gradient-to-br from-gray-50 to-white min-h-screen">
+      <div className="bg-gradient-to-br from-gray-900 to-black min-h-screen">
         <div className="container mx-auto px-4 py-6 sm:py-8 lg:py-12">
           {/* Header */}
           <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">
               Book Your Appointment
             </h1>
-            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              Select an available date and time for your tattoo consultation or session.
+            <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
+              Select an available date and time for your tattoo consultation or
+              session.
             </p>
           </div>
 
@@ -86,57 +87,63 @@ export default function ContactPage() {
           <div className="max-w-6xl mx-auto">
             {/* Mobile Progress Indicator */}
             <div className="mb-6 sm:mb-8 lg:hidden">
-              <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 shadow-sm">
                 <div className="flex items-center justify-center space-x-4 text-sm">
                   <div
-                    className={`flex items-center space-x-2 ${selectedDate ? "text-green-600" : "text-gray-500"}`}
+                    className={`flex items-center space-x-2 ${selectedDate ? "text-green-400" : "text-gray-400"}`}
                   >
                     <div
                       className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                         selectedDate
-                          ? "border-green-600 bg-green-600"
-                          : "border-gray-300"
+                          ? "border-green-400 bg-green-400"
+                          : "border-gray-600"
                       }`}
                     >
                       {selectedDate ? (
                         <div className="w-2 h-2 bg-white rounded-full"></div>
                       ) : (
-                        <span className="text-xs font-medium">1</span>
+                        <span className="text-xs font-medium text-gray-300">
+                          1
+                        </span>
                       )}
                     </div>
                     <span className="font-medium">Date</span>
                   </div>
 
                   <div
-                    className={`w-8 h-0.5 ${selectedDate ? "bg-green-600" : "bg-gray-300"}`}
+                    className={`w-8 h-0.5 ${selectedDate ? "bg-green-400" : "bg-gray-600"}`}
                   ></div>
 
                   <div
-                    className={`flex items-center space-x-2 ${selectedSlot ? "text-green-600" : "text-gray-500"}`}
+                    className={`flex items-center space-x-2 ${selectedSlot ? "text-green-400" : "text-gray-400"}`}
                   >
                     <div
                       className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                         selectedSlot
-                          ? "border-green-600 bg-green-600"
-                          : "border-gray-300"
+                          ? "border-green-400 bg-green-400"
+                          : "border-gray-600"
                       }`}
                     >
                       {selectedSlot ? (
                         <div className="w-2 h-2 bg-white rounded-full"></div>
                       ) : (
-                        <span className="text-xs font-medium">2</span>
+                        <span className="text-xs font-medium text-gray-300">
+                          2
+                        </span>
                       )}
                     </div>
                     <span className="font-medium">Time</span>
                   </div>
 
                   <div
-                    className={`w-8 h-0.5 ${selectedSlot ? "bg-green-600" : "bg-gray-300"}`}
+                    className={`w-8 h-0.5 ${selectedSlot ? "bg-green-400" : "bg-gray-600"}`}
                   ></div>
 
-                  <div className="flex items-center space-x-2 text-gray-500">
-                    <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                      <span className="text-xs font-medium">3</span>
+                  <div className="flex items-center space-x-2 text-gray-400">
+                    <div className="w-6 h-6 rounded-full border-2 border-gray-600 flex items-center justify-center">
+                      <span className="text-xs font-medium text-gray-300">
+                        3
+                      </span>
                     </div>
                     <span className="font-medium">Book</span>
                   </div>
@@ -148,7 +155,7 @@ export default function ContactPage() {
               {/* Calendar Section */}
               <div className="space-y-4">
                 <div className="hidden lg:block">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                  <h2 className="text-xl font-semibold text-white mb-4">
                     Choose a Date
                   </h2>
                 </div>
@@ -165,7 +172,7 @@ export default function ContactPage() {
               {/* Time Slots Section */}
               <div className="space-y-4">
                 <div className="hidden lg:block">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                  <h2 className="text-xl font-semibold text-white mb-4">
                     Choose a Time
                   </h2>
                 </div>
