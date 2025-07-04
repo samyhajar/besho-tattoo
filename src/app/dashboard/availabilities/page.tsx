@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Alert, AlertDescription } from "@/components/ui/Alert";
+import BackButton from "@/components/ui/BackButton";
 import { Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/browser-client";
 import type { Availability } from "@/services/appointments";
@@ -51,6 +52,9 @@ export default function AvailabilitiesPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+      {/* Back Button - Mobile Only */}
+      <BackButton />
+
       {/* Header */}
       <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
         <div>

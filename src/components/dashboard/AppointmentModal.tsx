@@ -110,7 +110,7 @@ export default function AppointmentModal({
             </div>
 
             {/* Actions Section */}
-            {isPending && (
+            {appointment.status !== "cancelled" && (
               <div className="mt-6 sm:mt-8 pt-6 border-t border-gray-200">
                 {showCancelForm ? (
                   <div className="space-y-4 p-4 sm:p-6 border border-red-200 rounded-lg bg-red-50">
@@ -122,9 +122,9 @@ export default function AppointmentModal({
                       value={cancelReason}
                       onChange={(e) => setCancelReason(e.target.value)}
                       rows={3}
-                      className="w-full px-3 py-2 text-sm sm:text-base border border-red-300 rounded-md
+                      className="w-full px-3 py-2 text-sm sm:text-base text-gray-900 bg-white border border-red-300 rounded-md
                                placeholder-red-400 focus:outline-none focus:ring-2 focus:ring-red-500
-                               focus:border-red-500 resize-none"
+                               focus:border-red-500 resize-none disabled:bg-gray-50 disabled:text-gray-500"
                       disabled={processing}
                     />
                     <div className="flex flex-col sm:flex-row gap-3">
@@ -179,28 +179,30 @@ export default function AppointmentModal({
                       <span className="sm:hidden">Cancel</span>
                     </Button>
 
-                    <Button
-                      onClick={() => void handleConfirm()}
-                      disabled={processing}
-                      className="order-1 sm:order-2 w-full sm:flex-1 py-3 sm:py-2"
-                    >
-                      {processing ? (
-                        <div className="flex items-center justify-center gap-2">
-                          <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                          <span className="hidden sm:inline">
-                            Confirming...
-                          </span>
-                        </div>
-                      ) : (
-                        <>
-                          <CheckCircle className="w-4 h-4 sm:mr-2" />
-                          <span className="hidden sm:inline">
-                            Confirm Appointment
-                          </span>
-                          <span className="sm:hidden">Confirm</span>
-                        </>
-                      )}
-                    </Button>
+                    {isPending && (
+                      <Button
+                        onClick={() => void handleConfirm()}
+                        disabled={processing}
+                        className="order-1 sm:order-2 w-full sm:flex-1 py-3 sm:py-2"
+                      >
+                        {processing ? (
+                          <div className="flex items-center justify-center gap-2">
+                            <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                            <span className="hidden sm:inline">
+                              Confirming...
+                            </span>
+                          </div>
+                        ) : (
+                          <>
+                            <CheckCircle className="w-4 h-4 sm:mr-2" />
+                            <span className="hidden sm:inline">
+                              Confirm Appointment
+                            </span>
+                            <span className="sm:hidden">Confirm</span>
+                          </>
+                        )}
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>

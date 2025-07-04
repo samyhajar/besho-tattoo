@@ -8,23 +8,36 @@ interface TattooModalProps {
 }
 
 export default function TattooModal({ tattoo, signedUrl, onClose }: TattooModalProps) {
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onClose();
+    }
+  };
+
   return (
-    <button
-      className="fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50 border-none cursor-pointer"
-      onClick={onClose}
-      onKeyDown={(e) => {
-        if (e.key === 'Escape') {
-          onClose();
-        }
-      }}
-      type="button"
-      aria-label="Close tattoo image viewer"
+    <div
+      className="fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50 cursor-pointer"
+      onClick={handleBackdropClick}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="button"
+      aria-label="Close image viewer"
     >
-      <div className="relative max-w-7xl w-full max-h-[95vh] sm:max-h-[90vh] flex items-center justify-center">
+      <div
+        className="relative max-w-7xl w-full max-h-[95vh] sm:max-h-[90vh] flex items-center justify-center cursor-default"
+      >
         {/* Close button */}
         <button
-          onClick={(e) => e.stopPropagation()}
+          onClick={onClose}
           className="absolute top-2 sm:top-4 right-2 sm:right-4 z-10 w-10 h-10 sm:w-12 sm:h-12 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-all duration-200"
+          aria-label="Close image viewer"
+          type="button"
         >
           <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -32,20 +45,13 @@ export default function TattooModal({ tattoo, signedUrl, onClose }: TattooModalP
         </button>
 
         {/* Image */}
-        <button
-          onClick={(e) => e.stopPropagation()}
-          className="bg-transparent border-none p-0 cursor-default"
-          type="button"
-          aria-label={`Full size view of ${tattoo.title}`}
-        >
-          <Image
-            src={signedUrl || '/placeholder-image.svg'}
-            alt={tattoo.title}
-            width={1000}
-            height={1000}
-            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-          />
-        </button>
+        <Image
+          src={signedUrl || '/placeholder-image.svg'}
+          alt={tattoo.title}
+          width={1000}
+          height={1000}
+          className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+        />
 
         {/* Image Info */}
         <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 text-center">
@@ -61,6 +67,6 @@ export default function TattooModal({ tattoo, signedUrl, onClose }: TattooModalP
           </div>
         </div>
       </div>
-    </button>
+    </div>
   );
 }

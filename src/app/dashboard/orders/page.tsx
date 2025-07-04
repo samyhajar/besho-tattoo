@@ -1,9 +1,13 @@
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import BackButton from "@/components/ui/BackButton";
 
 export default function OrdersPage() {
   return (
     <div className="space-y-8">
+      {/* Back Button - Mobile Only */}
+      <BackButton />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

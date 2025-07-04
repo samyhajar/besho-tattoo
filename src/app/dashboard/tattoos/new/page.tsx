@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import BackButton from "@/components/ui/BackButton";
 import { uploadTattooImage, createTattoo } from "@/services/tattoos";
 import type { TattooFormData } from "@/types/tattoo";
 import TattooUploadForm from "@/components/dashboard/TattooUploadForm";
@@ -91,6 +92,9 @@ export default function NewTattooPage() {
 
   return (
     <div className="space-y-6 sm:space-y-8">
+      {/* Back Button - Mobile Only */}
+      <BackButton />
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

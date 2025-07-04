@@ -1,9 +1,9 @@
-import { createClient } from "@/lib/supabase/browser-client";
-import { Database } from "@/types/supabase";
+import { createClient } from '@/lib/supabase/browser-client';
+import { Database } from '@/types/supabase';
 
-export type Appointment = Database["public"]["Tables"]["appointments"]["Row"];
+export type Appointment = Database['public']['Tables']['appointments']['Row'];
 export type Availability =
-  Database["public"]["Tables"]["availabilities"]["Row"];
+  Database['public']['Tables']['availabilities']['Row'];
 
 export interface CreateAppointmentParams {
   full_name: string;
@@ -35,19 +35,19 @@ export async function fetchAvailableSlots(
   const supabase = createClient();
 
   let query = supabase
-    .from("availabilities")
-    .select("*")
-    .eq("is_booked", false)
-    .gte("date", new Date().toISOString().split("T")[0]) // Only future dates
-    .order("date", { ascending: true })
-    .order("time_start", { ascending: true });
+    .from('availabilities')
+    .select('*')
+    .eq('is_booked', false)
+    .gte('date', new Date().toISOString().split('T')[0]) // Only future dates
+    .order('date', { ascending: true })
+    .order('time_start', { ascending: true });
 
   if (startDate) {
-    query = query.gte("date", startDate);
+    query = query.gte('date', startDate);
   }
 
   if (endDate) {
-    query = query.lte("date", endDate);
+    query = query.lte('date', endDate);
   }
 
   const { data, error } = await query;
@@ -66,18 +66,18 @@ export async function createPublicAppointment(
 
   // First, get the availability details
   const { data: availability, error: availabilityError } = await supabase
-    .from("availabilities")
-    .select("*")
-    .eq("id", params.availability_id)
-    .eq("is_booked", false)
+    .from('availabilities')
+    .select('*')
+    .eq('id', params.availability_id)
+    .eq('is_booked', false)
     .single();
 
   if (availabilityError) throw availabilityError;
-  if (!availability) throw new Error("Time slot is no longer available");
+  if (!availability) throw new Error('Time slot is no longer available');
 
   // Create the appointment
   const { data: appointment, error: appointmentError } = await supabase
-    .from("appointments")
+    .from('appointments')
     .insert([
       {
         full_name: params.full_name,
@@ -88,7 +88,7 @@ export async function createPublicAppointment(
         time_end: availability.time_end,
         notes: params.notes ?? null,
         image_url: params.image_url ?? null,
-        status: "pending",
+        status: 'pending',
         user_id: null, // Public booking, no user_id
       },
     ])
@@ -99,9 +99,9 @@ export async function createPublicAppointment(
 
   // Mark the availability as booked
   const { error: updateError } = await supabase
-    .from("availabilities")
+    .from('availabilities')
     .update({ is_booked: true })
-    .eq("id", params.availability_id);
+    .eq('id', params.availability_id);
 
   if (updateError) throw updateError;
 
@@ -122,10 +122,10 @@ export async function createAppointment(
     error: userErr,
   } = await supabase.auth.getUser();
   if (userErr) throw userErr;
-  if (!user) throw new Error("No authenticated user");
+  if (!user) throw new Error('No authenticated user');
 
   const { data, error } = await supabase
-    .from("appointments")
+    .from('appointments')
     .insert([
       {
         user_id: user.id,
@@ -154,13 +154,13 @@ export async function fetchMyAppointments(): Promise<Appointment[]> {
     error: userErr,
   } = await supabase.auth.getUser();
   if (userErr) throw userErr;
-  if (!user) throw new Error("No authenticated user");
+  if (!user) throw new Error('No authenticated user');
 
   const { data, error } = await supabase
-    .from("appointments")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+    .from('appointments')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
 
   if (error) throw error;
   return data as Appointment[];
@@ -174,10 +174,10 @@ export async function fetchAllAppointments(): Promise<Appointment[]> {
   const supabase = createClient();
 
   const { data, error } = await supabase
-    .from("appointments")
-    .select("*")
-    .order("date", { ascending: true })
-    .order("time_start", { ascending: true });
+    .from('appointments')
+    .select('*')
+    .order('date', { ascending: true })
+    .order('time_start', { ascending: true });
 
   if (error) throw error;
   return data as Appointment[];
@@ -188,7 +188,7 @@ export async function fetchAllAppointments(): Promise<Appointment[]> {
  */
 export async function fetchAppointmentStats() {
   const supabase = createClient();
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split('T')[0];
 
   // Get start of current week (Monday)
   const now = new Date();
@@ -196,34 +196,56 @@ export async function fetchAppointmentStats() {
   // Calculate days to go back to Monday: (getDay() + 6) % 7
   // Monday=0 days back, Tuesday=1 day back, ..., Sunday=6 days back
   startOfWeek.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-  const weekStart = startOfWeek.toISOString().split("T")[0];
+  const weekStart = startOfWeek.toISOString().split('T')[0];
 
-  const [todayResult, weekResult, pendingResult, completedResult] =
-    await Promise.all([
-      // Today's appointments
-      supabase.from("appointments").select("id.count()").eq("date", today),
+  const [
+    todayResult,
+    weekResult,
+    pendingResult,
+    completedResult,
+    confirmedResult,
+    cancelledResult,
+    totalResult,
+  ] = await Promise.all([
+    // Today's appointments
+    supabase.from('appointments').select('id.count()').eq('date', today),
 
-      // This week's appointments
-      supabase.from("appointments").select("id.count()").gte("date", weekStart),
+    // This week's appointments
+    supabase.from('appointments').select('id.count()').gte('date', weekStart),
 
-      // Pending appointments
-      supabase
-        .from("appointments")
-        .select("id.count()")
-        .eq("status", "pending"),
+    // Pending appointments
+    supabase.from('appointments').select('id.count()').eq('status', 'pending'),
 
-      // Completed appointments
-      supabase
-        .from("appointments")
-        .select("id.count()")
-        .eq("status", "completed"),
-    ]);
+    // Completed appointments
+    supabase
+      .from('appointments')
+      .select('id.count()')
+      .eq('status', 'completed'),
+
+    // Confirmed appointments
+    supabase
+      .from('appointments')
+      .select('id.count()')
+      .eq('status', 'confirmed'),
+
+    // Cancelled appointments
+    supabase
+      .from('appointments')
+      .select('id.count()')
+      .eq('status', 'cancelled'),
+
+    // Total appointments
+    supabase.from('appointments').select('id.count()'),
+  ]);
 
   return {
     today: todayResult.data?.[0]?.count || 0,
     thisWeek: weekResult.data?.[0]?.count || 0,
     pending: pendingResult.data?.[0]?.count || 0,
     completed: completedResult.data?.[0]?.count || 0,
+    confirmed: confirmedResult.data?.[0]?.count || 0,
+    cancelled: cancelledResult.data?.[0]?.count || 0,
+    total: totalResult.data?.[0]?.count || 0,
   };
 }
 
@@ -234,15 +256,16 @@ export async function confirmAppointment(appointmentId: string): Promise<void> {
   const supabase = createClient();
 
   const { error } = await supabase
-    .from("appointments")
-    .update({ status: "confirmed" })
-    .eq("id", appointmentId);
+    .from('appointments')
+    .update({ status: 'confirmed' })
+    .eq('id', appointmentId);
 
   if (error) throw error;
 }
 
 /**
  * Cancels an appointment with a reason and sends notification email
+ * Also frees up the corresponding availability slot
  */
 export async function cancelAppointment(
   appointmentId: string,
@@ -252,28 +275,41 @@ export async function cancelAppointment(
 
   // First, get the appointment details for the email
   const { data: appointment, error: fetchError } = await supabase
-    .from("appointments")
-    .select("*")
-    .eq("id", appointmentId)
+    .from('appointments')
+    .select('*')
+    .eq('id', appointmentId)
     .single();
 
   if (fetchError) throw fetchError;
-  if (!appointment) throw new Error("Appointment not found");
+  if (!appointment) throw new Error('Appointment not found');
 
   // Update the appointment status
   const { error: updateError } = await supabase
-    .from("appointments")
-    .update({ status: "cancelled" })
-    .eq("id", appointmentId);
+    .from('appointments')
+    .update({ status: 'cancelled' })
+    .eq('id', appointmentId);
 
   if (updateError) throw updateError;
 
+  // Free up the corresponding availability slot
+  const { error: availabilityError } = await supabase
+    .from('availabilities')
+    .update({ is_booked: false })
+    .eq('date', appointment.date)
+    .eq('time_start', appointment.time_start)
+    .eq('time_end', appointment.time_end);
+
+  if (availabilityError) {
+    console.error('Error freeing up availability slot:', availabilityError);
+    // Don't throw here - the appointment is already cancelled
+  }
+
   // Send cancellation email
   try {
-    const response = await fetch("/api/appointments/cancel-notification", {
-      method: "POST",
+    const response = await fetch('/api/appointments/cancel-notification', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         appointment,
@@ -282,11 +318,11 @@ export async function cancelAppointment(
     });
 
     if (!response.ok) {
-      console.error("Failed to send cancellation email");
+      console.error('Failed to send cancellation email');
       // Don't throw here - the appointment is already cancelled
     }
   } catch (error) {
-    console.error("Error sending cancellation email:", error);
+    console.error('Error sending cancellation email:', error);
     // Don't throw here - the appointment is already cancelled
   }
 }
@@ -302,11 +338,11 @@ export async function getAppointmentImageSignedUrl(
   const supabase = createClient();
 
   const { data, error } = await supabase.storage
-    .from("tattoosappointment")
+    .from('tattoosappointment')
     .createSignedUrl(imagePath, expiresIn);
 
   if (error) {
-    console.error("Error creating signed URL:", error);
+    console.error('Error creating signed URL:', error);
     return null;
   }
 

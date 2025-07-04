@@ -97,10 +97,10 @@ export default function AvailabilityList({
                 key={slot.id}
                 className={`flex items-center justify-between p-3 rounded-lg border ${
                   slot.is_booked
-                    ? "bg-red-50 border-red-200"
+                    ? "bg-green-50 border-green-200"
                     : new Date(slot.date) < new Date()
                       ? "bg-gray-50 border-gray-200"
-                      : "bg-green-50 border-green-200"
+                      : "bg-purple-50 border-purple-200"
                 }`}
               >
                 <div className="flex-1">
@@ -119,10 +119,10 @@ export default function AvailabilityList({
                   <span
                     className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                       slot.is_booked
-                        ? "bg-red-100 text-red-800"
+                        ? "bg-green-100 text-green-800"
                         : new Date(slot.date) < new Date()
                           ? "bg-gray-100 text-gray-800"
-                          : "bg-green-100 text-green-800"
+                          : "bg-purple-100 text-purple-800"
                     }`}
                   >
                     {slot.is_booked

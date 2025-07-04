@@ -6,18 +6,30 @@ interface DashboardStatsProps {
     categories: number;
     thisMonth: number;
   };
+  appointmentStats: {
+    today: number;
+    thisWeek: number;
+    pending: number;
+    completed: number;
+    confirmed: number;
+    cancelled: number;
+    total: number;
+  };
   isLoading: boolean;
 }
 
 export default function DashboardStats({
   tattooStats,
+  appointmentStats,
   isLoading,
 }: DashboardStatsProps) {
+  const totalAppointments = appointmentStats.total;
+
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Tattoos</CardTitle>
+          <CardTitle className="text-base font-medium">Total Tattoos</CardTitle>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -39,7 +51,7 @@ export default function DashboardStats({
               tattooStats.total
             )}
           </div>
-          <p className="text-xs text-gray-600">
+          <p className="text-sm text-gray-600">
             {isLoading ? (
               <span className="inline-block w-16 h-3 bg-gray-200 rounded animate-pulse"></span>
             ) : (
@@ -51,7 +63,7 @@ export default function DashboardStats({
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Appointments</CardTitle>
+          <CardTitle className="text-base font-medium">Appointments</CardTitle>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -69,14 +81,26 @@ export default function DashboardStats({
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">12</div>
-          <p className="text-xs text-gray-600">+3 this week</p>
+          <div className="text-2xl font-bold">
+            {isLoading ? (
+              <div className="w-8 h-8 bg-gray-200 rounded animate-pulse" />
+            ) : (
+              totalAppointments
+            )}
+          </div>
+          <p className="text-sm text-gray-600">
+            {isLoading ? (
+              <span className="inline-block w-16 h-3 bg-gray-200 rounded animate-pulse"></span>
+            ) : (
+              `+${appointmentStats.thisWeek} this week`
+            )}
+          </p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Categories</CardTitle>
+          <CardTitle className="text-base font-medium">Categories</CardTitle>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -100,13 +124,13 @@ export default function DashboardStats({
               tattooStats.categories
             )}
           </div>
-          <p className="text-xs text-gray-600">Tattoo styles</p>
+          <p className="text-sm text-gray-600">Tattoo styles</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Orders</CardTitle>
+          <CardTitle className="text-base font-medium">Today</CardTitle>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -117,12 +141,25 @@ export default function DashboardStats({
             strokeWidth="2"
             className="h-4 w-4 text-gray-600"
           >
-            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12,6 12,12 16,14" />
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">5</div>
-          <p className="text-xs text-gray-600">+1 today</p>
+          <div className="text-2xl font-bold">
+            {isLoading ? (
+              <div className="w-6 h-8 bg-gray-200 rounded animate-pulse" />
+            ) : (
+              appointmentStats.today
+            )}
+          </div>
+          <p className="text-sm text-gray-600">
+            {isLoading ? (
+              <span className="inline-block w-16 h-3 bg-gray-200 rounded animate-pulse"></span>
+            ) : (
+              `${appointmentStats.pending} pending`
+            )}
+          </p>
         </CardContent>
       </Card>
     </div>

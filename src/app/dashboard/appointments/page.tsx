@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Alert, AlertDescription } from "@/components/ui/Alert";
+import BackButton from "@/components/ui/BackButton";
 import AppointmentModal from "@/components/dashboard/AppointmentModal";
 import AppointmentStats from "@/components/dashboard/AppointmentStats";
 import UpcomingAppointments from "@/components/dashboard/UpcomingAppointments";
@@ -67,6 +68,9 @@ export default function AppointmentsPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+      {/* Back Button - Mobile Only */}
+      <BackButton />
+
       {/* Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">

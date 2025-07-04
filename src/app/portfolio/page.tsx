@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import type { Tattoo } from '@/types/tattoo';
 import Header from '@/components/shared/Header';
+import Footer from '@/components/shared/Footer';
 import CategoryFilter from '@/components/ui/CategoryFilter';
 import PortfolioGrid from '@/components/ui/PortfolioGrid';
 import TattooModal from '@/components/ui/TattooModal';
@@ -109,6 +110,8 @@ export default function PortfolioPage() {
           onClose={() => setSelectedTattoo(null)}
         />
       )}
+
+      <Footer />
     </div>
   );
 }

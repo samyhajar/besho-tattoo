@@ -1,24 +1,60 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
-import clsx from "clsx";
-import { useAuth } from "@/contexts/AuthContext";
-import Button from "@/components/ui/Button";
+import MobileMenuButton from "./MobileMenuButton";
+import MobileMenu from "./MobileMenu";
+import DesktopSidebar from "./DesktopSidebar";
 
 const links = [
-  { href: "/dashboard", label: "Overview" },
-  { href: "/dashboard/tattoos", label: "Tattoos" },
-  { href: "/dashboard/availabilities", label: "Availabilities" },
-  { href: "/dashboard/appointments", label: "Appointments" },
-  { href: "/dashboard/products", label: "Products" },
-  { href: "/dashboard/orders", label: "Orders" },
+  {
+    href: "/dashboard",
+    label: "Overview",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z" />
+      </svg>
+    )
+  },
+  {
+    href: "/dashboard/tattoos",
+    label: "Tattoos",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      </svg>
+    )
+  },
+  {
+    href: "/dashboard/availabilities",
+    label: "Availabilities",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    )
+  },
+  {
+    href: "/dashboard/appointments",
+    label: "Appointments",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    )
+  },
+  {
+    href: "/dashboard/clients",
+    label: "Clients",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+      </svg>
+    )
+  },
 ];
 
 export default function Sidebar({ className }: { className?: string }) {
-  const pathname = usePathname();
-  const { user, signOut } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {
@@ -27,157 +63,13 @@ export default function Sidebar({ className }: { className?: string }) {
 
   return (
     <>
-      {/* Mobile menu button */}
-      <div className="lg:hidden bg-white border-b border-gray-200 p-4">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={toggleMobileMenu}
-            className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500"
-            aria-expanded="false"
-            aria-label="Toggle navigation menu"
-          >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
-          <h2 className="text-lg font-semibold text-gray-900">Admin Panel</h2>
-        </div>
-      </div>
-
-      {/* Mobile menu overlay */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="fixed inset-0 bg-gray-600 bg-opacity-75 cursor-pointer"
-            onClick={toggleMobileMenu}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") {
-                toggleMobileMenu();
-              }
-            }}
-            role="button"
-            tabIndex={0}
-            aria-label="Close mobile menu"
-          />
-          <div className="relative flex flex-col w-full max-w-xs h-full bg-white shadow-xl transform transition-transform duration-300 ease-in-out">
-            <div className="flex items-center gap-3 p-4 border-b border-gray-200">
-              <button
-                onClick={toggleMobileMenu}
-                className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
-                aria-label="Close menu"
-              >
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-              <h2 className="text-lg font-semibold text-gray-900">
-                Admin Panel
-              </h2>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4">
-              {user && (
-                <p className="mb-6 text-sm text-gray-500 truncate">
-                  {user.email}
-                </p>
-              )}
-              <nav className="space-y-2">
-                {links.map((link) => {
-                  const active = pathname === link.href;
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={toggleMobileMenu}
-                      className={clsx(
-                        "block rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                        active
-                          ? "bg-gray-900 text-white shadow-sm"
-                          : "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
-                      )}
-                    >
-                      {link.label}
-                    </Link>
-                  );
-                })}
-              </nav>
-            </div>
-            <div className="p-4 border-t border-gray-200">
-              <Button
-                onClick={() => void signOut()}
-                variant="secondary"
-                className="w-full"
-              >
-                Sign Out
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Desktop sidebar */}
-      <aside
-        className={clsx(
-          "hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:w-64 lg:border-r lg:border-gray-200 lg:bg-white lg:p-6 lg:shadow-sm",
-          className,
-        )}
-      >
-        <div>
-          <h2 className="mb-2 text-xl font-semibold text-gray-900">
-            Admin Panel
-          </h2>
-          {user && (
-            <p className="mb-8 text-sm text-gray-500 truncate">{user.email}</p>
-          )}
-        </div>
-        <nav className="space-y-1 flex-1">
-          {links.map((link) => {
-            const active = pathname === link.href;
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={clsx(
-                  "block rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                  active
-                    ? "bg-gray-900 text-white shadow-sm"
-                    : "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
-                )}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="mt-auto pt-4 border-t border-gray-200">
-          <Button
-            onClick={() => void signOut()}
-            variant="secondary"
-            className="w-full"
-          >
-            Sign Out
-          </Button>
-        </div>
-      </aside>
+      <MobileMenuButton toggleMobileMenu={toggleMobileMenu} />
+      <MobileMenu
+        isMobileMenuOpen={isMobileMenuOpen}
+        toggleMobileMenu={toggleMobileMenu}
+        links={links}
+      />
+      <DesktopSidebar className={className} links={links} />
     </>
   );
 }

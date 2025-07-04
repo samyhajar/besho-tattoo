@@ -3,11 +3,21 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/Card";
-import { fetchTattoos, getTattooStats, deleteTattoo, getTattooImageUrls, type Tattoo } from "@/services/tattoos";
+import BackButton from "@/components/ui/BackButton";
+import {
+  fetchTattoos,
+  getTattooStats,
+  deleteTattoo,
+  getTattooImageUrls,
+  updateTattoo,
+  uploadTattooImage,
+  type Tattoo
+} from "@/services/tattoos";
 import TattooStats from "@/components/dashboard/TattooStats";
 import DashboardTattooGallery from "@/components/dashboard/DashboardTattooGallery";
 import DashboardTattooModal from "@/components/dashboard/DashboardTattooModal";
+import TattooLoadingState from "@/components/dashboard/TattooLoadingState";
+import TattooErrorState from "@/components/dashboard/TattooErrorState";
 
 export default function TattoosPage() {
   const router = useRouter();
@@ -53,10 +63,6 @@ export default function TattoosPage() {
   };
 
   const handleDelete = async (tattoo: Tattoo) => {
-    if (!confirm(`Are you sure you want to delete "${tattoo.title}"? This action cannot be undone.`)) {
-      return;
-    }
-
     try {
       setIsDeleting(tattoo.id);
       await deleteTattoo(tattoo.id);
@@ -70,50 +76,66 @@ export default function TattoosPage() {
     }
   };
 
+  const handleEdit = async (tattoo: Tattoo, updates: {
+    title: string;
+    description: string;
+    category: string;
+    image?: File;
+  }) => {
+    try {
+      let imageUrl = tattoo.image_url;
+
+      // Upload new image if provided
+      if (updates.image) {
+        imageUrl = await uploadTattooImage(updates.image);
+      }
+
+      // Update tattoo with new data
+      const updatedTattoo = await updateTattoo(tattoo.id, {
+        title: updates.title,
+        description: updates.description,
+        category: updates.category,
+        image_url: imageUrl
+      });
+
+      // Update local state
+      setTattoos(prev => prev.map(t => t.id === tattoo.id ? updatedTattoo : t));
+      setSelectedTattoo(updatedTattoo);
+
+      // Update signed URLs if image was changed
+      if (updates.image && imageUrl) {
+        const newSignedUrls = await getTattooImageUrls([imageUrl]);
+        setSignedUrls(prev => ({ ...prev, ...newSignedUrls }));
+      }
+
+      // Refresh stats
+      const statsData = await getTattooStats();
+      setStats(statsData);
+
+    } catch (err) {
+      console.error('Error updating tattoo:', err);
+      alert('Failed to update tattoo. Please try again.');
+      throw err; // Re-throw to handle in the edit form
+    }
+  };
+
   const handleAddNew = () => {
     router.push('/dashboard/tattoos/new');
   };
 
   if (isLoading) {
-    return (
-      <div className="space-y-6 sm:space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Tattoo Portfolio</h1>
-            <p className="text-gray-600 mt-2">Manage your tattoo artwork and portfolio</p>
-          </div>
-        </div>
-        <div className="flex items-center justify-center py-12">
-          <div className="flex items-center gap-3">
-            <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
-            <span className="text-gray-600">Loading tattoos...</span>
-          </div>
-        </div>
-      </div>
-    );
+    return <TattooLoadingState />;
   }
 
   if (error) {
-    return (
-      <div className="space-y-6 sm:space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Tattoo Portfolio</h1>
-            <p className="text-gray-600 mt-2">Manage your tattoo artwork and portfolio</p>
-          </div>
-        </div>
-        <Card>
-          <CardContent className="text-center py-12">
-            <p className="text-red-600">{error}</p>
-            <Button onClick={() => { void loadData(); }} className="mt-4">Try Again</Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <TattooErrorState error={error} onRetry={() => { void loadData(); }} />;
   }
 
   return (
     <div className="space-y-6 sm:space-y-8">
+      {/* Back Button - Mobile Only */}
+      <BackButton />
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -142,6 +164,7 @@ export default function TattoosPage() {
           isDeleting={isDeleting === selectedTattoo.id}
           onClose={() => setSelectedTattoo(null)}
           onDelete={handleDelete}
+          onEdit={handleEdit}
         />
       )}
     </div>
