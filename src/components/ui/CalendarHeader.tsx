@@ -25,7 +25,7 @@ export default function CalendarHeader({
           size="sm"
           onClick={() => onNavigateMonth("prev")}
           disabled={loading}
-          className="flex-1 sm:flex-none px-3 py-2 text-sm"
+          className="flex-1 sm:flex-none px-3 py-2 text-sm text-white"
         >
           ← Prev
         </Button>
@@ -34,7 +34,7 @@ export default function CalendarHeader({
           size="sm"
           onClick={() => onNavigateMonth("next")}
           disabled={loading}
-          className="flex-1 sm:flex-none px-3 py-2 text-sm"
+          className="flex-1 sm:flex-none px-3 py-2 text-sm text-white"
         >
           Next →
         </Button>
