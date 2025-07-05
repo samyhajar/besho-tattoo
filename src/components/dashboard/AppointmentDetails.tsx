@@ -6,8 +6,10 @@ import {
   Calendar,
   Clock,
   MessageSquare,
+  Video,
 } from "lucide-react";
 import type { Appointment } from "@/services/appointments";
+import GoogleMeetButton from "./GoogleMeetButton";
 
 interface AppointmentDetailsProps {
   appointment: Appointment;
@@ -113,6 +115,32 @@ export default function AppointmentDetails({
           </div>
         </CardContent>
       </Card>
+
+      {/* Google Meet Section */}
+      {appointment.google_meet_link && (
+        <Card className="shadow-sm border-gray-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <Video className="w-4 h-4 text-blue-600" />
+              </div>
+              Video Meeting
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <p className="text-gray-600 text-sm">
+                Join the video consultation for this appointment
+              </p>
+              <GoogleMeetButton
+                appointmentId={appointment.id}
+                existingMeetLink={appointment.google_meet_link}
+                existingEventId={appointment.google_meet_event_id}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Notes */}
       {appointment.notes && (

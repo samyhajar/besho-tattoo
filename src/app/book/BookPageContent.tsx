@@ -9,7 +9,7 @@ import BookingSuccess from "./BookingSuccess";
 import Footer from "@/components/shared/Footer";
 import Header from "@/components/shared/Header";
 import { createClient } from "@/lib/supabase/browser-client";
-import type { Availability } from "@/services/appointments";
+import type { Availability, Appointment } from "@/services/appointments";
 
 export default function BookPageContent() {
   const router = useRouter();
@@ -20,6 +20,8 @@ export default function BookPageContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [bookedAppointment, setBookedAppointment] =
+    useState<Appointment | null>(null);
 
   useEffect(() => {
     const loadSlot = async () => {
@@ -57,7 +59,8 @@ export default function BookPageContent() {
     void loadSlot();
   }, [slotId]);
 
-  const handleSuccess = () => {
+  const handleSuccess = (appointment: Appointment) => {
+    setBookedAppointment(appointment);
     setBookingSuccess(true);
   };
 
@@ -107,7 +110,7 @@ export default function BookPageContent() {
   }
 
   if (bookingSuccess) {
-    return <BookingSuccess />;
+    return <BookingSuccess appointment={bookedAppointment} />;
   }
 
   return (

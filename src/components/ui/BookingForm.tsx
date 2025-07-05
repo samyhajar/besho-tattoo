@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import BookingFormContent from "./BookingFormContent";
-import type { Availability } from "@/services/appointments";
+import type { Availability, Appointment } from "@/services/appointments";
 
 // No Slot Selected Component
 function NoSlotSelected({ onCancel }: { onCancel: () => void }) {
@@ -39,7 +39,7 @@ function NoSlotSelected({ onCancel }: { onCancel: () => void }) {
 
 interface BookingFormProps {
   selectedSlot: Availability | null;
-  onSuccess: () => void;
+  onSuccess: (appointment: Appointment) => void;
   onCancel: () => void;
 }
 

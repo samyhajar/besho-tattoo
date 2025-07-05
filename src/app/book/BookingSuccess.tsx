@@ -6,10 +6,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Video, ExternalLink } from "lucide-react";
 import Header from "@/components/shared/Header";
+import type { Appointment } from "@/services/appointments";
 
-export default function BookingSuccess() {
+interface BookingSuccessProps {
+  appointment: Appointment | null;
+}
+
+export default function BookingSuccess({ appointment }: BookingSuccessProps) {
   const router = useRouter();
 
   return (
@@ -31,6 +36,31 @@ export default function BookingSuccess() {
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-6">
+            {appointment?.google_meet_link && (
+              <div className="bg-blue-900/30 p-4 sm:p-6 rounded-lg border border-blue-700">
+                <div className="flex items-center justify-center gap-2 mb-3">
+                  <Video className="w-5 h-5 text-blue-400" />
+                  <h3 className="font-medium text-blue-100 text-sm sm:text-base">
+                    Google Meet Session Created
+                  </h3>
+                </div>
+                <p className="text-xs sm:text-sm text-blue-200 mb-4">
+                  A Google Meet session has been automatically created for your
+                  appointment. You can join the call at your scheduled time.
+                </p>
+                <a
+                  href={appointment.google_meet_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-sm font-medium"
+                >
+                  <Video className="w-4 h-4" />
+                  Join Google Meet
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </div>
+            )}
+
             <div className="bg-gray-700 p-4 sm:p-6 rounded-lg border border-gray-600">
               <h3 className="font-medium text-white mb-3 text-sm sm:text-base">
                 What happens next?
@@ -44,6 +74,8 @@ export default function BookingSuccess() {
                   <span className="font-medium">•</span>
                   <span>
                     You&apos;ll receive a confirmation email with details
+                    {appointment?.google_meet_link &&
+                      " and your Google Meet link"}
                   </span>
                 </div>
                 <div className="flex items-start space-x-2">

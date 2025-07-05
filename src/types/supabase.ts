@@ -15,6 +15,10 @@ export type Database = {
           date: string;
           email: string;
           full_name: string;
+          google_meet_created_at: string | null;
+          google_meet_event_id: string | null;
+          google_meet_link: string | null;
+          google_meet_space_id: string | null;
           id: string;
           image_url: string | null;
           notes: string | null;
@@ -29,6 +33,10 @@ export type Database = {
           date: string;
           email: string;
           full_name: string;
+          google_meet_created_at?: string | null;
+          google_meet_event_id?: string | null;
+          google_meet_link?: string | null;
+          google_meet_space_id?: string | null;
           id?: string;
           image_url?: string | null;
           notes?: string | null;
@@ -43,6 +51,10 @@ export type Database = {
           date?: string;
           email?: string;
           full_name?: string;
+          google_meet_created_at?: string | null;
+          google_meet_event_id?: string | null;
+          google_meet_link?: string | null;
+          google_meet_space_id?: string | null;
           id?: string;
           image_url?: string | null;
           notes?: string | null;
