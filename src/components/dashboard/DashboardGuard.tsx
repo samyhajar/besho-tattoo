@@ -15,12 +15,12 @@ export default function DashboardGuard({ children }: DashboardGuardProps) {
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        router.replace("/auth/login");
+        router.replace("/login");
         return;
       }
 
       if (!isAdmin) {
-        router.replace("/auth/login");
+        router.replace("/login");
         return;
       }
     }
