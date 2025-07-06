@@ -1,5 +1,6 @@
 {
-  "crons": [
+  "_comment": "Cron job temporarily disabled due to Vercel plan limits. Re-enable after removing other cron jobs or upgrading plan.",
+  "_disabled_crons": [
     {
       "path": "/api/cleanup-slots",
       "schedule": "0 0 * * *"
