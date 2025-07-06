@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Alert, AlertDescription } from "@/components/ui/Alert";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Clock } from "lucide-react";
 import { createClient } from "@/lib/supabase/browser-client";
 
 interface NewSlot {
@@ -59,82 +59,65 @@ export default function AddAvailabilityForm({
       setSubmitting(true);
       setError(null);
 
-      // Generate 30-minute slots
-      const slots = [];
-      const slotDuration = 30; // minutes
-      let currentTime = new Date(startTime);
-
-      while (currentTime < endTime) {
-        const slotStart = new Date(currentTime);
-        const slotEnd = new Date(
-          currentTime.getTime() + slotDuration * 60 * 1000,
-        );
-
-        // Don't create a slot if it would go beyond the end time
-        if (slotEnd > endTime) {
-          break;
-        }
-
-        slots.push({
-          date: newSlot.date,
-          time_start: slotStart.toTimeString().slice(0, 8), // HH:mm:ss format
-          time_end: slotEnd.toTimeString().slice(0, 8),
-          is_booked: false,
-        });
-
-        currentTime = slotEnd;
-      }
-
-      if (slots.length === 0) {
-        setError("Time range is too short to create any 30-minute slots");
-        return;
-      }
+      // Create a single slot with the exact duration specified by the admin
+      const slot = {
+        date: newSlot.date,
+        time_start: newSlot.time_start + ":00", // Add seconds for HH:mm:ss format
+        time_end: newSlot.time_end + ":00",
+        is_booked: false,
+      };
 
       const supabase = createClient();
-      const { error } = await supabase.from("availabilities").insert(slots);
+      const { error } = await supabase.from("availabilities").insert([slot]);
 
       if (error) throw error;
 
       // Reset form and call success callback
       setNewSlot({ date: "", time_start: "", time_end: "" });
       setError(null);
-      alert(
-        `Successfully created ${slots.length} appointment slots of 30 minutes each!`,
-      );
+      alert("Successfully created availability slot!");
       onSuccess();
     } catch (err) {
       console.error("Error adding availability:", err);
-      setError("Failed to add availability slots");
+      setError("Failed to add availability slot");
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Calculate how many slots will be created
-  const calculateSlots = () => {
-    if (!newSlot.time_start || !newSlot.time_end) return 0;
+  // Calculate duration of the slot in hours and minutes
+  const calculateDuration = () => {
+    if (!newSlot.time_start || !newSlot.time_end) return null;
 
     const startTime = new Date(`2000-01-01T${newSlot.time_start}`);
     const endTime = new Date(`2000-01-01T${newSlot.time_end}`);
 
-    if (startTime >= endTime) return 0;
+    if (startTime >= endTime) return null;
 
     const diffMinutes = (endTime.getTime() - startTime.getTime()) / (1000 * 60);
-    return Math.floor(diffMinutes / 30);
+    const hours = Math.floor(diffMinutes / 60);
+    const minutes = diffMinutes % 60;
+
+    if (hours === 0) {
+      return `${minutes} minutes`;
+    } else if (minutes === 0) {
+      return `${hours} hour${hours > 1 ? 's' : ''}`;
+    } else {
+      return `${hours} hour${hours > 1 ? 's' : ''} ${minutes} minutes`;
+    }
   };
 
-  const slotsToCreate = calculateSlots();
+  const duration = calculateDuration();
 
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Add New Availability Slots</CardTitle>
+            <CardTitle>Add New Availability Slot</CardTitle>
             <CardDescription>
-              Define a time range and we&apos;ll automatically create 30-minute
-              appointment slots. For example: 12:00 to 16:00 will create 8 slots
-              of 30 minutes each.
+              Create a custom appointment slot with your preferred duration.
+              You have full control over the start and end times.
             </CardDescription>
           </div>
           <Button variant="outline" size="sm" onClick={onCancel}>
@@ -188,35 +171,38 @@ export default function AddAvailabilityForm({
                 setNewSlot((prev) => ({ ...prev, time_end: e.target.value }))
               }
               className="mt-1"
-              placeholder="e.g., 16:00"
+              placeholder="e.g., 14:30"
             />
           </div>
         </div>
 
-        {slotsToCreate > 0 && (
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-sm text-blue-800">
-              <strong>Preview:</strong> This will create {slotsToCreate}{" "}
-              appointment slots of 30 minutes each.
-            </p>
+        {/* Duration Preview */}
+        {duration && (
+          <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+            <div className="flex items-center gap-2 text-sm text-green-800">
+              <Clock className="w-4 h-4" />
+              <span>
+                <strong>Slot Duration:</strong> {duration}
+              </span>
+            </div>
           </div>
         )}
 
-        <div className="flex gap-3 mt-6">
-          <Button variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
+        {/* Help text */}
+        <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <p className="text-sm text-blue-800">
+            <strong>Tip:</strong> You can create slots of any duration - 15 minutes, 1 hour, 2.5 hours, or whatever works best for your services.
+          </p>
+        </div>
+
+        <div className="flex gap-2 mt-6">
           <Button
             onClick={() => void addAvailability()}
-            disabled={submitting}
-            className="flex items-center gap-2"
+            disabled={submitting || !newSlot.date || !newSlot.time_start || !newSlot.time_end}
+            className="flex-1"
           >
-            {submitting ? (
-              <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-            ) : (
-              <Plus className="w-4 h-4" />
-            )}
-            {submitting ? "Creating Slots..." : "Create Slots"}
+            <Plus className="w-4 h-4 mr-2" />
+            {submitting ? "Creating..." : "Create Availability Slot"}
           </Button>
         </div>
       </CardContent>

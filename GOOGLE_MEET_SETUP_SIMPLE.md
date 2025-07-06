@@ -45,7 +45,7 @@ This guide shows how to set up Google Meet integration using OAuth instead of do
 4. Name it "Tattoo Studio OAuth"
 5. Add authorized redirect URIs:
    - `http://localhost:3000/api/auth/google/callback`
-   - `https://your-domain.com/api/auth/google/callback` (for production)
+   - `https://your-vercel-domain.vercel.app/api/auth/google/callback` (for production)
 6. Click **Create**
 7. **Download the JSON file** and save it securely
 
@@ -185,6 +185,48 @@ if (config.clientId && config.clientSecret && config.refreshToken) {
 "
 ```
 
+## 🚀 **Production Deployment Setup**
+
+### Step 1: Get Your Vercel Production URL
+
+1. Go to your [Vercel Dashboard](https://vercel.com/dashboard)
+2. Click on your tattoo studio project
+3. In the Project Overview tab, copy the URL under **"Domains"** (this is your production URL)
+4. It will look like: `https://your-project-name.vercel.app` or your custom domain
+
+### Step 2: Update Google Cloud Console OAuth Configuration
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Navigate to **APIs & Services** > **Credentials**
+3. Click on your OAuth 2.0 Client ID (created in step 4 above)
+4. Under **"Authorized redirect URIs"**, add your production URL:
+   ```
+   https://your-actual-vercel-domain.vercel.app/api/auth/google/callback
+   ```
+5. Click **Save**
+
+### Step 3: Add Environment Variables to Vercel
+
+1. In your Vercel project dashboard, go to **Settings** > **Environment Variables**
+2. Add the same environment variables from your `.env.local`:
+   - `GOOGLE_OAUTH_CLIENT_ID`
+   - `GOOGLE_OAUTH_CLIENT_SECRET`
+   - `GOOGLE_OAUTH_REFRESH_TOKEN`
+3. Set these for **Production** environment
+
+### Step 4: Deploy and Test
+
+1. Deploy your latest code to Vercel
+2. Test the Google Meet functionality in production
+3. Check Vercel Functions logs for any OAuth-related errors
+
+### Important Notes for Production
+
+- **Security**: Your OAuth credentials are sensitive - never commit them to Git
+- **Testing**: The refresh token approach means you don't need to re-authorize in production
+- **Monitoring**: Check Vercel logs if Google Meet creation fails in production
+- **Domains**: If you add a custom domain later, update the OAuth redirect URIs again
+
 ## 🔄 **Differences from Domain-Wide Delegation**
 
 | Feature               | OAuth (Simple)          | Domain-Wide Delegation   |
@@ -195,11 +237,29 @@ if (config.clientId && config.clientSecret && config.refreshToken) {
 | **Business Features** | Limited                 | Full enterprise features |
 | **Cost**              | Free                    | ~$6-18/month per user    |
 
-## 🚀 **Next Steps**
+## 🚨 **Troubleshooting Production Issues**
+
+### OAuth Errors in Production
+
+1. **"redirect_uri_mismatch"**: Your Vercel URL isn't added to Google OAuth settings
+2. **"invalid_client"**: Check that Client ID/Secret are correctly set in Vercel environment variables
+3. **"invalid_grant"**: Refresh token may have expired - regenerate using the script above
+
+### Calendar API Errors
+
+1. **"Calendar API has not been used"**: Enable Calendar API in Google Cloud Console
+2. **"Access denied"**: Check that your Google account has calendar permissions
+3. **"Quota exceeded"**: Google has rate limits - implement retry logic if needed
+
+## 🔄 **Next Steps**
 
 1. **Complete the OAuth setup above**
-2. **Test creating a Google Meet session**
-3. **The existing API endpoints will work automatically**
+2. **Update the redirect URIs with your actual Vercel URL**
+3. **Set environment variables in Vercel**
+4. **Deploy and test Google Meet creation**
+5. **Monitor Vercel logs for any issues**
+
+The Google Meet integration will now work seamlessly in both development and production environments! 🎨
 
 ## 🔍 **Troubleshooting**
 

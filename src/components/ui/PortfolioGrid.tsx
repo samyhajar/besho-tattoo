@@ -11,7 +11,7 @@ export default function PortfolioGrid({ tattoos, signedUrls, onTattooClick }: Po
   if (tattoos.length === 0) {
     return (
       <div className="text-center py-20">
-        <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+        <div className="w-24 h-24 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
           <svg className="w-12 h-12 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
@@ -22,17 +22,75 @@ export default function PortfolioGrid({ tattoos, signedUrls, onTattooClick }: Po
     );
   }
 
+  // Distribute tattoos across columns for masonry effect
+  const distributeIntoColumns = (items: Tattoo[], numColumns: number) => {
+    const columns: Tattoo[][] = Array.from({ length: numColumns }, () => []);
+
+    items.forEach((item, index) => {
+      const columnIndex = index % numColumns;
+      columns[columnIndex].push(item);
+    });
+
+    return columns;
+  };
+
+  // Different column counts for different screen sizes
+  const mobileColumns = distributeIntoColumns(tattoos, 2);
+  const tabletColumns = distributeIntoColumns(tattoos, 3);
+  const desktopColumns = distributeIntoColumns(tattoos, 4);
+
   return (
-    <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 sm:gap-6 md:gap-8 space-y-4 sm:space-y-6 md:space-y-8">
-      {tattoos.map((tattoo, index) => (
-        <TattooCard
-          key={tattoo.id}
-          tattoo={tattoo}
-          signedUrl={signedUrls[tattoo.image_url]}
-          index={index}
-          onImageClick={onTattooClick}
-        />
-      ))}
-    </div>
+    <>
+      {/* Mobile: 2 columns */}
+      <div className="grid grid-cols-2 gap-4 md:hidden">
+        {mobileColumns.map((column, columnIndex) => (
+          <div key={`mobile-col-${columnIndex}`} className="flex flex-col gap-4">
+            {column.map((tattoo, index) => (
+              <TattooCard
+                key={tattoo.id}
+                tattoo={tattoo}
+                signedUrl={signedUrls[tattoo.image_url]}
+                index={index}
+                onImageClick={onTattooClick}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+
+      {/* Tablet: 3 columns */}
+      <div className="hidden md:grid md:grid-cols-3 lg:hidden gap-6">
+        {tabletColumns.map((column, columnIndex) => (
+          <div key={`tablet-col-${columnIndex}`} className="flex flex-col gap-6">
+            {column.map((tattoo, index) => (
+              <TattooCard
+                key={tattoo.id}
+                tattoo={tattoo}
+                signedUrl={signedUrls[tattoo.image_url]}
+                index={index}
+                onImageClick={onTattooClick}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop: 4 columns */}
+      <div className="hidden lg:grid lg:grid-cols-4 gap-8">
+        {desktopColumns.map((column, columnIndex) => (
+          <div key={`desktop-col-${columnIndex}`} className="flex flex-col gap-8">
+            {column.map((tattoo, index) => (
+              <TattooCard
+                key={tattoo.id}
+                tattoo={tattoo}
+                signedUrl={signedUrls[tattoo.image_url]}
+                index={index}
+                onImageClick={onTattooClick}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+    </>
   );
 }

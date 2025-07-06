@@ -62,7 +62,7 @@ export default function AvailabilitiesPage() {
             Availability
           </h1>
           <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">
-            Manage your schedule and time slots
+            Create custom appointment slots with flexible durations
           </p>
         </div>
         {!showAddForm && (
@@ -71,7 +71,7 @@ export default function AvailabilitiesPage() {
             className="w-full sm:w-auto flex items-center justify-center gap-2 py-2 sm:py-2"
           >
             <Plus className="w-4 h-4" />
-            <span>Add Time Slots</span>
+            <span>Add Availability Slot</span>
           </Button>
         )}
       </div>
