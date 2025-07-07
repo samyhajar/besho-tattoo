@@ -15,7 +15,10 @@ interface DesktopSidebarProps {
   links: LinkItem[];
 }
 
-export default function DesktopSidebar({ className, links }: DesktopSidebarProps) {
+export default function DesktopSidebar({
+  className,
+  links,
+}: DesktopSidebarProps) {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
 
@@ -33,15 +36,15 @@ export default function DesktopSidebar({ className, links }: DesktopSidebarProps
             <span className="text-white font-bold text-lg">B</span>
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-900">
-              Besho Studio
-            </h2>
+            <h2 className="text-xl font-bold text-gray-900">Besho Studio</h2>
             <p className="text-xs text-gray-500 mt-0.5">Admin Panel</p>
           </div>
         </div>
         {user && (
           <div className="p-3 bg-gray-50 rounded-lg">
-            <p className="text-sm font-medium text-gray-900 truncate">{user.email}</p>
+            <p className="text-sm font-medium text-gray-900 truncate">
+              {user.email}
+            </p>
             <p className="text-xs text-gray-500 mt-1">Administrator</p>
           </div>
         )}
@@ -50,6 +53,31 @@ export default function DesktopSidebar({ className, links }: DesktopSidebarProps
       {/* Navigation */}
       <nav className="flex-1 p-4">
         <div className="space-y-1">
+          {/* Website Button */}
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 rounded-lg px-3 py-4 text-base font-medium transition-all duration-200 group text-gray-700 hover:bg-gray-100 hover:text-gray-900 border border-gray-200 mb-4"
+          >
+            <span className="text-gray-400 group-hover:text-gray-600 transition-colors duration-200">
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                />
+              </svg>
+            </span>
+            Website
+          </a>
+
           {links.map((link) => {
             const active = pathname === link.href;
             return (
@@ -63,12 +91,14 @@ export default function DesktopSidebar({ className, links }: DesktopSidebarProps
                     : "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
                 )}
               >
-                <span className={clsx(
-                  "transition-colors duration-200",
-                  active
-                    ? "text-white"
-                    : "text-gray-400 group-hover:text-gray-600"
-                )}>
+                <span
+                  className={clsx(
+                    "transition-colors duration-200",
+                    active
+                      ? "text-white"
+                      : "text-gray-400 group-hover:text-gray-600",
+                  )}
+                >
                   {link.icon}
                 </span>
                 {link.label}
@@ -85,8 +115,18 @@ export default function DesktopSidebar({ className, links }: DesktopSidebarProps
           variant="secondary"
           className="w-full justify-center gap-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 border-gray-200 transition-all duration-200"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+            />
           </svg>
           Sign Out
         </Button>

@@ -16,15 +16,21 @@ interface MobileMenuProps {
   links: LinkItem[];
 }
 
-export default function MobileMenu({ isMobileMenuOpen, toggleMobileMenu, links }: MobileMenuProps) {
+export default function MobileMenu({
+  isMobileMenuOpen,
+  toggleMobileMenu,
+  links,
+}: MobileMenuProps) {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
 
   return (
-    <div className={clsx(
-      "fixed inset-0 z-50 lg:hidden transition-opacity duration-300",
-      isMobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-    )}>
+    <div
+      className={clsx(
+        "fixed inset-0 z-50 lg:hidden transition-opacity duration-300",
+        isMobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none",
+      )}
+    >
       <div
         className="fixed inset-0 bg-black/20 backdrop-blur-sm cursor-pointer"
         onClick={toggleMobileMenu}
@@ -37,10 +43,12 @@ export default function MobileMenu({ isMobileMenuOpen, toggleMobileMenu, links }
         tabIndex={0}
         aria-label="Close mobile menu"
       />
-      <div className={clsx(
-        "relative flex flex-col w-full max-w-xs h-full bg-white shadow-xl transform transition-transform duration-300 ease-in-out",
-        isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
+      <div
+        className={clsx(
+          "relative flex flex-col w-full max-w-xs h-full bg-white shadow-xl transform transition-transform duration-300 ease-in-out",
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full",
+        )}
+      >
         <div className="flex items-center gap-3 p-4 border-b border-gray-100">
           <button
             onClick={toggleMobileMenu}
@@ -80,6 +88,30 @@ export default function MobileMenu({ isMobileMenuOpen, toggleMobileMenu, links }
             </div>
           )}
           <nav className="space-y-1">
+            {/* Website Button */}
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={toggleMobileMenu}
+              className="flex items-center gap-3 rounded-lg px-3 py-4 text-base font-medium transition-all duration-200 text-gray-700 hover:bg-gray-100 hover:text-gray-900 border border-gray-200 mb-4"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                />
+              </svg>
+              Website
+            </a>
+
             {links.map((link) => {
               const active = pathname === link.href;
               return (
@@ -107,8 +139,18 @@ export default function MobileMenu({ isMobileMenuOpen, toggleMobileMenu, links }
             variant="secondary"
             className="w-full justify-center gap-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 border-gray-200 transition-all duration-200"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
             </svg>
             Sign Out
           </Button>
