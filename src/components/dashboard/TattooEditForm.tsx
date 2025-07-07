@@ -16,6 +16,7 @@ interface TattooEditFormProps {
     title: string;
     description: string;
     category: string;
+    is_public: boolean;
     image?: File;
   }) => Promise<void>;
   onCancel: () => void;
@@ -32,6 +33,7 @@ export default function TattooEditForm({
     title: tattoo.title || "",
     description: tattoo.description || "",
     category: tattoo.category || "",
+    is_public: tattoo.is_public ?? true, // Default to true if undefined
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -39,8 +41,9 @@ export default function TattooEditForm({
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    const inputValue = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
+    setFormData((prev) => ({ ...prev, [name]: inputValue }));
   };
 
   const handleCategoryChange = (value: string) => {
@@ -69,7 +72,10 @@ export default function TattooEditForm({
     }
 
     const updates = {
-      ...formData,
+      title: formData.title,
+      description: formData.description,
+      category: formData.category,
+      is_public: formData.is_public,
       ...(imageFile && { image: imageFile }),
     };
 
@@ -120,8 +126,7 @@ export default function TattooEditForm({
             onImageChange={handleImageChange}
           />
 
-          {/* Title */}
-          <div className="space-y-2">
+                    <div className="space-y-2">
             <Label htmlFor="title">Title *</Label>
             <Input
               id="title"
@@ -135,15 +140,32 @@ export default function TattooEditForm({
             />
           </div>
 
-          {/* Category */}
           <CategoryInput
             value={formData.category}
             onChange={handleCategoryChange}
             disabled={isLoading}
             placeholder="e.g., Traditional, Realistic, Geometric"
           />
+            <div className="space-y-2">
+              <Label>Visibility</Label>
+              <div className="flex items-center space-x-2">
+                <input
+                  id="is_public"
+                  type="checkbox"
+                  checked={formData.is_public}
+                  onChange={(e) => setFormData(prev => ({ ...prev, is_public: e.target.checked }))}
+                  disabled={isLoading}
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                />
+                <Label htmlFor="is_public" className="text-sm font-medium text-gray-700">
+                  Make this tattoo visible in public portfolio
+                </Label>
+              </div>
+              <p className="text-xs text-gray-500">
+                {formData.is_public ? "✅ Visible to visitors" : "🔒 Admin only"}
+              </p>
+            </div>
 
-          {/* Description */}
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
             <textarea

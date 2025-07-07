@@ -18,6 +18,7 @@ interface TattooUploadFormProps {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
   onCategoryChange: (value: string) => void;
+  onVisibilityChange: (isPublic: boolean) => void;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: () => Promise<void>;
   onCancel: () => void;
@@ -30,6 +31,7 @@ export default function TattooUploadForm({
   formData,
   onInputChange,
   onCategoryChange,
+  onVisibilityChange,
   onFileChange,
   onSubmit,
   onCancel,
@@ -113,6 +115,32 @@ export default function TattooUploadForm({
             disabled={isLoading}
             placeholder="e.g., Traditional, Realism, Geometric"
           />
+
+          {/* Visibility Toggle */}
+          <div className="space-y-2">
+            <Label>Visibility</Label>
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
+                <input
+                  id="is_public"
+                  type="checkbox"
+                  checked={formData.is_public}
+                                                      onChange={(e) => onVisibilityChange(e.target.checked)}
+                  disabled={isLoading}
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                />
+                <Label htmlFor="is_public" className="text-sm font-medium text-gray-700">
+                  Make this tattoo visible in public portfolio
+                </Label>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500">
+              {formData.is_public
+                ? "✅ This tattoo will be visible to visitors on your portfolio page"
+                : "🔒 This tattoo will only be visible in the admin dashboard"
+              }
+            </p>
+          </div>
 
           {/* Description */}
           <div className="space-y-2">

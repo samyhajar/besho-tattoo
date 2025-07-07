@@ -20,6 +20,7 @@ export default function NewTattooPage() {
     title: "",
     description: "",
     category: "",
+    is_public: true, // Default to public
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,12 +53,17 @@ export default function NewTattooPage() {
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    const inputValue = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
+    setFormData((prev) => ({ ...prev, [name]: inputValue }));
   };
 
   const handleCategoryChange = (value: string) => {
     setFormData((prev) => ({ ...prev, category: value }));
+  };
+
+  const handleVisibilityChange = (isPublic: boolean) => {
+    setFormData((prev) => ({ ...prev, is_public: isPublic }));
   };
 
   const handleSubmit = async () => {
@@ -84,6 +90,7 @@ export default function NewTattooPage() {
         description: formData.description.trim() || null,
         category: formData.category.trim() || null,
         image_url: imageUrl,
+        is_public: formData.is_public,
       });
 
       // Redirect to tattoos page
@@ -129,6 +136,7 @@ export default function NewTattooPage() {
           formData={formData}
           onInputChange={handleInputChange}
           onCategoryChange={handleCategoryChange}
+          onVisibilityChange={handleVisibilityChange}
           onFileChange={handleFileChange}
           onSubmit={handleSubmit}
           onCancel={() => router.back()}

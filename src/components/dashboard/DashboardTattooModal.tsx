@@ -17,6 +17,7 @@ interface DashboardTattooModalProps {
     title: string;
     description: string;
     category: string;
+    is_public: boolean;
     image?: File;
   }) => Promise<void>;
 }
@@ -42,6 +43,7 @@ export default function DashboardTattooModal({
     title: string;
     description: string;
     category: string;
+    is_public: boolean;
     image?: File;
   }) => {
     try {
@@ -129,11 +131,24 @@ export default function DashboardTattooModal({
                         <dd className="text-gray-900">{tattoo.category}</dd>
                       </div>
                     )}
+                    <div className="flex justify-between">
+                      <dt className="text-gray-600">Visibility:</dt>
+                      <dd className="text-gray-900">
+                        {tattoo.is_public ? (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            ✅ Public
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            🔒 Private
+                          </span>
+                        )}
+                      </dd>
+                    </div>
                   </dl>
                 </div>
 
                 <div className="pt-4 space-y-3">
-                  {/* Edit Button */}
                   <Button
                     variant="outline"
                     onClick={() => setShowEditForm(true)}
@@ -143,8 +158,6 @@ export default function DashboardTattooModal({
                     <Edit className="w-4 h-4 mr-2" />
                     Edit Tattoo
                   </Button>
-
-                  {/* Action Buttons */}
                   <div className="flex flex-col sm:flex-row gap-3">
                     <Button
                       variant="destructive"

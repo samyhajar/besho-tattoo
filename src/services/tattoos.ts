@@ -1,20 +1,36 @@
-import { createClient } from "@/lib/supabase/browser-client";
-import { Database } from "@/types/supabase";
+import { createClient } from '@/lib/supabase/browser-client';
+import { Database } from '@/types/supabase';
 
-export type Tattoo = Database["public"]["Tables"]["tattoos"]["Row"];
-export type TattooInsert = Database["public"]["Tables"]["tattoos"]["Insert"];
-export type TattooUpdate = Database["public"]["Tables"]["tattoos"]["Update"];
+export type Tattoo = Database['public']['Tables']['tattoos']['Row'];
+export type TattooInsert = Database['public']['Tables']['tattoos']['Insert'];
+export type TattooUpdate = Database['public']['Tables']['tattoos']['Update'];
 
 /**
- * Fetches all tattoo portfolio entries ordered by newest first.
- * Publicly accessible – no auth required.
+ * Fetches all public tattoo portfolio entries ordered by newest first.
+ * For public display - only returns tattoos marked as public.
  */
 export async function fetchTattoos(): Promise<Tattoo[]> {
   const supabase = createClient();
   const { data, error } = await supabase
-    .from("tattoos")
-    .select("*")
-    .order("created_at", { ascending: false });
+    .from('tattoos')
+    .select('*')
+    .eq('is_public', true)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data as Tattoo[];
+}
+
+/**
+ * Fetches all tattoo entries (public and private) for admin use.
+ * Requires admin authentication.
+ */
+export async function fetchAllTattoos(): Promise<Tattoo[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('tattoos')
+    .select('*')
+    .order('created_at', { ascending: false });
 
   if (error) throw error;
   return data as Tattoo[];
@@ -26,12 +42,12 @@ export async function fetchTattoos(): Promise<Tattoo[]> {
 export async function fetchTattoo(id: string): Promise<Tattoo | null> {
   const supabase = createClient();
   const { data, error } = await supabase
-    .from("tattoos")
-    .select("*")
-    .eq("id", id)
+    .from('tattoos')
+    .select('*')
+    .eq('id', id)
     .single();
 
-  if (error && error.code !== "PGRST116") throw error; // not-found falls through
+  if (error && error.code !== 'PGRST116') throw error; // not-found falls through
   return data as Tattoo | null;
 }
 
@@ -43,15 +59,15 @@ export async function uploadTattooImage(file: File): Promise<string> {
   const supabase = createClient();
 
   // Generate unique filename with timestamp
-  const fileExt = file.name.split(".").pop();
+  const fileExt = file.name.split('.').pop();
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
   const filePath = fileName; // Store directly in tattoos bucket
 
   // Upload file to storage
   const { data: _uploadData, error: uploadError } = await supabase.storage
-    .from("tattoos")
+    .from('tattoos')
     .upload(filePath, file, {
-      cacheControl: "3600",
+      cacheControl: '3600',
       upsert: false,
     });
 
@@ -69,7 +85,7 @@ export async function getTattooImageUrl(imagePath: string): Promise<string> {
   const supabase = createClient();
 
   const { data, error } = await supabase.storage
-    .from("tattoos")
+    .from('tattoos')
     .createSignedUrl(imagePath, 3600); // 1 hour expiry
 
   if (error) throw error;
@@ -95,14 +111,14 @@ export async function getTattooImageUrls(
     const promises = batch.map(async (path) => {
       try {
         const { data, error } = await supabase.storage
-          .from("tattoos")
+          .from('tattoos')
           .createSignedUrl(path, 3600);
 
         if (error) throw error;
         return { path, url: data.signedUrl };
       } catch (error) {
         console.warn(`Failed to generate signed URL for ${path}:`, error);
-        return { path, url: "" };
+        return { path, url: '' };
       }
     });
 
@@ -120,12 +136,12 @@ export async function getTattooImageUrls(
  * Requires admin authentication.
  */
 export async function createTattoo(
-  tattoo: Omit<TattooInsert, "id" | "created_at">,
+  tattoo: Omit<TattooInsert, 'id' | 'created_at'>,
 ): Promise<Tattoo> {
   const supabase = createClient();
 
   const { data, error } = await supabase
-    .from("tattoos")
+    .from('tattoos')
     .insert(tattoo)
     .select()
     .single();
@@ -145,9 +161,9 @@ export async function updateTattoo(
   const supabase = createClient();
 
   const { data, error } = await supabase
-    .from("tattoos")
+    .from('tattoos')
     .update(updates)
-    .eq("id", id)
+    .eq('id', id)
     .select()
     .single();
 
@@ -164,13 +180,13 @@ export async function deleteTattoo(id: string): Promise<void> {
 
   // First get the tattoo to extract image path
   const tattoo = await fetchTattoo(id);
-  if (!tattoo) throw new Error("Tattoo not found");
+  if (!tattoo) throw new Error('Tattoo not found');
 
   // Delete from database
   const { error: deleteError } = await supabase
-    .from("tattoos")
+    .from('tattoos')
     .delete()
-    .eq("id", id);
+    .eq('id', id);
 
   if (deleteError) throw deleteError;
 
@@ -178,10 +194,10 @@ export async function deleteTattoo(id: string): Promise<void> {
   if (tattoo.image_url) {
     try {
       // The image_url now contains just the file path, not a full URL
-      await supabase.storage.from("tattoos").remove([tattoo.image_url]);
+      await supabase.storage.from('tattoos').remove([tattoo.image_url]);
     } catch (error) {
       // Log but don't throw - image deletion is not critical
-      console.warn("Failed to delete image from storage:", error);
+      console.warn('Failed to delete image from storage:', error);
     }
   }
 }
@@ -193,8 +209,8 @@ export async function getTattooStats() {
   const supabase = createClient();
 
   const { data, error } = await supabase
-    .from("tattoos")
-    .select("id, category, created_at");
+    .from('tattoos')
+    .select('id, category, created_at');
 
   if (error) throw error;
 
@@ -220,10 +236,10 @@ export async function getExistingCategories(): Promise<string[]> {
   const supabase = createClient();
 
   const { data, error } = await supabase
-    .from("tattoos")
-    .select("category")
-    .not("category", "is", null)
-    .not("category", "eq", "");
+    .from('tattoos')
+    .select('category')
+    .not('category', 'is', null)
+    .not('category', 'eq', '');
 
   if (error) throw error;
 
@@ -242,10 +258,10 @@ export async function getActiveCategories(): Promise<string[]> {
   const supabase = createClient();
 
   const { data, error } = await supabase
-    .from("tattoos")
-    .select("category")
-    .not("category", "is", null)
-    .not("category", "eq", "");
+    .from('tattoos')
+    .select('category')
+    .not('category', 'is', null)
+    .not('category', 'eq', '');
 
   if (error) throw error;
 

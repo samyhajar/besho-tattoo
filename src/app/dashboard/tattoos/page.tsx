@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import BackButton from "@/components/ui/BackButton";
 import {
-  fetchTattoos,
+  fetchAllTattoos,
   getTattooStats,
   deleteTattoo,
   getTattooImageUrls,
@@ -37,7 +37,7 @@ export default function TattoosPage() {
     try {
       setIsLoading(true);
       const [tattoosData, statsData] = await Promise.all([
-        fetchTattoos(),
+        fetchAllTattoos(),
         getTattooStats()
       ]);
       setTattoos(tattoosData);
@@ -80,6 +80,7 @@ export default function TattoosPage() {
     title: string;
     description: string;
     category: string;
+    is_public: boolean;
     image?: File;
   }) => {
     try {
@@ -95,6 +96,7 @@ export default function TattoosPage() {
         title: updates.title,
         description: updates.description,
         category: updates.category,
+        is_public: updates.is_public,
         image_url: imageUrl
       });
 
