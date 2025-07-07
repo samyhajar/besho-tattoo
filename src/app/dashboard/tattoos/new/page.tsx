@@ -26,14 +26,14 @@ export default function NewTattooPage() {
     const file = e.target.files?.[0];
     if (file) {
       // Validate file type
-      if (!file.type.startsWith('image/')) {
-        setError('Please select a valid image file.');
+      if (!file.type.startsWith("image/")) {
+        setError("Please select a valid image file.");
         return;
       }
 
       // Validate file size (max 10MB)
       if (file.size > 10 * 1024 * 1024) {
-        setError('File size must be less than 10MB.');
+        setError("File size must be less than 10MB.");
         return;
       }
 
@@ -49,19 +49,25 @@ export default function NewTattooPage() {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCategoryChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, category: value }));
   };
 
   const handleSubmit = async () => {
     if (!selectedFile) {
-      setError('Please select an image.');
+      setError("Please select an image.");
       return;
     }
 
     if (!formData.title.trim()) {
-      setError('Please enter a title.');
+      setError("Please enter a title.");
       return;
     }
 
@@ -81,10 +87,14 @@ export default function NewTattooPage() {
       });
 
       // Redirect to tattoos page
-      router.push('/dashboard/tattoos');
+      router.push("/dashboard/tattoos");
     } catch (err) {
-      console.error('Error creating tattoo:', err);
-      setError(err instanceof Error ? err.message : 'Failed to create tattoo. Please try again.');
+      console.error("Error creating tattoo:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to create tattoo. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -98,8 +108,12 @@ export default function NewTattooPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Add New Tattoo</h1>
-          <p className="text-gray-600 mt-2">Upload a new piece to your portfolio</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            Add New Tattoo
+          </h1>
+          <p className="text-gray-600 mt-2">
+            Upload a new piece to your portfolio
+          </p>
         </div>
         <Button
           variant="ghost"
@@ -114,6 +128,7 @@ export default function NewTattooPage() {
         <TattooUploadForm
           formData={formData}
           onInputChange={handleInputChange}
+          onCategoryChange={handleCategoryChange}
           onFileChange={handleFileChange}
           onSubmit={handleSubmit}
           onCancel={() => router.back()}
@@ -121,10 +136,7 @@ export default function NewTattooPage() {
           error={error}
           isLoading={isLoading}
         />
-        <TattooPreview
-          imagePreview={imagePreview}
-          formData={formData}
-        />
+        <TattooPreview imagePreview={imagePreview} formData={formData} />
       </div>
     </div>
   );

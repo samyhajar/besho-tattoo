@@ -1,13 +1,23 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
+import CategoryInput from "@/components/ui/CategoryInput";
 import type { TattooFormData } from "@/types/tattoo";
 
 interface TattooUploadFormProps {
   formData: TattooFormData;
-  onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onInputChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => void;
+  onCategoryChange: (value: string) => void;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: () => Promise<void>;
   onCancel: () => void;
@@ -19,29 +29,31 @@ interface TattooUploadFormProps {
 export default function TattooUploadForm({
   formData,
   onInputChange,
+  onCategoryChange,
   onFileChange,
   onSubmit,
   onCancel,
   selectedFile,
   error,
-  isLoading
+  isLoading,
 }: TattooUploadFormProps) {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Tattoo Details</CardTitle>
-        <CardDescription>Fill in the information about your tattoo</CardDescription>
+        <CardDescription>
+          Fill in the information about your tattoo
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={(e) => {
-          e.preventDefault();
-          void onSubmit();
-        }} className="space-y-6">
-          {error && (
-            <Alert variant="destructive">
-              {error}
-            </Alert>
-          )}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void onSubmit();
+          }}
+          className="space-y-6"
+        >
+          {error && <Alert variant="destructive">{error}</Alert>}
 
           {/* Image Upload */}
           <div className="space-y-2">
@@ -72,7 +84,7 @@ export default function TattooUploadForm({
                   />
                 </svg>
                 <span className="text-sm text-gray-600">
-                  {selectedFile ? selectedFile.name : 'Click to upload image'}
+                  {selectedFile ? selectedFile.name : "Click to upload image"}
                 </span>
                 <span className="text-xs text-gray-500">
                   PNG, JPG, GIF up to 10MB
@@ -95,16 +107,12 @@ export default function TattooUploadForm({
           </div>
 
           {/* Category */}
-          <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
-            <Input
-              id="category"
-              name="category"
-              value={formData.category}
-              onChange={onInputChange}
-              placeholder="e.g., Traditional, Realism, Geometric"
-            />
-          </div>
+          <CategoryInput
+            value={formData.category}
+            onChange={onCategoryChange}
+            disabled={isLoading}
+            placeholder="e.g., Traditional, Realism, Geometric"
+          />
 
           {/* Description */}
           <div className="space-y-2">
@@ -133,7 +141,7 @@ export default function TattooUploadForm({
                   Uploading...
                 </>
               ) : (
-                'Add to Portfolio'
+                "Add to Portfolio"
               )}
             </Button>
             <Button
