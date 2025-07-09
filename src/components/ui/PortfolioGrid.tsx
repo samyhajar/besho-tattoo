@@ -1,5 +1,5 @@
-import TattooCard from './TattooCard';
-import type { Tattoo } from '@/types/tattoo';
+import TattooCard from "./TattooCard";
+import type { Tattoo } from "@/types/tattoo";
 
 interface PortfolioGridProps {
   tattoos: Tattoo[];
@@ -7,17 +7,33 @@ interface PortfolioGridProps {
   onTattooClick: (tattoo: Tattoo) => void;
 }
 
-export default function PortfolioGrid({ tattoos, signedUrls, onTattooClick }: PortfolioGridProps) {
+export default function PortfolioGrid({
+  tattoos,
+  signedUrls,
+  onTattooClick,
+}: PortfolioGridProps) {
   if (tattoos.length === 0) {
     return (
       <div className="text-center py-20">
-        <div className="w-24 h-24 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
-          <svg className="w-12 h-12 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        <div className="w-24 h-24 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-gray-200">
+          <svg
+            className="w-12 h-12 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+            />
           </svg>
         </div>
-        <h3 className="text-2xl font-bold text-white mb-2">No tattoos found</h3>
-        <p className="text-white/60">Check back soon for new artwork!</p>
+        <h3 className="text-2xl font-light text-black mb-2 tracking-wide">
+          No tattoos found
+        </h3>
+        <p className="text-gray-600">Check back soon for new artwork!</p>
       </div>
     );
   }
@@ -44,7 +60,10 @@ export default function PortfolioGrid({ tattoos, signedUrls, onTattooClick }: Po
       {/* Mobile: 2 columns */}
       <div className="grid grid-cols-2 gap-4 md:hidden">
         {mobileColumns.map((column, columnIndex) => (
-          <div key={`mobile-col-${columnIndex}`} className="flex flex-col gap-4">
+          <div
+            key={`mobile-col-${columnIndex}`}
+            className="flex flex-col gap-4"
+          >
             {column.map((tattoo, index) => (
               <TattooCard
                 key={tattoo.id}
@@ -61,7 +80,10 @@ export default function PortfolioGrid({ tattoos, signedUrls, onTattooClick }: Po
       {/* Tablet: 3 columns */}
       <div className="hidden md:grid md:grid-cols-3 lg:hidden gap-6">
         {tabletColumns.map((column, columnIndex) => (
-          <div key={`tablet-col-${columnIndex}`} className="flex flex-col gap-6">
+          <div
+            key={`tablet-col-${columnIndex}`}
+            className="flex flex-col gap-6"
+          >
             {column.map((tattoo, index) => (
               <TattooCard
                 key={tattoo.id}
@@ -78,7 +100,10 @@ export default function PortfolioGrid({ tattoos, signedUrls, onTattooClick }: Po
       {/* Desktop: 4 columns */}
       <div className="hidden lg:grid lg:grid-cols-4 gap-8">
         {desktopColumns.map((column, columnIndex) => (
-          <div key={`desktop-col-${columnIndex}`} className="flex flex-col gap-8">
+          <div
+            key={`desktop-col-${columnIndex}`}
+            className="flex flex-col gap-8"
+          >
             {column.map((tattoo, index) => (
               <TattooCard
                 key={tattoo.id}

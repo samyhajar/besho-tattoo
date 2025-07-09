@@ -54,7 +54,7 @@ export default function RecentWorkGrid() {
         {Array.from({ length: 8 }, (_, i) => (
           <div
             key={i}
-            className="aspect-square bg-gray-800 rounded-xl animate-pulse"
+            className="aspect-square bg-gray-200 rounded-xl animate-pulse"
           />
         ))}
       </div>
@@ -67,10 +67,10 @@ export default function RecentWorkGrid() {
         {Array.from({ length: 8 }, (_, i) => (
           <div
             key={i}
-            className="aspect-square bg-gray-800 rounded-xl flex items-center justify-center"
+            className="aspect-square bg-gray-100 rounded-xl flex items-center justify-center border border-gray-200"
           >
             <div className="text-center">
-              <Palette className="w-8 h-8 text-gray-500 mx-auto mb-2" />
+              <Palette className="w-8 h-8 text-gray-400 mx-auto mb-2" />
               <p className="text-xs text-gray-500">Loading...</p>
             </div>
           </div>
@@ -91,7 +91,7 @@ export default function RecentWorkGrid() {
           <Link
             key={tattoo.id}
             href="/portfolio"
-            className="aspect-square bg-gray-800 rounded-xl overflow-hidden hover:ring-2 hover:ring-white/20 transition-all duration-200 group"
+            className="aspect-square bg-gray-100 rounded-xl overflow-hidden hover:ring-2 hover:ring-black/20 transition-all duration-200 group border border-gray-200"
           >
             {imageUrl ? (
               <div className="relative w-full h-full">
@@ -105,9 +105,9 @@ export default function RecentWorkGrid() {
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200" />
               </div>
             ) : (
-              <div className="w-full h-full flex items-center justify-center hover:bg-gray-700 transition-colors">
+              <div className="w-full h-full flex items-center justify-center hover:bg-gray-200 transition-colors">
                 <div className="text-center">
-                  <Palette className="w-8 h-8 text-gray-500 mx-auto mb-2" />
+                  <Palette className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                   <p className="text-xs text-gray-500">Image</p>
                 </div>
               </div>

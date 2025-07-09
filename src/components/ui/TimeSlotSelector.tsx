@@ -33,13 +33,13 @@ export default function TimeSlotSelector({
   };
 
   return (
-    <Card className="w-full bg-gray-800 border-gray-700">
+    <Card className="w-full bg-white border-gray-200">
       <CardHeader className="pb-3 sm:pb-4">
-        <CardTitle className="flex items-center gap-2 text-lg sm:text-xl text-white">
+        <CardTitle className="flex items-center gap-2 text-lg sm:text-xl text-black">
           <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
           {selectedDate ? "Available Times" : "Select a Date"}
         </CardTitle>
-        <CardDescription className="text-sm text-gray-300">
+        <CardDescription className="text-sm text-gray-600">
           {selectedDate
             ? "Choose your preferred time slot"
             : "Click on a date with available slots"}
@@ -49,8 +49,8 @@ export default function TimeSlotSelector({
         {selectedDate ? (
           <div className="space-y-4 sm:space-y-6">
             {/* Selected Date Display */}
-            <div className="p-3 sm:p-4 bg-gray-700 rounded-lg border border-gray-600">
-              <div className="font-medium text-white text-sm sm:text-base">
+            <div className="p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="font-medium text-black text-sm sm:text-base">
                 {new Date(selectedDate).toLocaleDateString("en-US", {
                   weekday: "long",
                   year: "numeric",
@@ -62,7 +62,7 @@ export default function TimeSlotSelector({
 
             {/* Time Slots */}
             <div className="space-y-3 sm:space-y-4">
-              <h4 className="font-medium text-white text-sm sm:text-base">
+              <h4 className="font-medium text-black text-sm sm:text-base">
                 Available Time Slots:
               </h4>
               <div className="grid gap-2 sm:gap-3">
@@ -74,11 +74,11 @@ export default function TimeSlotSelector({
                       onClick={() => onSlotSelect(slot)}
                       className={`
                         w-full p-3 sm:p-4 text-left rounded-lg border transition-all duration-200
-                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800
+                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white
                         ${
                           selectedSlot?.id === slot.id
-                            ? "border-green-400 bg-green-900/30 text-white ring-2 ring-green-400 ring-offset-2 ring-offset-gray-800"
-                            : "border-gray-600 hover:border-gray-500 hover:bg-gray-700 active:bg-gray-600 focus:ring-blue-400"
+                            ? "border-green-500 bg-green-50 text-black ring-2 ring-green-500 ring-offset-2 ring-offset-white"
+                            : "border-gray-200 hover:border-gray-300 hover:bg-gray-50 active:bg-gray-100 focus:ring-blue-400"
                         }
                       `}
                     >
@@ -87,8 +87,8 @@ export default function TimeSlotSelector({
                           <div
                             className={`font-medium text-sm sm:text-base ${
                               selectedSlot?.id === slot.id
-                                ? "text-white"
-                                : "text-white"
+                                ? "text-black"
+                                : "text-black"
                             }`}
                           >
                             {formatTime(slot.time_start)} -{" "}
@@ -97,8 +97,8 @@ export default function TimeSlotSelector({
                           <div
                             className={`text-xs sm:text-sm mt-1 ${
                               selectedSlot?.id === slot.id
-                                ? "text-gray-300"
-                                : "text-gray-400"
+                                ? "text-gray-600"
+                                : "text-gray-500"
                             }`}
                           >
                             {(() => {
@@ -116,8 +116,8 @@ export default function TimeSlotSelector({
                           </div>
                         </div>
                         {selectedSlot?.id === slot.id && (
-                          <div className="ml-3 p-1 bg-green-400/20 rounded-full">
-                            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                          <div className="ml-3 p-1 bg-green-500/20 rounded-full">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                           </div>
                         )}
                       </div>
@@ -128,12 +128,12 @@ export default function TimeSlotSelector({
 
             {/* Booking Action */}
             {selectedSlot && (
-              <div className="pt-4 sm:pt-6 border-t border-gray-600 space-y-3 sm:space-y-4">
-                <div className="p-3 sm:p-4 bg-gray-700 rounded-lg">
-                  <h4 className="font-medium text-white text-sm sm:text-base">
+              <div className="pt-4 sm:pt-6 border-t border-gray-200 space-y-3 sm:space-y-4">
+                <div className="p-3 sm:p-4 bg-gray-50 rounded-lg">
+                  <h4 className="font-medium text-black text-sm sm:text-base">
                     Ready to book?
                   </h4>
-                  <p className="text-xs sm:text-sm text-gray-300 mt-1">
+                  <p className="text-xs sm:text-sm text-gray-600 mt-1">
                     Click below to provide your contact information and any
                     reference images.
                   </p>
@@ -152,11 +152,11 @@ export default function TimeSlotSelector({
         ) : (
           /* No Date Selected State */
           <div className="text-center py-8 sm:py-12">
-            <Clock className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 text-gray-500" />
-            <h3 className="text-base sm:text-lg font-medium text-white mb-2">
+            <Clock className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 text-gray-400" />
+            <h3 className="text-base sm:text-lg font-medium text-black mb-2">
               Select a Date First
             </h3>
-            <p className="text-sm sm:text-base text-gray-300 max-w-sm mx-auto">
+            <p className="text-sm sm:text-base text-gray-600 max-w-sm mx-auto">
               Choose an available date from the calendar above to see available
               time slots.
             </p>
