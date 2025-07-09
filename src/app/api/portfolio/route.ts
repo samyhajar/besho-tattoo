@@ -7,6 +7,7 @@ type Tattoo = {
   description: string | null;
   category: string | null;
   image_url: string;
+  is_public: boolean;
   created_at: string;
 };
 
@@ -14,10 +15,11 @@ export async function GET() {
   try {
     const supabase = await createClient();
 
-    // Fetch tattoos - this should work without authentication since tattoos are public
+    // Fetch only public tattoos for portfolio display
     const { data: tattoos, error: tattoosError } = await supabase
       .from('tattoos')
       .select('*')
+      .eq('is_public', true)
       .order('created_at', { ascending: false });
 
     if (tattoosError) {
