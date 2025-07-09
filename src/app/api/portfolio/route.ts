@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server-client';
+import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server-client";
 
 type Tattoo = {
   id: string;
@@ -17,15 +17,15 @@ export async function GET() {
 
     // Fetch only public tattoos for portfolio display
     const { data: tattoos, error: tattoosError } = await supabase
-      .from('tattoos')
-      .select('*')
-      .eq('is_public', true)
-      .order('created_at', { ascending: false });
+      .from("tattoos")
+      .select("*")
+      .eq("is_public", true)
+      .order("created_at", { ascending: false });
 
     if (tattoosError) {
-      console.error('Error fetching tattoos:', tattoosError);
+      console.error("Error fetching tattoos:", tattoosError);
       return NextResponse.json(
-        { error: 'Failed to fetch tattoos', details: tattoosError.message },
+        { error: "Failed to fetch tattoos", details: tattoosError.message },
         { status: 500 },
       );
     }
@@ -42,7 +42,7 @@ export async function GET() {
       const signedUrlPromises = imagePaths.map(async (path) => {
         try {
           const { data, error } = await supabase.storage
-            .from('tattoos')
+            .from("tattoos")
             .createSignedUrl(path, 7200); // 2 hours expiry for better caching
 
           if (error) {
@@ -62,7 +62,7 @@ export async function GET() {
 
       // Process results and only include successful ones
       results.forEach((result) => {
-        if (result.status === 'fulfilled' && result.value.signedUrl) {
+        if (result.status === "fulfilled" && result.value.signedUrl) {
           signedUrls[result.value.path] = result.value.signedUrl;
         }
       });
@@ -73,19 +73,19 @@ export async function GET() {
       signedUrls,
     });
 
-    // Add caching headers for better performance
+    // Add minimal caching to allow quick updates when tattoos change visibility
     response.headers.set(
-      'Cache-Control',
-      'public, s-maxage=300, stale-while-revalidate=60',
+      "Cache-Control",
+      "public, s-maxage=30, stale-while-revalidate=10",
     );
 
     return response;
   } catch (error) {
-    console.error('API Error:', error);
+    console.error("API Error:", error);
     return NextResponse.json(
       {
-        error: 'Internal server error',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 },
     );

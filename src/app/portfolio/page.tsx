@@ -26,9 +26,9 @@ export default function PortfolioPage() {
       setError(null);
 
       const response = await fetch("/api/portfolio", {
-        // Remove no-store to allow caching for better performance
+        // Minimal caching to allow quick updates when tattoos change visibility
         headers: {
-          'Cache-Control': 'max-age=300', // Cache for 5 minutes
+          "Cache-Control": "max-age=30", // Cache for 30 seconds only
         },
       });
 
@@ -51,7 +51,7 @@ export default function PortfolioPage() {
       setSignedUrls(data.signedUrls || {});
     } catch (err) {
       console.error("Error loading tattoos:", err);
-      setError(err instanceof Error ? err.message : 'Failed to load portfolio');
+      setError(err instanceof Error ? err.message : "Failed to load portfolio");
       // Set empty data on error to prevent crashes
       setTattoos([]);
       setSignedUrls({});
@@ -91,11 +91,23 @@ export default function PortfolioPage() {
         <div className="flex items-center justify-center min-h-[calc(100vh-120px)]">
           <div className="text-center">
             <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              <svg
+                className="w-8 h-8 text-red-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 16.5c-.77.833.192 2.5 1.732 2.5z"
+                />
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-white mb-2">Unable to Load Portfolio</h2>
+            <h2 className="text-xl font-semibold text-white mb-2">
+              Unable to Load Portfolio
+            </h2>
             <p className="text-white/60 mb-6">{error}</p>
             <button
               onClick={() => void loadTattoos()}
