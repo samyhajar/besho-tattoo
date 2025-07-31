@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/Card";
 import { Clock, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/browser-client";
+import { parseLocalDate } from "@/lib/utils";
 import type { Availability } from "@/services/appointments";
 
 interface AvailabilityListProps {
@@ -48,7 +49,9 @@ export default function AvailabilityList({
   };
 
   const formatDate = (dateStr: string): string => {
-    return new Date(dateStr).toLocaleDateString("en-US", {
+    // Parse date in local timezone to avoid UTC conversion issues
+    const date = parseLocalDate(dateStr);
+    return date.toLocaleDateString("en-US", {
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -56,9 +59,13 @@ export default function AvailabilityList({
     });
   };
 
-  const upcomingAvailabilities = availabilities.filter(
-    (slot) => new Date(slot.date) >= new Date(),
-  );
+  const upcomingAvailabilities = availabilities.filter((slot) => {
+    // Parse date in local timezone for proper comparison
+    const slotDate = parseLocalDate(slot.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to start of day for comparison
+    return slotDate >= today;
+  });
 
   if (availabilities.length === 0) {
     return (

@@ -1,4 +1,5 @@
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import { parseLocalDate } from "@/lib/utils";
 import type { Availability } from "@/services/appointments";
 
 interface BookingFormHeaderProps {
@@ -24,7 +25,7 @@ export default function BookingFormHeader({
       <CardDescription className="text-sm sm:text-base">
         Fill in your details to confirm your appointment for{" "}
         <span className="font-medium text-gray-900">
-          {new Date(selectedSlot.date).toLocaleDateString("en-US", {
+          {parseLocalDate(selectedSlot.date).toLocaleDateString("en-US", {
             weekday: "long",
             year: "numeric",
             month: "long",

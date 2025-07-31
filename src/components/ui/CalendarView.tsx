@@ -6,6 +6,7 @@ import {
   CardHeader,
 } from "@/components/ui/Card";
 import { Alert, AlertDescription } from "@/components/ui/Alert";
+import { formatLocalDateString } from "@/lib/utils";
 import CalendarHeader from "./CalendarHeader";
 import CalendarGrid from "./CalendarGrid";
 import type { Availability } from "@/services/appointments";
@@ -64,7 +65,7 @@ export default function CalendarView({
       date <= endDate;
       date.setDate(date.getDate() + 1)
     ) {
-      const dateStr = date.toISOString().split("T")[0];
+      const dateStr = formatLocalDateString(date);
       const slots = availableSlots.filter((slot) => slot.date === dateStr);
 
       const dayDate = new Date(date);

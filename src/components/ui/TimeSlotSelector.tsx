@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import { Clock, ArrowRight } from "lucide-react";
+import { parseLocalDate } from "@/lib/utils";
 import type { Availability } from "@/services/appointments";
 
 interface TimeSlotSelectorProps {
@@ -51,7 +52,7 @@ export default function TimeSlotSelector({
             {/* Selected Date Display */}
             <div className="p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
               <div className="font-medium text-black text-sm sm:text-base">
-                {new Date(selectedDate).toLocaleDateString("en-US", {
+                {parseLocalDate(selectedDate).toLocaleDateString("en-US", {
                   weekday: "long",
                   year: "numeric",
                   month: "long",

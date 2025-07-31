@@ -6,6 +6,7 @@ import CalendarView from "@/components/ui/CalendarView";
 import TimeSlotSelector from "@/components/ui/TimeSlotSelector";
 import Footer from "@/components/shared/Footer";
 import Header from "@/components/shared/Header";
+import { formatLocalDateString } from "@/lib/utils";
 import { fetchAvailableSlots } from "@/services/appointments";
 import type { Availability } from "@/services/appointments";
 
@@ -28,8 +29,8 @@ export default function BookPage() {
       const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
       const slots = await fetchAvailableSlots(
-        startDate.toISOString().split("T")[0],
-        endDate.toISOString().split("T")[0],
+        formatLocalDateString(startDate),
+        formatLocalDateString(endDate),
       );
 
       setAvailableSlots(slots);

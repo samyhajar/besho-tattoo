@@ -1,3 +1,4 @@
+import { parseLocalDate } from "@/lib/utils";
 import type { Availability } from "@/services/appointments";
 
 interface AppointmentSummaryProps {
@@ -25,7 +26,7 @@ export default function AppointmentSummary({
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Date:</span>
             <span className="font-medium text-blue-900">
-              {new Date(selectedSlot.date).toLocaleDateString("en-US", {
+              {parseLocalDate(selectedSlot.date).toLocaleDateString("en-US", {
                 weekday: "long",
                 month: "long",
                 day: "numeric",

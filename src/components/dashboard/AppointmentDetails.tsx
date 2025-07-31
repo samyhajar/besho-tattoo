@@ -8,6 +8,7 @@ import {
   MessageSquare,
   Video,
 } from "lucide-react";
+import { parseLocalDate } from "@/lib/utils";
 import type { Appointment } from "@/services/appointments";
 import GoogleMeetButton from "./GoogleMeetButton";
 
@@ -19,7 +20,9 @@ export default function AppointmentDetails({
   appointment,
 }: AppointmentDetailsProps) {
   const formatDate = (dateStr: string): string => {
-    return new Date(dateStr).toLocaleDateString("en-US", {
+    // Parse date in local timezone to avoid UTC conversion issues
+    const date = parseLocalDate(dateStr);
+    return date.toLocaleDateString("en-US", {
       weekday: "long",
       year: "numeric",
       month: "long",

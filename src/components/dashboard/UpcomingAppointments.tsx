@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import { Calendar, Clock, RefreshCw } from "lucide-react";
+import { parseLocalDate } from "@/lib/utils";
 import type { Appointment } from "@/services/appointments";
 
 interface UpcomingAppointmentsProps {
@@ -23,7 +24,9 @@ export default function UpcomingAppointments({
   loading,
 }: UpcomingAppointmentsProps) {
   const formatDate = (dateStr: string): string => {
-    return new Date(dateStr).toLocaleDateString("en-US", {
+    // Parse date in local timezone to avoid UTC conversion issues
+    const date = parseLocalDate(dateStr);
+    return date.toLocaleDateString("en-US", {
       weekday: "short",
       month: "short",
       day: "numeric",
@@ -54,11 +57,18 @@ export default function UpcomingAppointments({
   };
 
   const today = new Date();
+  today.setHours(0, 0, 0, 0); // Reset time to start of day for comparison
   const upcomingAppointments = appointments
-    .filter((apt) => new Date(apt.date) >= today)
+    .filter((apt) => {
+      // Parse date in local timezone for proper comparison
+      const aptDate = parseLocalDate(apt.date);
+      return aptDate >= today;
+    })
     .sort((a, b) => {
-      const dateCompare =
-        new Date(a.date).getTime() - new Date(b.date).getTime();
+      // Parse dates in local timezone for proper comparison
+      const dateA = parseLocalDate(a.date);
+      const dateB = parseLocalDate(b.date);
+      const dateCompare = dateA.getTime() - dateB.getTime();
       if (dateCompare !== 0) return dateCompare;
       return a.time_start.localeCompare(b.time_start);
     })

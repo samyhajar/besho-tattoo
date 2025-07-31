@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
+import { parseLocalDate, parseLocalDateTime } from "@/lib/utils";
 import {
   fetchAllAppointments,
   type Appointment,
@@ -50,15 +51,13 @@ export default function RecentAppointments() {
   }, []);
 
   const formatAppointmentTime = (date: string, timeStart: string) => {
-    const appointmentDate = new Date(`${date}T${timeStart}`);
+    // Parse date and time in local timezone to avoid UTC conversion issues
+    const appointmentDate = parseLocalDateTime(date, timeStart);
+    const aptDay = parseLocalDate(date);
+
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
-    const aptDay = new Date(
-      appointmentDate.getFullYear(),
-      appointmentDate.getMonth(),
-      appointmentDate.getDate(),
-    );
 
     let dateStr = "";
     if (aptDay.getTime() === today.getTime()) {
