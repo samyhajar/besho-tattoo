@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
@@ -10,23 +11,87 @@ const categories = [
     title: "Tattoos",
     href: "/portfolio/tattoos",
     description: "Explore our collection of custom tattoo work",
+    categoryKey: "tattoo", // This should match the category in your database
   },
   {
     id: "designs",
     title: "Designs & Concepts",
     href: "/portfolio/designs",
     description: "Original artwork and design concepts",
+    categoryKey: "design", // This should match the category in your database
   },
   {
     id: "art",
     title: "Art & Graffiti",
     href: "/portfolio/art",
     description: "Street art and creative expressions",
+    categoryKey: "art", // This should match the category in your database
   },
 ];
 
 export default function PortfolioLandingPage() {
   const router = useRouter();
+  const [categoryImages, setCategoryImages] = useState<Record<string, string>>(
+    {},
+  );
+
+  useEffect(() => {
+    // Fetch the latest image for each category
+    const fetchLatestImages = async () => {
+      try {
+        const response = await fetch("/api/portfolio");
+        if (response.ok) {
+          const data = (await response.json()) as {
+            tattoos: Array<{
+              image_url: string;
+              created_at: string;
+              category: string | null;
+            }>;
+            signedUrls: Record<string, string>;
+          };
+
+          const latestByCategory: Record<string, string> = {};
+
+          // Group tattoos by category and find the latest for each
+          if (data.tattoos.length > 0) {
+            // Since tattoos are already ordered by created_at desc, we just need the first one of each category
+            const seenCategories = new Set<string>();
+
+            data.tattoos.forEach((tattoo) => {
+              const category =
+                tattoo.category?.toLowerCase() || "uncategorized";
+              if (!seenCategories.has(category)) {
+                const signedUrl = data.signedUrls[tattoo.image_url];
+                if (signedUrl) {
+                  latestByCategory[category] = signedUrl;
+                  seenCategories.add(category);
+                }
+              }
+            });
+
+            // Also try to match any general images to categories if specific ones aren't found
+            if (data.tattoos.length > 0) {
+              const fallbackImage = data.signedUrls[data.tattoos[0].image_url];
+              if (fallbackImage) {
+                // Use the latest image as fallback for any missing categories
+                ["tattoo", "design", "art"].forEach((cat) => {
+                  if (!latestByCategory[cat]) {
+                    latestByCategory[cat] = fallbackImage;
+                  }
+                });
+              }
+            }
+          }
+
+          setCategoryImages(latestByCategory);
+        }
+      } catch (error) {
+        console.error("Failed to fetch latest images:", error);
+      }
+    };
+
+    void fetchLatestImages();
+  }, []);
 
   const handleCategoryClick = (href: string) => {
     router.push(href);
@@ -48,19 +113,26 @@ export default function PortfolioLandingPage() {
                 type="button"
               >
                 <div className="relative overflow-hidden rounded-2xl bg-gray-50 aspect-[4/5] transition-all duration-500 group-hover:scale-105 group-hover:shadow-2xl">
-                  {/* Background Image Placeholder */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200" />
+                  {/* Background Image with Blur */}
+                  <div
+                    className="absolute inset-0 bg-cover bg-center filter blur-[1px] scale-110"
+                    style={{
+                      backgroundImage: categoryImages[category.categoryKey]
+                        ? `url('${categoryImages[category.categoryKey]}')`
+                        : "url('/Liberte_black_last.svg')",
+                    }}
+                  />
 
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-all duration-300" />
+                  {/* Overlay for better text readability */}
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-300" />
 
                   {/* Content */}
                   <div className="absolute inset-0 flex items-center justify-center p-8">
                     <div className="text-center">
-                      <h2 className="text-2xl lg:text-3xl font-light text-black mb-3 tracking-wide">
+                      <h2 className="text-2xl lg:text-3xl font-light text-white mb-3 tracking-wide drop-shadow-lg">
                         {category.title}
                       </h2>
-                      <div className="w-16 h-px bg-black mx-auto opacity-60" />
+                      <div className="w-16 h-px bg-white mx-auto opacity-80" />
                     </div>
                   </div>
 

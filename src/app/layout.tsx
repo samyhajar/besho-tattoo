@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const bebasNeue = localFont({
+  src: "../../public/fonts/Bebas_Neue/BebasNeue-Regular.ttf",
+  variable: "--font-bebas-neue",
+  display: "swap",
 });
+
+// Keep Geist Mono for code/monospace text if needed
+import { Geist_Mono } from "next/font/google";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -26,11 +30,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="bg-black text-white">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}
+        className={`${bebasNeue.variable} ${geistMono.variable} antialiased bg-black text-white`}
       >
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
