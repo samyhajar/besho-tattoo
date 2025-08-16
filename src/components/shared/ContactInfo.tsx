@@ -16,9 +16,7 @@ export default function ContactInfo() {
           <div>
             <h3 className="font-medium text-black mb-1">Studio Location</h3>
             <p className="text-gray-600 leading-relaxed">
-              Kreuzberg Street 42
-              <br />
-              10965 Berlin, Germany
+              TBA
             </p>
           </div>
         </div>
@@ -30,7 +28,7 @@ export default function ContactInfo() {
           </div>
           <div>
             <h3 className="font-medium text-black mb-1">Phone</h3>
-            <p className="text-gray-600">+49 30 1234 5678</p>
+            <p className="text-gray-600">TBA</p>
           </div>
         </div>
 
@@ -41,7 +39,7 @@ export default function ContactInfo() {
           </div>
           <div>
             <h3 className="font-medium text-black mb-1">Email</h3>
-            <p className="text-gray-600">hello@mhanna-letters.com</p>
+            <p className="text-gray-600">TBA</p>
           </div>
         </div>
 
@@ -53,9 +51,7 @@ export default function ContactInfo() {
           <div>
             <h3 className="font-medium text-black mb-1">Studio Hours</h3>
             <div className="text-gray-600 space-y-1">
-              <p>Monday - Friday: 10:00 - 19:00</p>
-              <p>Saturday: 11:00 - 17:00</p>
-              <p>Sunday: By appointment only</p>
+              <p>TBA</p>
             </div>
           </div>
         </div>
@@ -67,14 +63,7 @@ export default function ContactInfo() {
           </div>
           <div>
             <h3 className="font-medium text-black mb-1">Follow Us</h3>
-            <a
-              href="https://instagram.com/mhanna.letters"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-600 hover:text-black transition-colors"
-            >
-              @mhanna.letters
-            </a>
+            <p className="text-gray-600">TBA</p>
           </div>
         </div>
       </div>

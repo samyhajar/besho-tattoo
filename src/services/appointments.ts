@@ -1,9 +1,15 @@
-import { createClient } from "@/lib/supabase/browser-client";
-import { Database } from "@/types/supabase";
+import { createClient } from '@/lib/supabase/browser-client';
+import { Database } from '@/types/supabase';
+import {
+  sendBookingConfirmation,
+  sendAdminNotification,
+  formatEmailDate,
+  formatEmailTime,
+} from '@/lib/emailjs';
 
-export type Appointment = Database["public"]["Tables"]["appointments"]["Row"];
+export type Appointment = Database['public']['Tables']['appointments']['Row'];
 export type Availability =
-  Database["public"]["Tables"]["availabilities"]["Row"];
+  Database['public']['Tables']['availabilities']['Row'];
 
 export interface CreateAppointmentParams {
   full_name: string;
@@ -37,19 +43,19 @@ export async function fetchAvailableSlots(
   const supabase = createClient();
 
   let query = supabase
-    .from("availabilities")
-    .select("*")
-    .eq("is_booked", false)
-    .gte("date", new Date().toISOString().split("T")[0]) // Only future dates
-    .order("date", { ascending: true })
-    .order("time_start", { ascending: true });
+    .from('availabilities')
+    .select('*')
+    .eq('is_booked', false)
+    .gte('date', new Date().toISOString().split('T')[0]) // Only future dates
+    .order('date', { ascending: true })
+    .order('time_start', { ascending: true });
 
   if (startDate) {
-    query = query.gte("date", startDate);
+    query = query.gte('date', startDate);
   }
 
   if (endDate) {
-    query = query.lte("date", endDate);
+    query = query.lte('date', endDate);
   }
 
   const { data, error } = await query;
@@ -65,47 +71,47 @@ export async function createPublicAppointment(
   params: CreatePublicAppointmentParams,
 ): Promise<Appointment> {
   console.log(
-    "📝 Creating public appointment with params:",
+    '📝 Creating public appointment with params:',
     JSON.stringify(params, null, 2),
   );
 
   let supabase;
   try {
-    console.log("🔧 Creating Supabase client...");
+    console.log('🔧 Creating Supabase client...');
     supabase = createClient();
-    console.log("✅ Supabase client created successfully");
+    console.log('✅ Supabase client created successfully');
   } catch (clientError) {
-    console.error("❌ Failed to create Supabase client:", clientError);
+    console.error('❌ Failed to create Supabase client:', clientError);
     console.error(
-      "❌ Client error details:",
+      '❌ Client error details:',
       JSON.stringify(clientError, Object.getOwnPropertyNames(clientError)),
     );
     throw new Error(
-      `Failed to create database client: ${clientError instanceof Error ? clientError.message : "Unknown error"}`,
+      `Failed to create database client: ${clientError instanceof Error ? clientError.message : 'Unknown error'}`,
     );
   }
 
   try {
     // First, get the availability details
-    console.log("🔍 Fetching availability slot:", params.availability_id);
-    console.log("🔍 About to call supabase.from(availabilities)...");
+    console.log('🔍 Fetching availability slot:', params.availability_id);
+    console.log('🔍 About to call supabase.from(availabilities)...');
 
     const availabilityQuery = supabase
-      .from("availabilities")
-      .select("*")
-      .eq("id", params.availability_id)
-      .eq("is_booked", false);
+      .from('availabilities')
+      .select('*')
+      .eq('id', params.availability_id)
+      .eq('is_booked', false);
 
-    console.log("🔍 Query built, executing...");
+    console.log('🔍 Query built, executing...');
     const { data: availability, error: availabilityError } =
       await availabilityQuery.single();
 
-    console.log("🔍 Query completed. Results:");
-    console.log("  - Data:", availability);
-    console.log("  - Error:", availabilityError);
-    console.log("  - Error type:", typeof availabilityError);
+    console.log('🔍 Query completed. Results:');
+    console.log('  - Data:', availability);
+    console.log('  - Error:', availabilityError);
+    console.log('  - Error type:', typeof availabilityError);
     console.log(
-      "  - Error details:",
+      '  - Error details:',
       JSON.stringify(
         availabilityError,
         Object.getOwnPropertyNames(availabilityError || {}),
@@ -113,9 +119,9 @@ export async function createPublicAppointment(
     );
 
     if (availabilityError) {
-      console.error("❌ Availability fetch error:", availabilityError);
+      console.error('❌ Availability fetch error:', availabilityError);
       console.error(
-        "❌ Availability error serialized:",
+        '❌ Availability error serialized:',
         JSON.stringify(
           availabilityError,
           Object.getOwnPropertyNames(availabilityError),
@@ -126,17 +132,17 @@ export async function createPublicAppointment(
       );
     }
     if (!availability) {
-      console.error("❌ Availability slot not found or already booked");
-      throw new Error("Time slot is no longer available");
+      console.error('❌ Availability slot not found or already booked');
+      throw new Error('Time slot is no longer available');
     }
 
     console.log(
-      "✅ Availability slot found:",
+      '✅ Availability slot found:',
       JSON.stringify(availability, null, 2),
     );
 
     // Create the appointment
-    console.log("💾 Creating appointment record...");
+    console.log('💾 Creating appointment record...');
     const appointmentData = {
       full_name: params.full_name,
       email: params.email,
@@ -146,27 +152,27 @@ export async function createPublicAppointment(
       time_end: availability.time_end,
       notes: params.notes ?? null,
       image_url: params.image_url ?? null,
-      status: "pending",
+      status: 'pending',
       user_id: null, // Public booking, no user_id
     };
 
     console.log(
-      "💾 Appointment data to insert:",
+      '💾 Appointment data to insert:',
       JSON.stringify(appointmentData, null, 2),
     );
 
     const { data: appointment, error: appointmentError } = await supabase
-      .from("appointments")
+      .from('appointments')
       .insert([appointmentData])
       .select()
       .single();
 
-    console.log("💾 Appointment insert completed. Results:");
-    console.log("  - Data:", appointment);
-    console.log("  - Error:", appointmentError);
-    console.log("  - Error type:", typeof appointmentError);
+    console.log('💾 Appointment insert completed. Results:');
+    console.log('  - Data:', appointment);
+    console.log('  - Error:', appointmentError);
+    console.log('  - Error type:', typeof appointmentError);
     console.log(
-      "  - Error details:",
+      '  - Error details:',
       JSON.stringify(
         appointmentError,
         Object.getOwnPropertyNames(appointmentError || {}),
@@ -174,9 +180,9 @@ export async function createPublicAppointment(
     );
 
     if (appointmentError) {
-      console.error("❌ Appointment creation error:", appointmentError);
+      console.error('❌ Appointment creation error:', appointmentError);
       console.error(
-        "❌ Appointment error serialized:",
+        '❌ Appointment error serialized:',
         JSON.stringify(
           appointmentError,
           Object.getOwnPropertyNames(appointmentError),
@@ -188,19 +194,19 @@ export async function createPublicAppointment(
     }
 
     console.log(
-      "✅ Appointment created:",
+      '✅ Appointment created:',
       JSON.stringify(appointment, null, 2),
     );
 
     // Automatically create Google Meet session for the new appointment
-    console.log("📹 Creating Google Meet session...");
+    console.log('📹 Creating Google Meet session...');
     try {
       // Call our API endpoint to create Google Meet session
       // The server will check if configuration is available
-      const response = await fetch("/api/appointments/google-meet", {
-        method: "POST",
+      const response = await fetch('/api/appointments/google-meet', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           appointmentId: appointment.id,
@@ -215,7 +221,7 @@ export async function createPublicAppointment(
           spaceId?: string;
         };
         console.log(
-          "✅ Google Meet session created automatically:",
+          '✅ Google Meet session created automatically:',
           meetData.meetLink,
         );
 
@@ -228,30 +234,71 @@ export async function createPublicAppointment(
           error?: string;
         };
         console.warn(
-          "⚠️ Failed to create Google Meet session automatically:",
-          errorData.error || "Unknown error",
+          '⚠️ Failed to create Google Meet session automatically:',
+          errorData.error || 'Unknown error',
         );
       }
     } catch (error) {
       // Don't fail the booking if Google Meet creation fails
       console.warn(
-        "⚠️ Google Meet creation failed, but appointment was still created:",
+        '⚠️ Google Meet creation failed, but appointment was still created:',
         error,
       );
     }
 
-    // Mark the availability as booked
-    console.log("🔒 Marking availability slot as booked...");
-    const { error: updateError } = await supabase
-      .from("availabilities")
-      .update({ is_booked: true })
-      .eq("id", params.availability_id);
+    // Send booking confirmation emails using Formspree
+    console.log('📧 Sending booking confirmation emails with Formspree...');
+    try {
+      const formattedDate = formatEmailDate(appointment.date);
+      const formattedTime = `${formatEmailTime(appointment.time_start)} - ${formatEmailTime(appointment.time_end)}`;
 
-    console.log("🔒 Update availability completed. Results:");
-    console.log("  - Error:", updateError);
-    console.log("  - Error type:", typeof updateError);
+      // Send confirmation email to customer
+      const customerEmailResult = await sendBookingConfirmation({
+        customer_name: appointment.full_name,
+        customer_email: appointment.email,
+        appointment_date: formattedDate,
+        appointment_time: formattedTime,
+        phone: appointment.phone || undefined,
+        notes: appointment.notes || undefined,
+        google_meet_link: appointment.google_meet_link || undefined,
+      });
+
+      // Send notification email to admin
+      const adminEmailResult = await sendAdminNotification({
+        customer_name: appointment.full_name,
+        customer_email: appointment.email,
+        appointment_date: formattedDate,
+        appointment_time: formattedTime,
+        phone: appointment.phone || undefined,
+        notes: appointment.notes || undefined,
+        google_meet_link: appointment.google_meet_link || undefined,
+        appointment_id: appointment.id,
+      });
+
+      console.log('✅ Booking emails sent:', {
+        customer: customerEmailResult.success,
+        admin: adminEmailResult.success,
+      });
+    } catch (emailError) {
+      // Don't fail the booking if email sending fails
+      console.warn(
+        '⚠️ Email sending failed, but appointment was still created:',
+        emailError,
+      );
+    }
+
+    // Mark the availability as booked
+    console.log('🔒 Marking availability slot as booked...');
+    const { error: updateError } = await supabase
+      .from('availabilities')
+      .update({ is_booked: true })
+      .eq('id', params.availability_id);
+
+    console.log('🔒 Update availability completed. Results:');
+    console.log('  - Error:', updateError);
+    console.log('  - Error type:', typeof updateError);
     console.log(
-      "  - Error details:",
+      '  - Error details:',
       JSON.stringify(
         updateError,
         Object.getOwnPropertyNames(updateError || {}),
@@ -259,9 +306,9 @@ export async function createPublicAppointment(
     );
 
     if (updateError) {
-      console.error("❌ Error marking availability as booked:", updateError);
+      console.error('❌ Error marking availability as booked:', updateError);
       console.error(
-        "❌ Update error serialized:",
+        '❌ Update error serialized:',
         JSON.stringify(updateError, Object.getOwnPropertyNames(updateError)),
       );
       throw new Error(
@@ -269,27 +316,27 @@ export async function createPublicAppointment(
       );
     }
 
-    console.log("✅ Availability slot marked as booked");
-    console.log("🎉 Public appointment creation completed successfully!");
+    console.log('✅ Availability slot marked as booked');
+    console.log('🎉 Public appointment creation completed successfully!');
     return appointment as Appointment;
   } catch (error) {
-    console.error("❌ Error in createPublicAppointment:", error);
-    console.error("❌ Error type:", typeof error);
-    console.error("❌ Error instanceof Error:", error instanceof Error);
+    console.error('❌ Error in createPublicAppointment:', error);
+    console.error('❌ Error type:', typeof error);
+    console.error('❌ Error instanceof Error:', error instanceof Error);
     console.error(
-      "❌ Error name:",
-      error instanceof Error ? error.name : "N/A",
+      '❌ Error name:',
+      error instanceof Error ? error.name : 'N/A',
     );
     console.error(
-      "❌ Error message:",
-      error instanceof Error ? error.message : "N/A",
+      '❌ Error message:',
+      error instanceof Error ? error.message : 'N/A',
     );
     console.error(
-      "❌ Error stack:",
-      error instanceof Error ? error.stack : "N/A",
+      '❌ Error stack:',
+      error instanceof Error ? error.stack : 'N/A',
     );
     console.error(
-      "❌ Error serialized:",
+      '❌ Error serialized:',
       JSON.stringify(error, Object.getOwnPropertyNames(error || {})),
     );
 
@@ -318,10 +365,10 @@ export async function createAppointment(
     error: userErr,
   } = await supabase.auth.getUser();
   if (userErr) throw userErr;
-  if (!user) throw new Error("No authenticated user");
+  if (!user) throw new Error('No authenticated user');
 
   const { data, error } = await supabase
-    .from("appointments")
+    .from('appointments')
     .insert([
       {
         user_id: user.id,
@@ -350,13 +397,13 @@ export async function fetchMyAppointments(): Promise<Appointment[]> {
     error: userErr,
   } = await supabase.auth.getUser();
   if (userErr) throw userErr;
-  if (!user) throw new Error("No authenticated user");
+  if (!user) throw new Error('No authenticated user');
 
   const { data, error } = await supabase
-    .from("appointments")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+    .from('appointments')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
 
   if (error) throw error;
   return data as Appointment[];
@@ -370,10 +417,10 @@ export async function fetchAllAppointments(): Promise<Appointment[]> {
   const supabase = createClient();
 
   const { data, error } = await supabase
-    .from("appointments")
-    .select("*")
-    .order("date", { ascending: true })
-    .order("time_start", { ascending: true });
+    .from('appointments')
+    .select('*')
+    .order('date', { ascending: true })
+    .order('time_start', { ascending: true });
 
   if (error) throw error;
   return data as Appointment[];
@@ -384,7 +431,7 @@ export async function fetchAllAppointments(): Promise<Appointment[]> {
  */
 export async function fetchAppointmentStats() {
   const supabase = createClient();
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split('T')[0];
 
   // Get start of current week (Monday)
   const now = new Date();
@@ -392,15 +439,15 @@ export async function fetchAppointmentStats() {
   // Calculate days to go back to Monday: (getDay() + 6) % 7
   // Monday=0 days back, Tuesday=1 day back, ..., Sunday=6 days back
   startOfWeek.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-  const weekStart = startOfWeek.toISOString().split("T")[0];
+  const weekStart = startOfWeek.toISOString().split('T')[0];
 
   // Fetch all appointments and count client-side
   const { data: allAppointments, error } = await supabase
-    .from("appointments")
-    .select("id, date, status");
+    .from('appointments')
+    .select('id, date, status');
 
   if (error) {
-    console.error("Error fetching appointment stats:", error);
+    console.error('Error fetching appointment stats:', error);
     return {
       today: 0,
       thisWeek: 0,
@@ -417,26 +464,66 @@ export async function fetchAppointmentStats() {
   return {
     today: appointments.filter((apt) => apt.date === today).length,
     thisWeek: appointments.filter((apt) => apt.date >= weekStart).length,
-    pending: appointments.filter((apt) => apt.status === "pending").length,
-    completed: appointments.filter((apt) => apt.status === "completed").length,
-    confirmed: appointments.filter((apt) => apt.status === "confirmed").length,
-    cancelled: appointments.filter((apt) => apt.status === "cancelled").length,
+    pending: appointments.filter((apt) => apt.status === 'pending').length,
+    completed: appointments.filter((apt) => apt.status === 'completed').length,
+    confirmed: appointments.filter((apt) => apt.status === 'confirmed').length,
+    cancelled: appointments.filter((apt) => apt.status === 'cancelled').length,
     total: appointments.length,
   };
 }
 
 /**
  * Confirms an appointment (changes status to confirmed)
+ * Also sends confirmation email to the customer
  */
 export async function confirmAppointment(appointmentId: string): Promise<void> {
   const supabase = createClient();
 
-  const { error } = await supabase
-    .from("appointments")
-    .update({ status: "confirmed" })
-    .eq("id", appointmentId);
+  // First, get the appointment details for the email
+  const { data: appointment, error: fetchError } = await supabase
+    .from('appointments')
+    .select('*')
+    .eq('id', appointmentId)
+    .single();
 
-  if (error) throw error;
+  if (fetchError) throw fetchError;
+  if (!appointment) throw new Error('Appointment not found');
+
+  // Update the appointment status
+  const { error: updateError } = await supabase
+    .from('appointments')
+    .update({ status: 'confirmed' })
+    .eq('id', appointmentId);
+
+  if (updateError) throw updateError;
+
+  // Send confirmation email to customer using Formspree
+  try {
+    const formattedDate = formatEmailDate(appointment.date);
+    const formattedTime = `${formatEmailTime(appointment.time_start)} - ${formatEmailTime(appointment.time_end)}`;
+
+    // Import the confirmation email function
+    const { sendAppointmentConfirmation } = await import('@/lib/emailjs');
+
+    const result = await sendAppointmentConfirmation({
+      customer_name: appointment.full_name,
+      customer_email: appointment.email,
+      appointment_date: formattedDate,
+      appointment_time: formattedTime,
+      phone: appointment.phone || undefined,
+      notes: appointment.notes || undefined,
+      google_meet_link: appointment.google_meet_link || undefined,
+    });
+
+    if (result.success) {
+      console.log('✅ Confirmation email sent to customer successfully');
+    } else {
+      console.error('Failed to send confirmation email to customer');
+    }
+  } catch (error) {
+    console.error('Error sending confirmation email:', error);
+    // Don't throw here - the appointment is already confirmed
+  }
 }
 
 /**
@@ -451,41 +538,41 @@ export async function cancelAppointment(
 
   // First, get the appointment details for the email
   const { data: appointment, error: fetchError } = await supabase
-    .from("appointments")
-    .select("*")
-    .eq("id", appointmentId)
+    .from('appointments')
+    .select('*')
+    .eq('id', appointmentId)
     .single();
 
   if (fetchError) throw fetchError;
-  if (!appointment) throw new Error("Appointment not found");
+  if (!appointment) throw new Error('Appointment not found');
 
   // Update the appointment status
   const { error: updateError } = await supabase
-    .from("appointments")
-    .update({ status: "cancelled" })
-    .eq("id", appointmentId);
+    .from('appointments')
+    .update({ status: 'cancelled' })
+    .eq('id', appointmentId);
 
   if (updateError) throw updateError;
 
   // Free up the corresponding availability slot
   const { error: availabilityError } = await supabase
-    .from("availabilities")
+    .from('availabilities')
     .update({ is_booked: false })
-    .eq("date", appointment.date)
-    .eq("time_start", appointment.time_start)
-    .eq("time_end", appointment.time_end);
+    .eq('date', appointment.date)
+    .eq('time_start', appointment.time_start)
+    .eq('time_end', appointment.time_end);
 
   if (availabilityError) {
-    console.error("Error freeing up availability slot:", availabilityError);
+    console.error('Error freeing up availability slot:', availabilityError);
     // Don't throw here - the appointment is already cancelled
   }
 
   // Send cancellation email
   try {
-    const response = await fetch("/api/appointments/cancel-notification", {
-      method: "POST",
+    const response = await fetch('/api/appointments/cancel-notification', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         appointment,
@@ -494,11 +581,11 @@ export async function cancelAppointment(
     });
 
     if (!response.ok) {
-      console.error("Failed to send cancellation email");
+      console.error('Failed to send cancellation email');
       // Don't throw here - the appointment is already cancelled
     }
   } catch (error) {
-    console.error("Error sending cancellation email:", error);
+    console.error('Error sending cancellation email:', error);
     // Don't throw here - the appointment is already cancelled
   }
 }
@@ -514,11 +601,11 @@ export async function getAppointmentImageSignedUrl(
   const supabase = createClient();
 
   const { data, error } = await supabase.storage
-    .from("tattoosappointment")
+    .from('tattoosappointment')
     .createSignedUrl(imagePath, expiresIn);
 
   if (error) {
-    console.error("Error creating signed URL:", error);
+    console.error('Error creating signed URL:', error);
     return null;
   }
 
@@ -531,17 +618,17 @@ export async function getAppointmentImageSignedUrl(
 export async function createGoogleMeetForAppointment(
   appointmentId: string,
 ): Promise<{ meetLink: string; eventId: string; spaceId?: string }> {
-  const response = await fetch("/api/appointments/google-meet", {
-    method: "POST",
+  const response = await fetch('/api/appointments/google-meet', {
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({ appointmentId }),
   });
 
   if (!response.ok) {
     const error = (await response.json()) as { error?: string };
-    throw new Error(error.error || "Failed to create Google Meet session");
+    throw new Error(error.error || 'Failed to create Google Meet session');
   }
 
   return response.json() as Promise<{
@@ -564,17 +651,17 @@ export async function updateGoogleMeetForAppointment(
     attendeeEmails?: string[];
   },
 ): Promise<void> {
-  const response = await fetch("/api/appointments/google-meet", {
-    method: "PATCH",
+  const response = await fetch('/api/appointments/google-meet', {
+    method: 'PATCH',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({ appointmentId, ...updateData }),
   });
 
   if (!response.ok) {
     const error = (await response.json()) as { error?: string };
-    throw new Error(error.error || "Failed to update Google Meet session");
+    throw new Error(error.error || 'Failed to update Google Meet session');
   }
 }
 
@@ -584,16 +671,16 @@ export async function updateGoogleMeetForAppointment(
 export async function deleteGoogleMeetForAppointment(
   appointmentId: string,
 ): Promise<void> {
-  const response = await fetch("/api/appointments/google-meet", {
-    method: "DELETE",
+  const response = await fetch('/api/appointments/google-meet', {
+    method: 'DELETE',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({ appointmentId }),
   });
 
   if (!response.ok) {
     const error = (await response.json()) as { error?: string };
-    throw new Error(error.error || "Failed to delete Google Meet session");
+    throw new Error(error.error || 'Failed to delete Google Meet session');
   }
 }
