@@ -4,18 +4,30 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-
-const navItems = [
-  { href: "/", label: "Home" },
-  { href: "/portfolio", label: "Portfolio" },
-  { href: "/contact", label: "Contact" },
-];
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 /**
  * Header component with brand logo and responsive navigation.
  */
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { getNavigationContent, loading } = useSiteContent();
+  const navContent = getNavigationContent();
+
+  const navItems = [
+    {
+      href: "/",
+      label: loading ? "Loading..." : navContent.homeLink || "Home",
+    },
+    {
+      href: "/portfolio",
+      label: loading ? "Loading..." : navContent.portfolioLink || "Portfolio",
+    },
+    {
+      href: "/contact",
+      label: loading ? "Loading..." : navContent.contactLink || "Contact",
+    },
+  ];
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -56,7 +68,7 @@ export default function Header() {
             href="/book"
             className="bg-black text-white px-10 py-4 text-xl font-medium tracking-wide transition-all duration-500 ease-out hover:bg-gray-800 hover:scale-105 hover:shadow-xl hover:tracking-widest rounded-full"
           >
-            Bookings
+            {loading ? "Loading..." : navContent.bookingsButton || "Bookings"}
           </Link>
         </nav>
 
@@ -109,7 +121,7 @@ export default function Header() {
               onClick={closeMenu}
               className="block w-full text-center bg-black text-white px-8 py-5 text-xl font-medium tracking-wide transition-all duration-300 hover:bg-gray-800 active:bg-gray-900 rounded-full"
             >
-              Bookings
+              {loading ? "Loading..." : navContent.bookingsButton || "Bookings"}
             </Link>
           </div>
         </nav>

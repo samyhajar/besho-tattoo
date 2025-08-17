@@ -3,8 +3,12 @@
 import Image from "next/image";
 import Footer from "@/components/shared/Footer";
 import Header from "@/components/shared/Header";
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 export default function HomePage() {
+  const { getHeroContent, loading } = useSiteContent();
+  const heroContent = getHeroContent();
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
@@ -29,23 +33,31 @@ export default function HomePage() {
         {/* Content */}
         <div className="relative z-10 max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-white mb-6">
-            Crafting Sacred Letters
+            {loading
+              ? "Loading..."
+              : heroContent.title || "Crafting Sacred Letters"}
           </h1>
           <p className="text-xl sm:text-2xl md:text-3xl text-white/90 mb-8 max-w-3xl mx-auto">
-            For Your Journey
+            {loading
+              ? "Loading..."
+              : heroContent.subtitle || "For Your Journey"}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <a
               href="/portfolio"
               className="bg-white text-black px-8 py-4 text-lg font-semibold hover:bg-white/90 transition-colors duration-300 w-full sm:w-auto text-center"
             >
-              View Portfolio
+              {loading
+                ? "Loading..."
+                : heroContent.portfolioButton || "View Portfolio"}
             </a>
             <a
               href="/book"
               className="border-2 border-white text-white px-8 py-4 text-lg font-semibold hover:bg-white hover:text-black transition-all duration-300 w-full sm:w-auto text-center"
             >
-              Book Appointment
+              {loading
+                ? "Loading..."
+                : heroContent.bookingButton || "Book Appointment"}
             </a>
           </div>
         </div>
