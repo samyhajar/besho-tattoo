@@ -20,7 +20,7 @@ export default function HomePage() {
         {/* Background Image */}
         <div className="absolute inset-0">
           <Image
-            src="/IMG_5112.JPG"
+            src="/IMG_4982.jpg"
             alt="Besho Tattoo Artist at Work"
             fill
             className="object-cover object-center"
