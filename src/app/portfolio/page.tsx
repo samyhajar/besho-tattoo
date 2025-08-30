@@ -102,8 +102,21 @@ export default function PortfolioLandingPage() {
       <Header />
 
       {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div className="w-full max-w-6xl mx-auto py-16 sm:py-24">
+      <div className="relative flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <div
+            className="w-full h-full bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: "url('/IMG_5112.JPG')",
+            }}
+          />
+          {/* Dark overlay for better readability */}
+          <div className="absolute inset-0 bg-black/50" />
+        </div>
+
+        {/* Content Container */}
+        <div className="relative z-10 w-full max-w-6xl mx-auto py-16 sm:py-24">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
             {categories.map((category) => (
               <button

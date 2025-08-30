@@ -7,8 +7,11 @@ import {
   transformFormDataToUpdates,
   updateMultipleSiteContent,
 } from "@/services/site-content";
-import { SiteContentSection } from "@/components/dashboard/SiteContentSection";
 import { SiteContentActions } from "@/components/dashboard/SiteContentActions";
+import { HeroSection } from "@/components/dashboard/SiteContentHeroSection";
+import { AboutSection } from "@/components/dashboard/SiteContentAboutSection";
+import { ContactSection } from "@/components/dashboard/SiteContentContactSection";
+import { SeoSection } from "@/components/dashboard/SiteContentSeoSection";
 
 interface SiteContentFormProps {
   content: SiteContent[];
@@ -66,115 +69,16 @@ export function SiteContentForm({
   return (
     <div className="space-y-6">
       {/* Hero Section */}
-      <SiteContentSection
-        title="Hero Section"
-        description="Main title and call-to-action buttons on the home page"
-        fields={[
-          {
-            id: "hero-title",
-            label: "Main Title",
-            value: formData.hero.title,
-            onChange: (value) => handleInputChange("hero", "title", value),
-            placeholder: "Enter main title",
-          },
-          {
-            id: "hero-subtitle",
-            label: "Subtitle",
-            value: formData.hero.subtitle,
-            onChange: (value) => handleInputChange("hero", "subtitle", value),
-            placeholder: "Enter subtitle",
-          },
-          {
-            id: "hero-portfolio-button",
-            label: "Portfolio Button Text",
-            value: formData.hero.portfolio_button,
-            onChange: (value) =>
-              handleInputChange("hero", "portfolio_button", value),
-            placeholder: "Enter portfolio button text",
-          },
-          {
-            id: "hero-booking-button",
-            label: "Booking Button Text",
-            value: formData.hero.booking_button,
-            onChange: (value) =>
-              handleInputChange("hero", "booking_button", value),
-            placeholder: "Enter booking button text",
-          },
-        ]}
-      />
+      <HeroSection formData={formData} onInputChange={handleInputChange} />
 
-      {/* Navigation Section */}
-      <SiteContentSection
-        title="Navigation"
-        description="Navigation menu items and booking button"
-        fields={[
-          {
-            id: "nav-home",
-            label: "Home Link",
-            value: formData.navigation.home_link,
-            onChange: (value) =>
-              handleInputChange("navigation", "home_link", value),
-            placeholder: "Enter home link text",
-          },
-          {
-            id: "nav-portfolio",
-            label: "Portfolio Link",
-            value: formData.navigation.portfolio_link,
-            onChange: (value) =>
-              handleInputChange("navigation", "portfolio_link", value),
-            placeholder: "Enter portfolio link text",
-          },
-          {
-            id: "nav-contact",
-            label: "Contact Link",
-            value: formData.navigation.contact_link,
-            onChange: (value) =>
-              handleInputChange("navigation", "contact_link", value),
-            placeholder: "Enter contact link text",
-          },
-          {
-            id: "nav-bookings",
-            label: "Bookings Button",
-            value: formData.navigation.bookings_button,
-            onChange: (value) =>
-              handleInputChange("navigation", "bookings_button", value),
-            placeholder: "Enter bookings button text",
-          },
-        ]}
-      />
+      {/* About Me Section */}
+      <AboutSection formData={formData} onInputChange={handleInputChange} />
 
-      {/* Footer Section */}
-      <SiteContentSection
-        title="Footer"
-        description="Footer description and copyright information"
-        fields={[
-          {
-            id: "footer-description",
-            label: "Description",
-            value: formData.footer.description,
-            onChange: (value) =>
-              handleInputChange("footer", "description", value),
-            placeholder: "Enter footer description",
-          },
-          {
-            id: "footer-copyright",
-            label: "Copyright Text",
-            value: formData.footer.copyright,
-            onChange: (value) =>
-              handleInputChange("footer", "copyright", value),
-            placeholder: "Enter copyright text",
-          },
-          {
-            id: "footer-privacy",
-            label: "Privacy Policy Link",
-            value: formData.footer.privacy_link,
-            onChange: (value) =>
-              handleInputChange("footer", "privacy_link", value),
-            placeholder: "Enter privacy policy link text",
-          },
-        ]}
-        gridCols={1}
-      />
+      {/* Contact Information Section */}
+      <ContactSection formData={formData} onInputChange={handleInputChange} />
+
+      {/* SEO Section */}
+      <SeoSection formData={formData} onInputChange={handleInputChange} />
 
       {/* Action Buttons */}
       <SiteContentActions

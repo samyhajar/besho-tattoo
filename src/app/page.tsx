@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Footer from "@/components/shared/Footer";
 import Header from "@/components/shared/Header";
+import AboutMe from "@/components/shared/AboutMe";
 import { useSiteContent } from "@/hooks/useSiteContent";
 
 export default function HomePage() {
@@ -37,11 +38,16 @@ export default function HomePage() {
               ? "Loading..."
               : heroContent.title || "Crafting Sacred Letters"}
           </h1>
-          <p className="text-xl sm:text-2xl md:text-3xl text-white/90 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl sm:text-2xl md:text-3xl text-white/90 mb-6 max-w-3xl mx-auto">
             {loading
               ? "Loading..."
-              : heroContent.subtitle || "For Your Journey"}
+              : heroContent.subtitle || "Where Ancient Traditions Meet Modern Art"}
           </p>
+          {heroContent.description && (
+            <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto leading-relaxed">
+              {heroContent.description}
+            </p>
+          )}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <a
               href="/portfolio"
@@ -62,6 +68,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* About Me Section */}
+      <AboutMe />
 
       <Footer />
     </div>

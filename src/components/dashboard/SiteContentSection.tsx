@@ -1,4 +1,5 @@
 import { Input } from "@/components/ui/Input";
+import { Textarea } from "@/components/ui/Textarea";
 import { Label } from "@/components/ui/Label";
 import { Card } from "@/components/ui/Card";
 
@@ -11,6 +12,7 @@ interface SiteContentSectionProps {
     value: string;
     onChange: (value: string) => void;
     placeholder: string;
+    type?: "input" | "textarea";
   }>;
   gridCols?: 1 | 2;
 }
@@ -32,15 +34,27 @@ export function SiteContentSection({
         className={`grid grid-cols-1 ${gridCols === 2 ? "md:grid-cols-2" : ""} gap-4`}
       >
         {fields.map((field) => (
-          <div key={field.id}>
-            <Label htmlFor={field.id}>{field.label}</Label>
-            <Input
-              id={field.id}
-              value={field.value}
-              onChange={(e) => field.onChange(e.target.value)}
-              placeholder={field.placeholder}
-              className="mt-1"
-            />
+          <div key={field.id} className={field.type === "textarea" ? "col-span-full" : ""}>
+            {field.type === "textarea" ? (
+              <Textarea
+                id={field.id}
+                value={field.value}
+                onChange={(e) => field.onChange(e.target.value)}
+                placeholder={field.placeholder}
+                className="mt-1"
+              />
+            ) : (
+              <>
+                <Label htmlFor={field.id}>{field.label}</Label>
+                <Input
+                  id={field.id}
+                  value={field.value}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  placeholder={field.placeholder}
+                  className="mt-1"
+                />
+              </>
+            )}
           </div>
         ))}
       </div>

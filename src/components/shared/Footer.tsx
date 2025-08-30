@@ -3,12 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Instagram } from "lucide-react";
-import { useSiteContent } from "@/hooks/useSiteContent";
 
 export default function Footer() {
-  const { getFooterContent, loading } = useSiteContent();
-  const footerContent = getFooterContent();
-
   return (
     <footer className="px-4 sm:px-6 lg:px-8 py-12 bg-white">
       <div className="max-w-4xl mx-auto text-center">
@@ -25,10 +21,7 @@ export default function Footer() {
 
         {/* Description */}
         <p className="text-gray-600 mb-8 max-w-md mx-auto">
-          {loading
-            ? "Loading..."
-            : footerContent.description ||
-              "Professional tattoo studio dedicated to creating unique, high-quality tattoos that tell your story."}
+          Professional tattoo studio dedicated to creating unique, high-quality tattoos that tell your story.
         </p>
 
         {/* Social Media */}
@@ -46,18 +39,13 @@ export default function Footer() {
         {/* Copyright */}
         <div className="text-center text-gray-600 text-sm">
           <p>
-            {loading
-              ? "Loading..."
-              : footerContent.copyright ||
-                "© Mhanna Letters Berlin - Germany 2025"}
+            © Mhanna Letters Berlin - Germany 2025
           </p>
           <Link
             href="/privacy"
             className="text-gray-600 hover:text-black transition-colors mt-2 inline-block"
           >
-            {loading
-              ? "Loading..."
-              : footerContent.privacyLink || "Privacy Policy"}
+            Privacy Policy
           </Link>
         </div>
       </div>
