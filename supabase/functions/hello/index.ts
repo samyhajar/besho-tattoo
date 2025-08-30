@@ -1,7 +1,7 @@
 // Follow this setup guide to integrate the Deno runtime into your application:
 // https://deno.land/manual/examples/hello_world
 
-import { serve } from 'https://deno.land/std@0.208.0/http/server.ts';
+import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 
 console.log('Hello from Functions!');
 

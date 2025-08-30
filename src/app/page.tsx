@@ -20,7 +20,7 @@ export default function HomePage() {
         {/* Background Image */}
         <div className="absolute inset-0">
           <Image
-            src="/IMG_5004.JPG"
+            src="/IMG_5112.JPG"
             alt="Besho Tattoo Artist at Work"
             fill
             className="object-cover object-center"
@@ -28,7 +28,7 @@ export default function HomePage() {
             quality={90}
           />
           {/* Dark overlay for better text readability */}
-          <div className="absolute inset-0 bg-black/50" />
+          <div className="absolute inset-0 bg-black/40" />
         </div>
 
         {/* Content */}
