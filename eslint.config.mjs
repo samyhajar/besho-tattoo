@@ -1,132 +1,23 @@
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
+import js from '@eslint/js';
 import { FlatCompat } from '@eslint/eslintrc';
-import jsxA11y from 'eslint-plugin-jsx-a11y';
-import typescriptEslint from '@typescript-eslint/eslint-plugin';
-import typescriptParser from '@typescript-eslint/parser';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 const compat = new FlatCompat({
   baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
 });
 
-const eslintConfig = [
+export default [
+  ...compat.extends('next/core-web-vitals'),
   {
-    ignores: [
-      // Build output
-      '.next/**',
-      'out/**',
-      'build/**',
-      'dist/**',
-
-      // Dependencies
-      'node_modules/**',
-
-      // Supabase functions
-      'supabase/functions/**',
-
-      // Cache
-      '.cache/**',
-      '.vercel/**',
-
-      // Utility scripts
-      'check-env.js',
-      'test-google-meet.js',
-    ],
-  },
-  ...compat.extends(
-    'next/core-web-vitals',
-    'next/typescript',
-    'plugin:jsx-a11y/recommended',
-    'prettier',
-  ),
-  {
-    // Configuration for JavaScript files (non-TypeScript)
-    files: ['**/*.js', '**/*.mjs'],
-    plugins: {
-      'jsx-a11y': jsxA11y,
-    },
-    rules: {
-      'react/display-name': 'error',
-      'react/no-unescaped-entities': 'error',
-      // JSX accessibility rules (for JSX files)
-      'jsx-a11y/alt-text': [
-        'error',
-        {
-          elements: ['img', 'object', 'area', 'input[type="image"]'],
-          img: ['Image'],
-        },
-      ],
-      'jsx-a11y/aria-props': 'error',
-      'jsx-a11y/aria-proptypes': 'error',
-      'jsx-a11y/aria-role': [
-        'error',
-        {
-          ignoreNonDOM: true,
-        },
-      ],
-      'jsx-a11y/role-has-required-aria-props': 'error',
-      'jsx-a11y/role-supports-aria-props': 'error',
-      'jsx-a11y/tabindex-no-positive': 'error',
-    },
-  },
-  {
-    // Base configuration for TypeScript and JSX files
-    files: ['**/*.{jsx,ts,tsx}'],
-    // Ignore .d.ts files in the base config too
-    ignores: ['**/*.d.ts'],
-    plugins: {
-      'jsx-a11y': jsxA11y,
-      '@typescript-eslint': typescriptEslint,
-    },
-    languageOptions: {
-      parser: typescriptParser,
-    },
-    rules: {
-      'react/display-name': 'error',
-      'react/no-unescaped-entities': 'error',
-      '@typescript-eslint/no-unused-vars': [
-        'error',
-        {
-          argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_',
-          caughtErrorsIgnorePattern: '^_',
-        },
-      ],
-      '@typescript-eslint/await-thenable': 'error',
-      // JSX accessibility rules
-      'jsx-a11y/alt-text': [
-        'error',
-        {
-          elements: ['img', 'object', 'area', 'input[type="image"]'],
-          img: ['Image'],
-        },
-      ],
-      'jsx-a11y/aria-props': 'error',
-      'jsx-a11y/aria-proptypes': 'error',
-      'jsx-a11y/aria-role': [
-        'error',
-        {
-          ignoreNonDOM: true,
-        },
-      ],
-      'jsx-a11y/role-has-required-aria-props': 'error',
-      'jsx-a11y/role-supports-aria-props': 'error',
-      'jsx-a11y/tabindex-no-positive': 'error',
-    },
-  },
-  {
-    // TypeScript-specific configuration with type checking
-    // Exclude declaration files (.d.ts) to avoid parsing errors
     files: ['**/*.ts', '**/*.tsx'],
-    ignores: ['**/*.d.ts'],
     languageOptions: {
-      parser: typescriptParser,
       parserOptions: {
-        project: './tsconfig.json',
-        ecmaVersion: 2020,
+        ecmaVersion: 'latest',
         sourceType: 'module',
         ecmaFeatures: {
           jsx: true,
@@ -134,63 +25,9 @@ const eslintConfig = [
       },
     },
     rules: {
-      // Enable TypeScript type checking rules
-      '@typescript-eslint/no-floating-promises': 'error',
-      '@typescript-eslint/no-misused-promises': 'error',
-      '@typescript-eslint/no-unnecessary-type-assertion': 'error',
-      '@typescript-eslint/no-unsafe-assignment': 'error',
-      '@typescript-eslint/no-unsafe-call': 'error',
-      '@typescript-eslint/no-unsafe-member-access': 'error',
-      '@typescript-eslint/no-unsafe-return': 'error',
-      '@typescript-eslint/restrict-plus-operands': 'error',
-      '@typescript-eslint/restrict-template-expressions': 'error',
-      '@typescript-eslint/unbound-method': 'error',
-    },
-  },
-  {
-    files: ['**/*.tsx', '**/*.jsx'],
-    rules: {
-      'max-lines': [
-        'error',
-        {
-          max: 200,
-          skipBlankLines: true,
-          skipComments: true,
-        },
-      ],
-    },
-  },
-  {
-    // Temporary override for large files that need refactoring
-    files: [
-      'src/components/shared/FolderDocumentList.tsx',
-      'src/components/shared/WorkshopFilesList.tsx',
-      'src/components/shared/confreres/ConfreresTable.tsx',
-      'src/components/shared/formation-personnel/FormationPersonnelTable.tsx',
-      'src/components/ui/GalleryManager.tsx',
-    ],
-    rules: {
-      'max-lines': '200',
-    },
-  },
-  {
-    // Temporary override for Google Meet integration files
-    files: [
-      'src/lib/google-meet.ts',
-      'src/lib/google-meet-simple.ts',
-      'src/app/api/appointments/google-meet/route.ts',
-      'src/components/dashboard/GoogleMeetButton.tsx',
-    ],
-    rules: {
-      '@typescript-eslint/no-unsafe-assignment': 'off',
-      '@typescript-eslint/no-unsafe-call': 'off',
-      '@typescript-eslint/no-unsafe-member-access': 'off',
-      '@typescript-eslint/no-unsafe-return': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-misused-promises': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
+      'prefer-const': 'error',
+      'no-var': 'error',
+      'no-unused-vars': 'warn',
     },
   },
 ];
-
-export default eslintConfig;

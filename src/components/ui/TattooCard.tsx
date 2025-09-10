@@ -4,14 +4,14 @@ import type { Tattoo } from "@/types/tattoo";
 
 interface TattooCardProps {
   tattoo: Tattoo;
-  signedUrl: string;
+  publicUrl: string;
   index: number;
   onImageClick: (tattoo: Tattoo) => void;
 }
 
 export default function TattooCard({
   tattoo,
-  signedUrl,
+  publicUrl,
   index,
   onImageClick,
 }: TattooCardProps) {
@@ -28,7 +28,7 @@ export default function TattooCard({
   };
 
   const handleClick = () => {
-    if (!imageError && signedUrl) {
+    if (!imageError && publicUrl) {
       onImageClick(tattoo);
     }
   };
@@ -85,9 +85,9 @@ export default function TattooCard({
           )}
 
           {/* Actual Image */}
-          {signedUrl && !imageError && (
+          {publicUrl && !imageError && (
             <Image
-              src={signedUrl}
+              src={publicUrl}
               alt={tattoo.title || "Tattoo artwork"}
               fill
               className={`object-cover transition-all duration-700 group-hover:scale-110 ${
@@ -101,7 +101,7 @@ export default function TattooCard({
           )}
 
           {/* No URL fallback */}
-          {!signedUrl && (
+          {!publicUrl && (
             <div className="absolute inset-0 bg-gray-100 flex flex-col items-center justify-center text-gray-400">
               <svg
                 className="w-12 h-12 mb-2"
@@ -121,7 +121,7 @@ export default function TattooCard({
           )}
 
           {/* Hover Overlay */}
-          {signedUrl && !imageError && (
+          {publicUrl && !imageError && (
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center">
               <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                 <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-200 shadow-lg">

@@ -3,13 +3,13 @@ import type { Tattoo } from "@/types/tattoo";
 
 interface PortfolioGridProps {
   tattoos: Tattoo[];
-  signedUrls: Record<string, string>;
+  publicUrls: Record<string, string>;
   onTattooClick: (tattoo: Tattoo) => void;
 }
 
 export default function PortfolioGrid({
   tattoos,
-  signedUrls,
+  publicUrls,
   onTattooClick,
 }: PortfolioGridProps) {
   if (tattoos.length === 0) {
@@ -68,7 +68,7 @@ export default function PortfolioGrid({
               <TattooCard
                 key={tattoo.id}
                 tattoo={tattoo}
-                signedUrl={signedUrls[tattoo.image_url]}
+                publicUrl={publicUrls[tattoo.image_url]}
                 index={index}
                 onImageClick={onTattooClick}
               />
@@ -88,7 +88,7 @@ export default function PortfolioGrid({
               <TattooCard
                 key={tattoo.id}
                 tattoo={tattoo}
-                signedUrl={signedUrls[tattoo.image_url]}
+                publicUrl={publicUrls[tattoo.image_url]}
                 index={index}
                 onImageClick={onTattooClick}
               />
@@ -108,7 +108,7 @@ export default function PortfolioGrid({
               <TattooCard
                 key={tattoo.id}
                 tattoo={tattoo}
-                signedUrl={signedUrls[tattoo.image_url]}
+                publicUrl={publicUrls[tattoo.image_url]}
                 index={index}
                 onImageClick={onTattooClick}
               />

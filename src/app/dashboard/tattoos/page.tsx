@@ -11,8 +11,12 @@ import {
   getTattooImageUrls,
   updateTattoo,
   uploadTattooImage,
+  setFeatureImage,
+  unsetFeatureImage,
   type Tattoo,
 } from "@/services/tattoos";
+import { createClient } from "@/lib/supabase/browser-client";
+import { testFeaturedTattooFunctions } from "@/services/featured-tattoos";
 import TattooStats from "@/components/dashboard/TattooStats";
 import DashboardTattooGallery from "@/components/dashboard/DashboardTattooGallery";
 import DashboardTattooModal from "@/components/dashboard/DashboardTattooModal";
@@ -21,9 +25,10 @@ import TattooErrorState from "@/components/dashboard/TattooErrorState";
 
 export default function TattoosPage() {
   const router = useRouter();
+  const supabase = createClient();
   const [tattoos, setTattoos] = useState<Tattoo[]>([]);
   const [stats, setStats] = useState({ total: 0, categories: 0, thisMonth: 0 });
-  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
+  const [publicUrls, setPublicUrls] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedTattoo, setSelectedTattoo] = useState<Tattoo | null>(null);
@@ -37,19 +42,55 @@ export default function TattoosPage() {
     try {
       setIsLoading(true);
       const results = await Promise.all([fetchAllTattoos(), getTattooStats()]);
-      const [tattoosData, statsData] = results;
-      setTattoos(tattoosData);
-      setStats(statsData);
+      const [allTattoosData, statsData] = results;
+
+      console.log("All tattoos data:", allTattoosData);
+      console.log("Stats data:", statsData);
+
+      // Log all unique categories found
+      const uniqueCategories = [
+        ...new Set(allTattoosData.map((t) => t.category)),
+      ];
+      console.log("Unique categories found:", uniqueCategories);
+
+      // Filter for tattoos category and legacy tattoos (null category)
+      // For now, show all tattoos that are not specifically categorized as 'art' or 'designs'
+      const tattoosOnly = allTattoosData.filter(
+        (tattoo) =>
+          tattoo.category === "tattoos" ||
+          tattoo.category === null ||
+          (tattoo.category !== "art" && tattoo.category !== "designs"),
+      );
+      console.log("Tattoos only (including legacy):", tattoosOnly);
+      setTattoos(tattoosOnly);
+
+      // Calculate tattoos-specific stats
+      const tattoosStats = {
+        total: tattoosOnly.length,
+        categories: 1, // Only tattoos category
+        thisMonth: tattoosOnly.filter((tattoo) => {
+          const createdDate = new Date(tattoo.created_at);
+          const now = new Date();
+          return (
+            createdDate.getMonth() === now.getMonth() &&
+            createdDate.getFullYear() === now.getFullYear()
+          );
+        }).length,
+      };
+      setStats(tattoosStats);
 
       // Generate signed URLs for all tattoo images
-      if (tattoosData.length > 0) {
-        const imagePaths = tattoosData
+      if (tattoosOnly.length > 0) {
+        const imagePaths = tattoosOnly
           .map((tattoo) => tattoo.image_url)
           .filter(Boolean); // Remove any null/undefined URLs
 
+        console.log("Image paths for tattoos:", imagePaths);
+
         if (imagePaths.length > 0) {
-          const urls = await getTattooImageUrls(imagePaths);
-          setSignedUrls(urls);
+          const urls = await getTattooImageUrls(imagePaths, "tattoos");
+          console.log("Generated signed URLs:", urls);
+          setPublicUrls(urls);
         }
       }
     } catch (err) {
@@ -110,7 +151,7 @@ export default function TattoosPage() {
       // Update signed URLs if image was changed
       if (updates.image && imageUrl) {
         const newSignedUrls = await getTattooImageUrls([imageUrl]);
-        setSignedUrls((prev) => ({ ...prev, ...newSignedUrls }));
+        setPublicUrls((prev) => ({ ...prev, ...newSignedUrls }));
       }
 
       // Refresh stats
@@ -125,6 +166,60 @@ export default function TattoosPage() {
 
   const handleAddNew = () => {
     router.push("/dashboard/tattoos/new");
+  };
+
+  const handleFeaturedChange = () => {
+    // Refresh the data to update featured status across all cards
+    void loadData();
+  };
+
+  const handleToggleFeature = async (tattoo: Tattoo) => {
+    try {
+      if (tattoo.is_feature_image) {
+        await unsetFeatureImage(tattoo.id);
+      } else {
+        await setFeatureImage(tattoo.id);
+      }
+      await loadData(); // Reload to get updated data
+    } catch (error) {
+      console.error("Error toggling feature image:", error);
+      alert("Failed to update feature image. Please try again.");
+    }
+  };
+
+  const handleCategorizeLegacyTattoos = async () => {
+    try {
+      // Update all tattoos with null category to 'tattoos' category
+      const { data, error } = await supabase
+        .from("tattoos")
+        .update({ category: "tattoos" })
+        .is("category", null);
+
+      if (error) throw error;
+
+      console.log("Updated legacy tattoos to tattoos category");
+      await loadData(); // Reload to get updated data
+      alert("Legacy tattoos have been categorized as tattoos!");
+    } catch (error) {
+      console.error("Error categorizing legacy tattoos:", error);
+      alert("Failed to categorize legacy tattoos. Please try again.");
+    }
+  };
+
+  const handleTestFeaturedFunctions = async () => {
+    try {
+      console.log("Testing featured tattoo functions...");
+      const result = await testFeaturedTattooFunctions();
+      console.log("Test result:", result);
+      alert(
+        `Test result: ${result.success ? "SUCCESS" : "FAILED"}\n${result.message}`,
+      );
+    } catch (error) {
+      console.error("Test failed:", error);
+      alert(
+        `Test failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   };
 
   if (isLoading) {
@@ -157,9 +252,25 @@ export default function TattoosPage() {
             Manage your tattoo artwork and portfolio
           </p>
         </div>
-        <Button onClick={handleAddNew} className="w-full sm:w-auto">
-          Add New Tattoo
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Button
+            onClick={handleCategorizeLegacyTattoos}
+            variant="outline"
+            className="w-full sm:w-auto"
+          >
+            Categorize Legacy Tattoos
+          </Button>
+          <Button
+            onClick={handleTestFeaturedFunctions}
+            variant="outline"
+            className="w-full sm:w-auto"
+          >
+            Test Featured Functions
+          </Button>
+          <Button onClick={handleAddNew} className="w-full sm:w-auto">
+            Add New Tattoo
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -168,16 +279,18 @@ export default function TattoosPage() {
       {/* Gallery */}
       <DashboardTattooGallery
         tattoos={tattoos}
-        signedUrls={signedUrls}
+        publicUrls={publicUrls}
         onTattooClick={setSelectedTattoo}
         onAddNew={handleAddNew}
+        onFeaturedChange={handleFeaturedChange}
+        onToggleFeature={handleToggleFeature}
       />
 
       {/* Modal for viewing tattoo details */}
       {selectedTattoo && (
         <DashboardTattooModal
           tattoo={selectedTattoo}
-          signedUrl={signedUrls[selectedTattoo.image_url]}
+          publicUrl={publicUrls[selectedTattoo.image_url]}
           isDeleting={isDeleting === selectedTattoo.id}
           onClose={() => setSelectedTattoo(null)}
           onDelete={handleDelete}

@@ -1,13 +1,17 @@
-import Image from 'next/image';
-import type { Tattoo } from '@/types/tattoo';
+import Image from "next/image";
+import type { Tattoo } from "@/types/tattoo";
 
 interface TattooModalProps {
   tattoo: Tattoo;
-  signedUrl: string;
+  publicUrl: string;
   onClose: () => void;
 }
 
-export default function TattooModal({ tattoo, signedUrl, onClose }: TattooModalProps) {
+export default function TattooModal({
+  tattoo,
+  publicUrl,
+  onClose,
+}: TattooModalProps) {
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onClose();
@@ -15,7 +19,7 @@ export default function TattooModal({ tattoo, signedUrl, onClose }: TattooModalP
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       onClose();
     }
   };
@@ -29,9 +33,7 @@ export default function TattooModal({ tattoo, signedUrl, onClose }: TattooModalP
       role="button"
       aria-label="Close image viewer"
     >
-      <div
-        className="relative max-w-7xl w-full max-h-[95vh] sm:max-h-[90vh] flex items-center justify-center cursor-default"
-      >
+      <div className="relative max-w-7xl w-full max-h-[95vh] sm:max-h-[90vh] flex items-center justify-center cursor-default">
         {/* Close button */}
         <button
           onClick={onClose}
@@ -39,15 +41,25 @@ export default function TattooModal({ tattoo, signedUrl, onClose }: TattooModalP
           aria-label="Close image viewer"
           type="button"
         >
-          <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <svg
+            className="w-6 h-6 sm:w-7 sm:h-7"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
 
         {/* Image Container */}
         <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-black/50 border border-white/10 bg-white/5 backdrop-blur-sm">
           <Image
-            src={signedUrl || '/placeholder-image.svg'}
+            src={publicUrl || "/placeholder-image.svg"}
             alt={tattoo.title}
             width={1000}
             height={1000}
@@ -68,10 +80,10 @@ export default function TattooModal({ tattoo, signedUrl, onClose }: TattooModalP
                 </span>
               )}
               <span className="text-white/60">
-                {new Date(tattoo.created_at).toLocaleDateString('en-US', {
-                  month: 'long',
-                  day: 'numeric',
-                  year: 'numeric'
+                {new Date(tattoo.created_at).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
                 })}
               </span>
             </div>

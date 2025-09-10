@@ -10,7 +10,10 @@
     "db-types": "npx supabase gen types typescript --project-id bjjqoffogqzzkxygyrtr > src/types/supabase.ts",
     "db-reset": "supabase db reset",
     "db-push": "supabase db push",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test-email": "curl -X POST http://localhost:3000/api/test-email",
+    "test-resend": "node test-resend.js",
+    "test-google-meet": "node test-google-meet.js"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -22,6 +25,7 @@
     ]
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.1.1",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-label": "^2.1.7",
@@ -40,6 +44,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.59.0",
+    "resend": "^6.0.2",
     "tailwind-merge": "^3.3.1",
     "zod": "^3.25.67"
   },

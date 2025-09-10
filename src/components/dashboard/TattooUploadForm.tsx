@@ -25,6 +25,7 @@ interface TattooUploadFormProps {
   selectedFile: File | null;
   error: string | null;
   isLoading: boolean;
+  fixedCategory?: string; // Optional fixed category
 }
 
 export default function TattooUploadForm({
@@ -38,13 +39,24 @@ export default function TattooUploadForm({
   selectedFile,
   error,
   isLoading,
+  fixedCategory,
 }: TattooUploadFormProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Tattoo Details</CardTitle>
+        <CardTitle>
+          {fixedCategory === "art"
+            ? "Artwork Details"
+            : fixedCategory === "designs"
+              ? "Design Details"
+              : "Tattoo Details"}
+        </CardTitle>
         <CardDescription>
-          Fill in the information about your tattoo
+          {fixedCategory === "art"
+            ? "Fill in the information about your artwork"
+            : fixedCategory === "designs"
+              ? "Fill in the information about your design"
+              : "Fill in the information about your tattoo"}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -89,7 +101,7 @@ export default function TattooUploadForm({
                   {selectedFile ? selectedFile.name : "Click to upload image"}
                 </span>
                 <span className="text-xs text-gray-500">
-                  PNG, JPG, GIF up to 10MB
+                  PNG, JPG, GIF up to 50MB
                 </span>
               </label>
             </div>
@@ -109,12 +121,24 @@ export default function TattooUploadForm({
           </div>
 
           {/* Category */}
-          <CategoryInput
-            value={formData.category}
-            onChange={onCategoryChange}
-            disabled={isLoading}
-            placeholder="e.g., Traditional, Realism, Geometric"
-          />
+          {fixedCategory ? (
+            <div className="space-y-2">
+              <Label htmlFor="category">Category</Label>
+              <div className="px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-sm text-gray-700 capitalize">
+                {fixedCategory}
+              </div>
+              <p className="text-xs text-gray-500">
+                Category is automatically set to {fixedCategory}
+              </p>
+            </div>
+          ) : (
+            <CategoryInput
+              value={formData.category}
+              onChange={onCategoryChange}
+              disabled={isLoading}
+              placeholder="e.g., Traditional, Realism, Geometric"
+            />
+          )}
 
           {/* Visibility Toggle */}
           <div className="space-y-2">
@@ -125,11 +149,14 @@ export default function TattooUploadForm({
                   id="is_public"
                   type="checkbox"
                   checked={formData.is_public}
-                                                      onChange={(e) => onVisibilityChange(e.target.checked)}
+                  onChange={(e) => onVisibilityChange(e.target.checked)}
                   disabled={isLoading}
                   className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
                 />
-                <Label htmlFor="is_public" className="text-sm font-medium text-gray-700">
+                <Label
+                  htmlFor="is_public"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Make this tattoo visible in public portfolio
                 </Label>
               </div>
@@ -137,8 +164,7 @@ export default function TattooUploadForm({
             <p className="text-xs text-gray-500">
               {formData.is_public
                 ? "✅ This tattoo will be visible to visitors on your portfolio page"
-                : "🔒 This tattoo will only be visible in the admin dashboard"
-              }
+                : "🔒 This tattoo will only be visible in the admin dashboard"}
             </p>
           </div>
 

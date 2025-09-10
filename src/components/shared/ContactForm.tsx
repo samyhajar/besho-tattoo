@@ -11,9 +11,14 @@ export default function ContactForm() {
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "success" | "error"
+  >("idle");
 
-  const handleInputChange = (field: string, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    field: string,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [field]: e.target.value,
@@ -30,11 +35,28 @@ export default function ContactForm() {
     setSubmitStatus("idle");
 
     try {
-      // Simulate form submission
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setSubmitStatus("success");
-      setFormData({ name: "", email: "", subject: "", message: "" });
-    } catch (_error) {
+      const response = await fetch("/api/email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type: "contact",
+          data: formData,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSubmitStatus("success");
+        setFormData({ name: "", email: "", subject: "", message: "" });
+      } else {
+        console.error("Email sending failed:", result.error);
+        setSubmitStatus("error");
+      }
+    } catch (error) {
+      console.error("Form submission error:", error);
       setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);
@@ -47,7 +69,8 @@ export default function ContactForm() {
         Send us a Message
       </h2>
       <p className="text-gray-600 mb-8">
-        Fill out the form below and we&apos;ll get back to you as soon as possible.
+        Fill out the form below and we&apos;ll get back to you as soon as
+        possible.
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -79,7 +102,7 @@ export default function ContactForm() {
           type="text"
           value={formData.subject}
           onChange={(e) => handleInputChange("subject", e)}
-          placeholder="What&apos;s this about?"
+          placeholder="What's this about?"
           disabled={isSubmitting}
           required
         />
@@ -106,26 +129,24 @@ export default function ContactForm() {
         </div>
 
         {submitStatus === "success" && (
-          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-green-800 font-medium">Message sent successfully!</p>
+          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
+            <p className="text-green-800 font-medium">
+              Message sent successfully! 🎉
+            </p>
             <p className="text-green-700 text-sm mt-1">
-              We&apos;ll get back to you within 24 hours.
+              Thank you for reaching out. We&apos;ll get back to you soon!
             </p>
           </div>
         )}
 
         {submitStatus === "error" && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800 font-medium">Failed to send message</p>
+          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-red-800 font-medium">Unable to send message</p>
             <p className="text-red-700 text-sm mt-1">
-              Please try again or contact us directly.
+              Failed to send message. Please try again or contact us directly.
             </p>
           </div>
         )}
-
-        <p className="text-sm text-gray-500 mt-4">
-          Note: For tattoo appointments, please include details about your desired design and preferred dates.
-        </p>
       </form>
     </div>
   );

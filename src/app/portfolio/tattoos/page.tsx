@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 
 export default function TattoosPage() {
   const [tattoos, setTattoos] = useState<Tattoo[]>([]);
-  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
+  const [publicUrls, setPublicUrls] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -46,17 +46,17 @@ export default function TattoosPage() {
 
       const data = (await response.json()) as {
         tattoos: Tattoo[];
-        signedUrls: Record<string, string>;
+        publicUrls: Record<string, string>;
       };
 
       setTattoos(data.tattoos || []);
-      setSignedUrls(data.signedUrls || {});
+      setPublicUrls(data.publicUrls || {});
     } catch (err) {
       console.error("Error loading tattoos:", err);
       setError(err instanceof Error ? err.message : "Failed to load portfolio");
       // Set empty data on error to prevent crashes
       setTattoos([]);
-      setSignedUrls({});
+      setPublicUrls({});
     } finally {
       setIsLoading(false);
     }
@@ -180,7 +180,7 @@ export default function TattoosPage() {
         <div className="max-w-7xl mx-auto">
           <PortfolioGrid
             tattoos={filteredTattoos}
-            signedUrls={signedUrls}
+            publicUrls={publicUrls}
             onTattooClick={setSelectedTattoo}
           />
         </div>
@@ -190,7 +190,7 @@ export default function TattoosPage() {
       {selectedTattoo && (
         <TattooModal
           tattoo={selectedTattoo}
-          signedUrl={signedUrls[selectedTattoo.image_url]}
+          publicUrl={publicUrls[selectedTattoo.image_url]}
           onClose={() => setSelectedTattoo(null)}
         />
       )}

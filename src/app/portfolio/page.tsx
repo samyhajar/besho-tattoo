@@ -11,35 +11,35 @@ const categories = [
     title: "Tattoos",
     href: "/portfolio/tattoos",
     description: "Explore our collection of custom tattoo work",
-    categoryKey: "tattoo", // This should match the category in your database
   },
   {
     id: "designs",
     title: "Designs & Concepts",
     href: "/portfolio/designs",
     description: "Original artwork and design concepts",
-    categoryKey: "design", // This should match the category in your database
   },
   {
     id: "art",
     title: "Art & Graffiti",
     href: "/portfolio/art",
     description: "Street art and creative expressions",
-    categoryKey: "art", // This should match the category in your database
   },
 ];
 
 export default function PortfolioLandingPage() {
   const router = useRouter();
-  const [categoryImages, setCategoryImages] = useState<Record<string, string>>(
+  const [featureImages, setFeatureImages] = useState<Record<string, string>>(
     {},
   );
+  const [_isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch the latest image for each category
-    const fetchLatestImages = async () => {
+    // Fetch the featured tattoo image
+    const fetchFeaturedImage = async () => {
       try {
+        setIsLoading(true);
         const response = await fetch("/api/portfolio");
+
         if (response.ok) {
           const data = (await response.json()) as {
             tattoos: Array<{
@@ -47,50 +47,40 @@ export default function PortfolioLandingPage() {
               created_at: string;
               category: string | null;
             }>;
-            signedUrls: Record<string, string>;
+            publicUrls: Record<string, string>;
+            featureImages: Record<
+              string,
+              {
+                image_url: string;
+                title: string;
+              }
+            >;
           };
 
-          const latestByCategory: Record<string, string> = {};
-
-          // Group tattoos by category and find the latest for each
-          if (data.tattoos.length > 0) {
-            // Since tattoos are already ordered by created_at desc, we just need the first one of each category
-            const seenCategories = new Set<string>();
-
-            data.tattoos.forEach((tattoo) => {
-              const category =
-                tattoo.category?.toLowerCase() || "uncategorized";
-              if (!seenCategories.has(category)) {
-                const signedUrl = data.signedUrls[tattoo.image_url];
-                if (signedUrl) {
-                  latestByCategory[category] = signedUrl;
-                  seenCategories.add(category);
+          // Process feature images for each category
+          const categoryFeatureImages: Record<string, string> = {};
+          Object.entries(data.featureImages || {}).forEach(
+            ([category, featureImage]) => {
+              if (featureImage?.image_url) {
+                const publicUrl = data.publicUrls[featureImage.image_url];
+                if (publicUrl) {
+                  categoryFeatureImages[category] = publicUrl;
                 }
               }
-            });
+            },
+          );
 
-            // Also try to match any general images to categories if specific ones aren't found
-            if (data.tattoos.length > 0) {
-              const fallbackImage = data.signedUrls[data.tattoos[0].image_url];
-              if (fallbackImage) {
-                // Use the latest image as fallback for any missing categories
-                ["tattoo", "design", "art"].forEach((cat) => {
-                  if (!latestByCategory[cat]) {
-                    latestByCategory[cat] = fallbackImage;
-                  }
-                });
-              }
-            }
-          }
-
-          setCategoryImages(latestByCategory);
+          setFeatureImages(categoryFeatureImages);
         }
       } catch (error) {
-        console.error("Failed to fetch latest images:", error);
+        console.error("Failed to fetch featured images:", error);
+        setFeatureImages({});
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    void fetchLatestImages();
+    void fetchFeaturedImage();
   }, []);
 
   const handleCategoryClick = (href: string) => {
@@ -130,8 +120,8 @@ export default function PortfolioLandingPage() {
                   <div
                     className="absolute inset-0 bg-cover bg-center filter blur-[1px] scale-110"
                     style={{
-                      backgroundImage: categoryImages[category.categoryKey]
-                        ? `url('${categoryImages[category.categoryKey]}')`
+                      backgroundImage: featureImages[category.id]
+                        ? `url('${featureImages[category.id]}')`
                         : "url('/Liberte_black_last.svg')",
                     }}
                   />

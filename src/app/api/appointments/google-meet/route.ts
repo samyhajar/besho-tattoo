@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Try to determine which method to use based on available environment variables
+    // Check for OAuth configuration
     const hasOAuthConfig =
       process.env.GOOGLE_OAUTH_CLIENT_ID &&
       process.env.GOOGLE_OAUTH_CLIENT_SECRET &&
@@ -65,52 +65,83 @@ export async function POST(request: NextRequest) {
     if (hasOAuthConfig) {
       // Use OAuth method (simpler setup)
       console.log("Using OAuth method for Google Meet");
-      const config = getSimpleMeetConfig();
+      try {
+        const config = getSimpleMeetConfig();
 
-      meetSession = await createSimpleGoogleMeetSession(
-        {
-          title: `Tattoo Appointment - ${appointment.full_name}`,
-          description: `Tattoo appointment scheduled for ${appointment.date} at ${appointment.time_start}`,
-          startTime: new Date(
-            `${appointment.date}T${appointment.time_start}`,
-          ).toISOString(),
-          endTime: new Date(
-            `${appointment.date}T${appointment.time_end}`,
-          ).toISOString(),
-          attendeeEmails: [appointment.email].filter(Boolean),
-          timeZone: "America/New_York",
-        },
-        config,
-      );
+        meetSession = await createSimpleGoogleMeetSession(
+          {
+            title: `Tattoo Appointment - ${appointment.full_name}`,
+            description: `Tattoo appointment scheduled for ${appointment.date} at ${appointment.time_start}`,
+            startTime: new Date(
+              `${appointment.date}T${appointment.time_start}`,
+            ).toISOString(),
+            endTime: new Date(
+              `${appointment.date}T${appointment.time_end}`,
+            ).toISOString(),
+            attendeeEmails: [appointment.email].filter(Boolean),
+            timeZone: "America/New_York",
+          },
+          config,
+        );
+      } catch (oauthError) {
+        console.error("OAuth Google Meet creation failed:", oauthError);
+        return NextResponse.json(
+          {
+            error: "Google Meet creation failed",
+            details:
+              "OAuth configuration error. Please check your Google OAuth credentials.",
+            fallback: true,
+          },
+          { status: 500 },
+        );
+      }
     } else if (hasServiceAccountConfig) {
       // Use service account method (domain-wide delegation)
       console.log("Using service account method for Google Meet");
-      const config = getGoogleMeetConfig();
+      try {
+        const config = getGoogleMeetConfig();
 
-      meetSession = await createGoogleMeetSession(
-        {
-          title: `Tattoo Appointment - ${appointment.full_name}`,
-          description: `Tattoo appointment scheduled for ${appointment.date} at ${appointment.time_start}`,
-          startTime: new Date(
-            `${appointment.date}T${appointment.time_start}`,
-          ).toISOString(),
-          endTime: new Date(
-            `${appointment.date}T${appointment.time_end}`,
-          ).toISOString(),
-          attendeeEmails: [appointment.email].filter(Boolean),
-          timeZone: "America/New_York",
-        },
-        config,
-      );
+        meetSession = await createGoogleMeetSession(
+          {
+            title: `Tattoo Appointment - ${appointment.full_name}`,
+            description: `Tattoo appointment scheduled for ${appointment.date} at ${appointment.time_start}`,
+            startTime: new Date(
+              `${appointment.date}T${appointment.time_start}`,
+            ).toISOString(),
+            endTime: new Date(
+              `${appointment.date}T${appointment.time_end}`,
+            ).toISOString(),
+            attendeeEmails: [appointment.email].filter(Boolean),
+            timeZone: "America/New_York",
+          },
+          config,
+        );
+      } catch (serviceAccountError) {
+        console.error(
+          "Service account Google Meet creation failed:",
+          serviceAccountError,
+        );
+        return NextResponse.json(
+          {
+            error: "Google Meet creation failed",
+            details:
+              "Service account configuration error. Please check your Google service account credentials.",
+            fallback: true,
+          },
+          { status: 500 },
+        );
+      }
     } else {
+      // No Google Meet configuration available
+      console.log("No Google Meet configuration available");
       return NextResponse.json(
         {
-          error:
-            "Google Meet configuration not found. Please set up either OAuth or Service Account credentials.",
+          error: "Google Meet not configured",
           details:
-            "Check GOOGLE_MEET_SETUP.md or GOOGLE_MEET_SETUP_SIMPLE.md for setup instructions",
+            "Google Meet integration is not set up. Appointments will be created without video conferencing.",
+          fallback: true,
         },
-        { status: 500 },
+        { status: 503 },
       );
     }
 
@@ -120,14 +151,13 @@ export async function POST(request: NextRequest) {
       .update({
         google_meet_link: meetSession.meetLink,
         google_meet_event_id: meetSession.eventId,
-        google_meet_space_id: meetSession.spaceId || null,
-        google_meet_created_at: new Date().toISOString(),
+        google_meet_space_id: meetSession.spaceId,
       })
       .eq("id", appointmentId);
 
     if (updateError) {
       console.error(
-        "Error updating appointment with Google Meet info:",
+        "Failed to update appointment with Google Meet info:",
         updateError,
       );
       return NextResponse.json(
@@ -143,11 +173,12 @@ export async function POST(request: NextRequest) {
       spaceId: meetSession.spaceId,
     });
   } catch (error) {
-    console.error("Error creating Google Meet session:", error);
+    console.error("Google Meet API error:", error);
     return NextResponse.json(
       {
-        error: "Failed to create Google Meet session",
+        error: "Internal server error",
         details: error instanceof Error ? error.message : "Unknown error",
+        fallback: true,
       },
       { status: 500 },
     );
