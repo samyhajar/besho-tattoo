@@ -122,7 +122,7 @@ export default function PortfolioLandingPage() {
                     style={{
                       backgroundImage: featureImages[category.id]
                         ? `url('${featureImages[category.id]}')`
-                        : "url('/Liberte_black_last.svg')",
+                        : "url('/lastlastlogo.png')",
                     }}
                   />
 

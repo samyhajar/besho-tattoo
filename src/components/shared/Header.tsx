@@ -36,15 +36,15 @@ export default function Header() {
 
   return (
     <header className="relative z-50 bg-white">
-      <div className="flex items-center justify-between px-6 sm:px-8 lg:px-16 py-4 sm:py-6">
+      <div className="flex items-center justify-between px-6 sm:px-8 lg:px-16 py-0">
         {/* Logo - always on the left */}
         <Link href="/" className="flex items-center z-50" onClick={closeMenu}>
           <Image
-            src="/Liberte_black_last.svg"
-            alt="Liberté Logo"
-            width={60}
-            height={60}
-            className="h-12 w-auto sm:h-14"
+            src="/lastlastlogo.png"
+            alt="Besho Tattoo Logo"
+            width={100}
+            height={100}
+            className="h-20 w-auto sm:h-24"
             priority
           />
         </Link>

@@ -11,17 +11,18 @@ export default function Footer() {
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <Image
-            src="/Liberte_black_last.svg"
-            alt="Liberté Logo"
-            width={48}
-            height={48}
-            className="h-10 w-auto"
+            src="/lastlastlogo.png"
+            alt="Besho Tattoo Logo"
+            width={80}
+            height={80}
+            className="h-18 w-auto"
           />
         </div>
 
         {/* Description */}
         <p className="text-gray-600 mb-8 max-w-md mx-auto">
-          Professional tattoo studio dedicated to creating unique, high-quality tattoos that tell your story.
+          Professional tattoo studio dedicated to creating unique, high-quality
+          tattoos that tell your story.
         </p>
 
         {/* Social Media */}
@@ -38,9 +39,7 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="text-center text-gray-600 text-sm">
-          <p>
-            © Mhanna Letters Berlin - Germany 2025
-          </p>
+          <p>© Mhanna Letters Berlin - Germany 2025</p>
           <Link
             href="/privacy"
             className="text-gray-600 hover:text-black transition-colors mt-2 inline-block"

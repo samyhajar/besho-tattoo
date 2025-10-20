@@ -13,3 +13,4 @@ CREATE INDEX IF NOT EXISTS idx_tattoos_feature_image ON tattoos(is_feature_image
 CREATE UNIQUE INDEX IF NOT EXISTS idx_tattoos_unique_feature_per_category
 ON tattoos(category)
 WHERE is_feature_image = true AND category IS NOT NULL;
+

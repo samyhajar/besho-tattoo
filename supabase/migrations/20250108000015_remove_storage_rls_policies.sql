@@ -30,3 +30,4 @@ DROP POLICY IF EXISTS "Public read access for tattoosappointment" ON storage.obj
 DROP POLICY IF EXISTS "Authenticated users can upload tattoosappointment" ON storage.objects;
 DROP POLICY IF EXISTS "Users can update their own tattoosappointment" ON storage.objects;
 DROP POLICY IF EXISTS "Users can delete their own tattoosappointment" ON storage.objects;
+
