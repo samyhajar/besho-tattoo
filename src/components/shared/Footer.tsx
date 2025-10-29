@@ -39,7 +39,7 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="text-center text-gray-600 text-sm">
-          <p>© Mhanna Letters Berlin - Germany 2025</p>
+          <p>© Besho Tattoo - Irak 2025</p>
           <Link
             href="/privacy"
             className="text-gray-600 hover:text-black transition-colors mt-2 inline-block"

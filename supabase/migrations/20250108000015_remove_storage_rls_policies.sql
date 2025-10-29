@@ -31,3 +31,5 @@ DROP POLICY IF EXISTS "Authenticated users can upload tattoosappointment" ON sto
 DROP POLICY IF EXISTS "Users can update their own tattoosappointment" ON storage.objects;
 DROP POLICY IF EXISTS "Users can delete their own tattoosappointment" ON storage.objects;
 
+
+
