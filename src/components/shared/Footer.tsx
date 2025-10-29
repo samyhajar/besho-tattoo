@@ -39,7 +39,7 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="text-center text-gray-600 text-sm">
-          <p>© Besho Tattoo - Irak 2025</p>
+          <p>© Think before you ink - Irak {new Date().getFullYear()}</p>
           <Link
             href="/privacy"
             className="text-gray-600 hover:text-black transition-colors mt-2 inline-block"
