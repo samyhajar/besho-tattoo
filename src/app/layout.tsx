@@ -36,6 +36,11 @@ export const metadata: Metadata = {
   },
   description:
     "Custom tattoos connecting history and modern art, specializing in Arabic calligraphy, Mesopotamian symbols, and elegant fine line tattooing.",
+  icons: {
+    icon: "/lastlastlogo.png",
+    shortcut: "/lastlastlogo.png",
+    apple: "/lastlastlogo.png",
+  },
 };
 
 const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL
