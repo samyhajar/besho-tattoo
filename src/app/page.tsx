@@ -76,16 +76,16 @@ export default function HomePage() {
       <section className="relative flex min-h-[calc(100vh-84px)] items-center justify-center overflow-hidden bg-[#0d0d0d]">
         <div className="absolute inset-0 z-0">
           <Image
-            src="/IMG_4982.jpg"
+            src="/1de18774-5b5c-4058-8ebc-26ad6594bdcf.png"
             alt="Besho Tattoo Artist at Work"
             fill
             sizes="100vw"
             fetchPriority="high"
-            className="h-full w-full scale-110 object-cover object-center grayscale opacity-60"
+            className="h-full w-full scale-[1.01] object-cover object-[50%_26%] grayscale contrast-105 brightness-[0.96]"
             priority
             quality={90}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/28 via-black/6 to-black/52" />
           <div className="home-noise absolute inset-0 opacity-[0.28]" />
         </div>
 

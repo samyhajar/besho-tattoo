@@ -130,8 +130,8 @@ export default function Header({ variant = "default" }: HeaderProps) {
           />
           {isHomeVariant ? (
             <div className="ml-4 flex flex-col justify-center text-white">
-              <span className="font-home-serif text-[1.7rem] uppercase leading-none tracking-[0.28em] sm:hidden">
-                T.B.Y.I
+              <span className="font-home-serif max-w-[210px] whitespace-nowrap text-[0.72rem] uppercase leading-none tracking-[0.08em] sm:hidden">
+                THINK.BEFORE.YOU.INK
               </span>
               <span className="font-home-serif hidden text-[24px] uppercase leading-none tracking-[0.22em] sm:block">
                 THINK.BEFORE.YOU.INK
