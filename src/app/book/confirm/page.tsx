@@ -6,12 +6,12 @@ import Header from "@/components/shared/Header";
 
 function LoadingSkeleton() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#0d0d0d]">
       <Header />
-      <div className="bg-white min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-[#0d0d0d]">
         <div className="text-center p-6">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading appointment details...</p>
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-white"></div>
+          <p className="text-neutral-400">Loading appointment details...</p>
         </div>
       </div>
     </div>

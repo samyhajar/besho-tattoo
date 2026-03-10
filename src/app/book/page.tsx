@@ -68,17 +68,17 @@ export default function BookPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#0d0d0d]">
       <Header />
 
-      <div className="bg-white min-h-screen">
+      <div className="min-h-screen bg-[#0d0d0d]">
         <div className="container mx-auto px-4 py-6 sm:py-8 lg:py-12">
           {/* Header */}
           <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-black mb-3 sm:mb-4">
+            <h1 className="mb-3 text-2xl font-bold text-white sm:text-3xl lg:mb-4 lg:text-4xl">
               Book Your Appointment
             </h1>
-            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            <p className="mx-auto max-w-2xl leading-relaxed text-neutral-400 sm:text-lg">
               Select an available date and time for your tattoo consultation or
               session.
             </p>
@@ -88,22 +88,22 @@ export default function BookPage() {
           <div className="max-w-6xl mx-auto">
             {/* Mobile Progress Indicator */}
             <div className="mb-6 sm:mb-8 lg:hidden">
-              <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 shadow-sm">
+              <div className="rounded-lg border border-white/10 bg-[#141414] p-4 shadow-sm">
                 <div className="flex items-center justify-center space-x-4 text-sm">
                   <div
-                    className={`flex items-center space-x-2 ${selectedDate ? "text-black" : "text-gray-400"}`}
+                    className={`flex items-center space-x-2 ${selectedDate ? "text-white" : "text-neutral-500"}`}
                   >
                     <div
                       className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                         selectedDate
-                          ? "border-black bg-black"
-                          : "border-gray-300"
+                          ? "border-white bg-white"
+                          : "border-neutral-600"
                       }`}
                     >
                       {selectedDate ? (
-                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                        <div className="h-2 w-2 rounded-full bg-black"></div>
                       ) : (
-                        <span className="text-xs font-medium text-gray-600">
+                        <span className="text-xs font-medium text-neutral-500">
                           1
                         </span>
                       )}
@@ -112,23 +112,23 @@ export default function BookPage() {
                   </div>
 
                   <div
-                    className={`w-8 h-0.5 ${selectedDate ? "bg-black" : "bg-gray-300"}`}
+                    className={`h-0.5 w-8 ${selectedDate ? "bg-white" : "bg-neutral-700"}`}
                   ></div>
 
                   <div
-                    className={`flex items-center space-x-2 ${selectedSlot ? "text-black" : "text-gray-400"}`}
+                    className={`flex items-center space-x-2 ${selectedSlot ? "text-white" : "text-neutral-500"}`}
                   >
                     <div
                       className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                         selectedSlot
-                          ? "border-black bg-black"
-                          : "border-gray-300"
+                          ? "border-white bg-white"
+                          : "border-neutral-600"
                       }`}
                     >
                       {selectedSlot ? (
-                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                        <div className="h-2 w-2 rounded-full bg-black"></div>
                       ) : (
-                        <span className="text-xs font-medium text-gray-600">
+                        <span className="text-xs font-medium text-neutral-500">
                           2
                         </span>
                       )}
@@ -137,12 +137,12 @@ export default function BookPage() {
                   </div>
 
                   <div
-                    className={`w-8 h-0.5 ${selectedSlot ? "bg-black" : "bg-gray-300"}`}
+                    className={`h-0.5 w-8 ${selectedSlot ? "bg-white" : "bg-neutral-700"}`}
                   ></div>
 
-                  <div className="flex items-center space-x-2 text-gray-400">
-                    <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                      <span className="text-xs font-medium text-gray-600">
+                  <div className="flex items-center space-x-2 text-neutral-500">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-neutral-600">
+                      <span className="text-xs font-medium text-neutral-500">
                         3
                       </span>
                     </div>
@@ -156,7 +156,7 @@ export default function BookPage() {
               {/* Calendar Section */}
               <div className="space-y-4">
                 <div className="hidden lg:block">
-                  <h2 className="text-xl font-semibold text-black mb-4">
+                  <h2 className="mb-4 text-xl font-semibold text-white">
                     Choose a Date
                   </h2>
                 </div>
@@ -173,7 +173,7 @@ export default function BookPage() {
               {/* Time Slots Section */}
               <div className="space-y-4">
                 <div className="hidden lg:block">
-                  <h2 className="text-xl font-semibold text-black mb-4">
+                  <h2 className="mb-4 text-xl font-semibold text-white">
                     Choose a Time
                   </h2>
                 </div>

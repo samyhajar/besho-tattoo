@@ -18,10 +18,10 @@ export default function BookingSuccess({ appointment }: BookingSuccessProps) {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-[#0e1424]">
+    <div className="min-h-screen bg-[#0d0d0d]">
       <Header />
 
-      <div className="bg-gradient-to-br from-[#0e1424] to-[#0e1424] min-h-screen flex items-center justify-center p-4">
+      <div className="flex min-h-screen items-center justify-center bg-[#0d0d0d] p-4">
         <Card className="w-full max-w-2xl bg-gray-800 border-gray-700">
           <CardHeader className="text-center pb-4">
             <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">

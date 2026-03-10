@@ -1,52 +1,30 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
-import { Instagram } from "lucide-react";
+interface FooterProps {
+  variant?: "default" | "home";
+}
 
-export default function Footer() {
+export default function Footer({ variant = "default" }: FooterProps) {
+  const currentYear = new Date().getFullYear();
+  const footerClassName =
+    variant === "home"
+      ? "border-t border-white/5 bg-[#0f0f0f] px-4 py-16 text-white sm:px-6 lg:px-8"
+      : "border-t border-white/5 bg-[#0f0f0f] px-4 py-16 text-white sm:px-6 lg:px-8";
+
   return (
-    <footer className="px-4 sm:px-6 lg:px-8 py-12 bg-white">
-      <div className="max-w-4xl mx-auto text-center">
-        {/* Logo */}
-        <div className="flex justify-center mb-6">
-          <Image
-            src="/lastlastlogo.png"
-            alt="Besho Tattoo Logo"
-            width={80}
-            height={80}
-            className="h-18 w-auto"
-          />
-        </div>
-
-        {/* Description */}
-        <p className="text-gray-600 mb-8 max-w-md mx-auto">
-          Professional tattoo studio dedicated to creating unique, high-quality
-          tattoos that tell your story.
+    <footer className={footerClassName}>
+      <div className="mx-auto max-w-4xl text-center">
+        <p className="font-home-serif text-2xl uppercase tracking-[0.2em] text-white/88">
+          THINK.BEFORE.YOU.INK
         </p>
 
-        {/* Social Media */}
-        <div className="flex justify-center mb-8">
-          <a
-            href="https://www.instagram.com/besho_tattoo/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-2 text-gray-600 hover:text-black transition-colors"
-          >
-            <Instagram className="w-6 h-6" />
-          </a>
-        </div>
+        <p className="mx-auto mt-8 max-w-md font-home-sans text-sm font-light text-neutral-400 sm:text-base">
+          Artistry in every needle. Stories in every line.
+        </p>
 
-        {/* Copyright */}
-        <div className="text-center text-gray-600 text-sm">
-          <p>© Think before you ink - Irak {new Date().getFullYear()}</p>
-          <Link
-            href="/privacy"
-            className="text-gray-600 hover:text-black transition-colors mt-2 inline-block"
-          >
-            Privacy Policy
-          </Link>
-        </div>
+        <p className="mt-14 font-home-sans text-sm tracking-[0.03em] text-neutral-500">
+          © {currentYear} THINK.BEFORE.YOU.INK. All rights reserved.
+        </p>
       </div>
     </footer>
   );

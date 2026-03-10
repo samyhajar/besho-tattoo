@@ -1,43 +1,60 @@
 "use client";
 
+import Image from "next/image";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import ContactInfo from "@/components/shared/ContactInfo";
-import ContactForm from "@/components/shared/ContactForm";
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 export default function ContactPage() {
-  return (
-    <div className="min-h-screen bg-white">
-      <Header />
+  const { getContentByField } = useSiteContent();
+  const title =
+    getContentByField("contact", "header", "title") || "Get in Touch";
+  const description =
+    getContentByField("contact", "header", "description") ||
+    "I am a mobile tattoo artist, traveling internationally to create art and participate in global exhibitions. Catch me in my next destination.";
 
-      {/* Main Content */}
-      <div className="flex-1 px-6 sm:px-8 lg:px-16 py-16 sm:py-24">
-        <div className="max-w-6xl mx-auto">
-          {/* Page Title */}
-          <div className="text-center mb-16">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-wider text-black mb-6">
-              Get in Touch
-            </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Have questions about our work or want to discuss a potential project? We&apos;d love to hear from you.
-            </p>
+  return (
+    <div className="min-h-screen bg-[#0d0d0d] text-white font-home-sans">
+      <Header variant="home" />
+
+      <main className="px-6 py-20">
+        <div className="mx-auto grid w-full max-w-6xl items-center gap-14 lg:grid-cols-[minmax(0,0.86fr)_minmax(340px,0.74fr)] lg:gap-20">
+          <div className="space-y-10 text-left">
+            <div className="space-y-8">
+              <h1 className="font-home-serif text-4xl text-white md:text-6xl">
+                {title}
+              </h1>
+              <p className="max-w-2xl text-lg font-light leading-[1.9] text-neutral-400">
+                {description}
+              </p>
+            </div>
+
+            <div className="max-w-md">
+              <ContactInfo
+                variant="dark"
+                showHeading={false}
+                showIntro={false}
+                instagramOnly
+              />
+            </div>
           </div>
 
-          {/* Two Column Layout */}
-          <div className="grid lg:grid-cols-2 gap-16 lg:gap-0">
-            {/* Left Column - Contact Information */}
-            <ContactInfo />
-
-            {/* Separator Line - Only visible on lg+ screens */}
-            <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-px bg-gray-200 transform -translate-x-1/2"></div>
-
-            {/* Right Column - Contact Form */}
-            <ContactForm />
+          <div className="relative mx-auto w-full max-w-[480px]">
+            <div className="relative aspect-[2/3] overflow-hidden">
+              <Image
+                src="/1de18774-5b5c-4058-8ebc-26ad6594bdcf.png"
+                alt="Tattoo artist at work"
+                fill
+                className="object-cover object-center grayscale contrast-110 brightness-[0.82]"
+                priority
+              />
+            </div>
           </div>
         </div>
-      </div>
+      </main>
 
-      <Footer />
+      <Footer variant="home" />
     </div>
   );
 }

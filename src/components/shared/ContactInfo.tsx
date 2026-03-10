@@ -2,137 +2,246 @@
 
 import { MapPin, Phone, Mail, Clock, Instagram } from "lucide-react";
 import { useSiteContent } from "@/hooks/useSiteContent";
+import { cn } from "@/lib/utils";
 
-export default function ContactInfo() {
+interface ContactInfoProps {
+  variant?: "default" | "dark";
+  showHeading?: boolean;
+  showIntro?: boolean;
+  instagramOnly?: boolean;
+  alignCenter?: boolean;
+}
+
+const DEFAULT_INSTAGRAM_HANDLE = "@besho_tattoo";
+const DEFAULT_INSTAGRAM_URL =
+  "https://www.instagram.com/besho_tattoo?igsh=MXRtOTE5bWppZmRkbQ==";
+
+function getInstagramLabel(value: string) {
+  const trimmedValue = value.trim();
+
+  if (
+    !trimmedValue ||
+    /^https?:\/\//i.test(trimmedValue) ||
+    trimmedValue.includes("instagram.com")
+  ) {
+    return DEFAULT_INSTAGRAM_HANDLE;
+  }
+
+  return trimmedValue.startsWith("@") ? trimmedValue : `@${trimmedValue}`;
+}
+
+function getInstagramHref(value: string) {
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return DEFAULT_INSTAGRAM_URL;
+  }
+
+  if (/^https?:\/\//i.test(trimmedValue)) {
+    return trimmedValue;
+  }
+
+  if (trimmedValue.includes("instagram.com")) {
+    return `https://${trimmedValue.replace(/^https?:\/\//i, "")}`;
+  }
+
+  return DEFAULT_INSTAGRAM_URL;
+}
+
+export default function ContactInfo({
+  variant = "default",
+  showHeading = true,
+  showIntro = true,
+  instagramOnly = false,
+  alignCenter = false,
+}: ContactInfoProps) {
   const { getContactContent, loading } = useSiteContent();
   const contactContent = getContactContent();
+  const isDarkVariant = variant === "dark";
 
   const formatAddress = (address: string) => {
-    return address.split('\n').map((line, index) => (
+    return address.split("\n").map((line, index) => (
       <span key={index}>
         {line.trim()}
-        {index < address.split('\n').length - 1 && <br />}
+        {index < address.split("\n").length - 1 && <br />}
       </span>
     ));
   };
 
   const formatHours = (hours: string) => {
-    return hours.split('\n').map((line, index) => (
+    return hours.split("\n").map((line, index) => (
       <span key={index}>
         {line.trim()}
-        {index < hours.split('\n').length - 1 && <br />}
+        {index < hours.split("\n").length - 1 && <br />}
       </span>
     ));
   };
 
+  const items = [
+    {
+      key: "address",
+      label: "Studio Location",
+      eyebrow: "Location",
+      icon: MapPin,
+      value: loading
+        ? "Loading..."
+        : contactContent.address || "Vienna, Austria\nBy appointment only",
+      href: null,
+      renderValue: (value: string) => formatAddress(value),
+    },
+    {
+      key: "phone",
+      label: "Phone",
+      eyebrow: "Phone",
+      icon: Phone,
+      value: loading ? "Loading..." : contactContent.phone || "+43 123 456 789",
+      href: (value: string) => `tel:${value}`,
+    },
+    {
+      key: "email",
+      label: "Email",
+      eyebrow: "Email",
+      icon: Mail,
+      value: loading
+        ? "Loading..."
+        : contactContent.email || "info@beshotattoo.com",
+      href: (value: string) => `mailto:${value}`,
+    },
+    {
+      key: "hours",
+      label: "Hours",
+      eyebrow: "Availability",
+      icon: Clock,
+      value: loading
+        ? "Loading..."
+        : contactContent.hours || "By appointment only\nTuesday - Saturday",
+      href: null,
+      renderValue: (value: string) => formatHours(value),
+    },
+    {
+      key: "social",
+      label: "Instagram",
+      eyebrow: "Instagram",
+      icon: Instagram,
+      value: contactContent.socialMedia || DEFAULT_INSTAGRAM_HANDLE,
+      href: (value: string) => getInstagramHref(value),
+      renderValue: (value: string) => getInstagramLabel(value),
+      external: true,
+    },
+  ];
+  const visibleItems = instagramOnly
+    ? items.filter((item) => item.key === "social")
+    : items;
+
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-          Contact Information
-        </h2>
-        <p className="text-gray-600 mb-8">
-          Ready to start your tattoo journey? Get in touch with us to discuss your ideas and schedule a consultation.
-        </p>
-      </div>
-
-      {/* Address */}
-      <div className="flex items-start space-x-4">
-        <div className="flex-shrink-0">
-          <MapPin className="w-6 h-6 text-gray-600" />
-        </div>
+      {(showHeading || showIntro) && (
         <div>
-          <h3 className="font-medium text-gray-900">Studio Location</h3>
-          <p className="text-gray-600">
-            {loading ? "Loading..." : contactContent.address ? formatAddress(contactContent.address) : "Vienna, Austria\nBy appointment only"}
-          </p>
+          {showHeading ? (
+            <h2
+              className={cn(
+                "mb-6 text-2xl",
+                isDarkVariant
+                  ? "font-home-serif font-normal text-white"
+                  : "font-semibold text-gray-900",
+              )}
+            >
+              Contact Information
+            </h2>
+          ) : null}
+          {showIntro ? (
+            <p
+              className={cn(
+                isDarkVariant
+                  ? "font-home-sans text-neutral-400"
+                  : "text-gray-600",
+              )}
+            >
+              Ready to start your tattoo journey? Get in touch with us to
+              discuss your ideas and schedule a consultation.
+            </p>
+          ) : null}
         </div>
-      </div>
+      )}
 
-      {/* Phone */}
-      <div className="flex items-start space-x-4">
-        <div className="flex-shrink-0">
-          <Phone className="w-6 h-6 text-gray-600" />
-        </div>
-        <div>
-          <h3 className="font-medium text-gray-900">Phone</h3>
-          <p className="text-gray-600">
-            {loading ? "Loading..." : contactContent.phone ? (
-              <a href={`tel:${contactContent.phone}`} className="hover:text-gray-900 transition-colors">
-                {contactContent.phone}
-              </a>
-            ) : (
-              <a href="tel:+43123456789" className="hover:text-gray-900 transition-colors">
-                +43 123 456 789
-              </a>
-            )}
-          </p>
-        </div>
-      </div>
+      <div
+        className={cn(
+          "space-y-6 pt-8",
+          alignCenter ? "mx-auto flex max-w-sm flex-col items-center pt-6" : "",
+        )}
+      >
+        {visibleItems.map((item) => {
+          const Icon = item.icon;
+          const href = item.href ? item.href(item.value) : null;
+          const content = item.renderValue
+            ? item.renderValue(item.value)
+            : item.value;
 
-      {/* Email */}
-      <div className="flex items-start space-x-4">
-        <div className="flex-shrink-0">
-          <Mail className="w-6 h-6 text-gray-600" />
-        </div>
-        <div>
-          <h3 className="font-medium text-gray-900">Email</h3>
-          <p className="text-gray-600">
-            {loading ? "Loading..." : contactContent.email ? (
-              <a href={`mailto:${contactContent.email}`} className="hover:text-gray-900 transition-colors">
-                {contactContent.email}
-              </a>
-            ) : (
-              <a href="mailto:info@beshotattoo.com" className="hover:text-gray-900 transition-colors">
-                info@beshotattoo.com
-              </a>
-            )}
-          </p>
-        </div>
-      </div>
-
-      {/* Hours */}
-      <div className="flex items-start space-x-4">
-        <div className="flex-shrink-0">
-          <Clock className="w-6 h-6 text-gray-600" />
-        </div>
-        <div>
-          <h3 className="font-medium text-gray-900">Hours</h3>
-          <p className="text-gray-600">
-            {loading ? "Loading..." : contactContent.hours ? formatHours(contactContent.hours) : "By appointment only\nTuesday - Saturday"}
-          </p>
-        </div>
-      </div>
-
-      {/* Social Media */}
-      <div className="flex items-start space-x-4">
-        <div className="flex-shrink-0">
-          <Instagram className="w-6 h-6 text-gray-600" />
-        </div>
-        <div>
-          <h3 className="font-medium text-gray-900">Follow Us</h3>
-          <p className="text-gray-600">
-            {loading ? "Loading..." : contactContent.socialMedia ? (
-              <a 
-                href={`https://instagram.com/${contactContent.socialMedia.replace('@', '')}`}
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hover:text-gray-900 transition-colors"
+          return (
+            <div
+              key={item.key}
+              className={cn(
+                "flex items-start space-x-4",
+                alignCenter
+                  ? "flex-col items-center space-x-0 space-y-4 text-center"
+                  : "",
+                isDarkVariant ? "text-neutral-300" : "",
+              )}
+            >
+              <div
+                className={cn(
+                  "flex h-12 w-12 shrink-0 items-center justify-center border",
+                  isDarkVariant
+                    ? "border-neutral-800 bg-neutral-900"
+                    : "border-transparent bg-transparent",
+                )}
               >
-                {contactContent.socialMedia}
-              </a>
-            ) : (
-              <a 
-                href="https://instagram.com/beshotattoo" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hover:text-gray-900 transition-colors"
-              >
-                @beshotattoo
-              </a>
-            )}
-          </p>
-        </div>
+                <Icon
+                  className={cn(
+                    "h-5 w-5",
+                    isDarkVariant ? "text-neutral-300" : "text-gray-600",
+                  )}
+                />
+              </div>
+              <div className={cn(alignCenter ? "space-y-2 text-center" : "")}>
+                <p
+                  className={cn(
+                    "text-xs uppercase tracking-widest",
+                    isDarkVariant ? "text-neutral-500" : "text-gray-500",
+                  )}
+                >
+                  {item.eyebrow}
+                </p>
+                {href ? (
+                  <a
+                    href={href}
+                    target={item.external ? "_blank" : undefined}
+                    rel={item.external ? "noopener noreferrer" : undefined}
+                    className={cn(
+                      "mt-1 block transition-colors",
+                      isDarkVariant
+                        ? "font-home-sans text-base text-neutral-300 hover:text-white"
+                        : "text-gray-600 hover:text-gray-900",
+                    )}
+                  >
+                    {content}
+                  </a>
+                ) : (
+                  <div
+                    className={cn(
+                      "mt-1",
+                      isDarkVariant
+                        ? "font-home-sans text-base text-neutral-300"
+                        : "text-gray-600",
+                    )}
+                  >
+                    {content}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -3,14 +3,21 @@ import { SiteContentSection } from "./SiteContentSection";
 
 interface SiteContentSectionsProps {
   formData: SiteContentFormData;
-  onInputChange: (section: keyof SiteContentFormData, field: string, value: string) => void;
+  onInputChange: (
+    section: keyof SiteContentFormData,
+    field: string,
+    value: string,
+  ) => void;
 }
 
-export function AboutSection({ formData, onInputChange }: SiteContentSectionsProps) {
+export function AboutSection({
+  formData,
+  onInputChange,
+}: SiteContentSectionsProps) {
   return (
     <SiteContentSection
       title="About Me Section"
-      description="Content for the About Me section that appears after the hero"
+      description="Content for the public About page. Use intro and description for the opening text blocks, and enter offerings one card per line using: Title | description"
       fields={[
         {
           id: "about-title",
@@ -46,17 +53,19 @@ export function AboutSection({ formData, onInputChange }: SiteContentSectionsPro
         },
         {
           id: "about-services",
-          label: "Services List",
+          label: "Offerings List",
           value: formData.about.services,
           onChange: (value) => onInputChange("about", "services", value),
-          placeholder: "Enter services list (use • for bullet points)",
+          placeholder:
+            "One line per card: Fine Line Tattoos | modern, minimal, timeless.",
           type: "textarea",
         },
         {
           id: "about-appointments-title",
           label: "Appointments Section Title",
           value: formData.about.appointments_title,
-          onChange: (value) => onInputChange("about", "appointments_title", value),
+          onChange: (value) =>
+            onInputChange("about", "appointments_title", value),
           placeholder: "Enter appointments section title",
           type: "input",
         },
@@ -64,7 +73,8 @@ export function AboutSection({ formData, onInputChange }: SiteContentSectionsPro
           id: "about-appointments-text",
           label: "Appointments Text",
           value: formData.about.appointments_text,
-          onChange: (value) => onInputChange("about", "appointments_text", value),
+          onChange: (value) =>
+            onInputChange("about", "appointments_text", value),
           placeholder: "Enter appointments explanation text",
           type: "textarea",
         },

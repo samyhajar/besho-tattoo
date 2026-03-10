@@ -3,76 +3,133 @@
 import Image from "next/image";
 import Footer from "@/components/shared/Footer";
 import Header from "@/components/shared/Header";
-import AboutMe from "@/components/shared/AboutMe";
 import { useSiteContent } from "@/hooks/useSiteContent";
+import { Fragment } from "react";
+import { Button } from "@/components/ui/Button";
+import { motion } from "framer-motion";
+import { pageMotionTransition, pageMotionViewport } from "@/lib/page-motion";
+
+const instagramProfileUrl =
+  "https://www.instagram.com/besho_tattoo?igsh=MXRtOTE5bWppZmRkbQ==";
+
+const heroContentVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.24,
+      delayChildren: 0.18,
+    },
+  },
+};
+
+const heroItemVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: pageMotionTransition,
+  },
+};
+
+function renderHeadline(title: string) {
+  const segments = title
+    .split(".")
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+
+  if (segments.length < 2) {
+    return title;
+  }
+
+  return segments.map((segment, index) => {
+    const isLast = index === segments.length - 1;
+    const insertMobileBreak = index < segments.length - 2;
+
+    return (
+      <Fragment key={`${segment}-${index}`}>
+        {segment}
+        {!isLast ? <span className="text-neutral-500">.</span> : null}
+        {insertMobileBreak ? <br className="md:hidden" /> : null}
+      </Fragment>
+    );
+  });
+}
 
 export default function HomePage() {
-  const { getHeroContent, loading } = useSiteContent();
+  const { getHeroContent } = useSiteContent();
   const heroContent = getHeroContent();
+  const headline = heroContent.title || "Think.Before.You.Ink";
+  const description =
+    heroContent.description ||
+    heroContent.subtitle ||
+    "Custom tattoos connecting history and modern art. Specializing in Arabic calligraphy, Mesopotamian symbols, and elegant fine line art.";
+  const bookingLabel =
+    heroContent.bookingButton.trim().toLowerCase() === "book appointment"
+      ? "Book Now"
+      : heroContent.bookingButton || "Book Now";
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <Header />
+    <div className="min-h-screen bg-[#0d0d0d] text-white font-home-sans">
+      <Header variant="home" />
 
-      {/* Main Hero Section */}
-      <section className="relative min-h-[calc(100vh-80px)] flex items-center justify-center overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0">
+      <section className="relative flex min-h-[calc(100vh-84px)] items-center justify-center overflow-hidden bg-[#0d0d0d]">
+        <div className="absolute inset-0 z-0">
           <Image
             src="/IMG_4982.jpg"
             alt="Besho Tattoo Artist at Work"
             fill
-            className="object-cover object-center"
+            sizes="100vw"
+            fetchPriority="high"
+            className="h-full w-full scale-110 object-cover object-center grayscale opacity-60"
             priority
             quality={90}
           />
-          {/* Dark overlay for better text readability */}
-          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black/80" />
+          <div className="home-noise absolute inset-0 opacity-[0.28]" />
         </div>
 
-        {/* Content */}
-        <div className="relative z-10 max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-white mb-6">
-            {loading
-              ? "Loading..."
-              : heroContent.title || "Crafting Sacred Letters"}
-          </h1>
-          <p className="text-xl sm:text-2xl md:text-3xl text-white/90 mb-6 max-w-3xl mx-auto">
-            {loading
-              ? "Loading..."
-              : heroContent.subtitle || "Where Ancient Traditions Meet Modern Art"}
-          </p>
-          {heroContent.description && (
-            <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto leading-relaxed">
-              {heroContent.description}
-            </p>
-          )}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <a
-              href="/portfolio"
-              className="bg-white text-black px-8 py-4 text-lg font-semibold hover:bg-white/90 transition-colors duration-300 w-full sm:w-auto text-center"
+        <div className="container relative z-10 px-6 py-20 text-center">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={pageMotionViewport}
+            variants={heroContentVariants}
+            className="space-y-8"
+          >
+            <motion.h1
+              variants={heroItemVariants}
+              className="font-home-serif text-5xl leading-none tracking-tight text-white md:text-7xl lg:text-9xl"
             >
-              {loading
-                ? "Loading..."
-                : heroContent.portfolioButton || "View Portfolio"}
-            </a>
-            <a
-              href="/book"
-              className="border-2 border-white text-white px-8 py-4 text-lg font-semibold hover:bg-white hover:text-black transition-all duration-300 w-full sm:w-auto text-center"
+              {renderHeadline(headline)}
+            </motion.h1>
+            <motion.p
+              variants={heroItemVariants}
+              className="mx-auto max-w-2xl text-lg font-light tracking-wide text-neutral-300 md:text-xl"
             >
-              {loading
-                ? "Loading..."
-                : heroContent.bookingButton || "Book Appointment"}
-            </a>
-          </div>
+              {description}
+            </motion.p>
+            <motion.div
+              variants={heroItemVariants}
+              className="flex flex-col items-center gap-6 pt-8"
+            >
+              <a
+                href={instagramProfileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button
+                  size="lg"
+                  className="rounded-none bg-white px-8 py-6 text-sm uppercase tracking-widest text-black transition-all duration-300 hover:scale-105 hover:bg-neutral-200"
+                >
+                  {bookingLabel}
+                </Button>
+              </a>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
-
-      {/* About Me Section */}
-      <AboutMe />
-
-      <Footer />
+      <Footer variant="home" />
     </div>
   );
 }

@@ -2,8 +2,13 @@
 
 import { useState } from "react";
 import ContactFormField from "./ContactFormField";
+import { cn } from "@/lib/utils";
 
-export default function ContactForm() {
+interface ContactFormProps {
+  variant?: "default" | "dark";
+}
+
+export default function ContactForm({ variant = "default" }: ContactFormProps) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -63,12 +68,26 @@ export default function ContactForm() {
     }
   };
 
+  const isDarkVariant = variant === "dark";
+
   return (
-    <div className="lg:pl-16">
-      <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+    <div className={cn(isDarkVariant ? "" : "lg:pl-16")}>
+      <h2
+        className={cn(
+          "mb-6 text-2xl",
+          isDarkVariant
+            ? "font-home-serif font-normal text-white"
+            : "font-semibold text-gray-900",
+        )}
+      >
         Send us a Message
       </h2>
-      <p className="text-gray-600 mb-8">
+      <p
+        className={cn(
+          "mb-8",
+          isDarkVariant ? "font-home-sans text-neutral-400" : "text-gray-600",
+        )}
+      >
         Fill out the form below and we&apos;ll get back to you as soon as
         possible.
       </p>
@@ -83,6 +102,7 @@ export default function ContactForm() {
           placeholder="Your full name"
           disabled={isSubmitting}
           required
+          variant={variant}
         />
 
         <ContactFormField
@@ -94,6 +114,7 @@ export default function ContactForm() {
           placeholder="your.email@example.com"
           disabled={isSubmitting}
           required
+          variant={variant}
         />
 
         <ContactFormField
@@ -105,6 +126,7 @@ export default function ContactForm() {
           placeholder="What's this about?"
           disabled={isSubmitting}
           required
+          variant={variant}
         />
 
         <ContactFormField
@@ -116,33 +138,77 @@ export default function ContactForm() {
           placeholder="Tell us about your project or questions..."
           disabled={isSubmitting}
           required
+          variant={variant}
         />
 
         <div className="pt-4">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-black text-white py-3 px-6 font-semibold hover:bg-gray-800 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className={cn(
+              "w-full py-3 px-6 transition-colors duration-300 disabled:cursor-not-allowed disabled:opacity-50",
+              isDarkVariant
+                ? "border border-white bg-white font-home-sans text-sm uppercase tracking-[0.22em] font-medium text-black hover:bg-neutral-200"
+                : "bg-black font-semibold text-white hover:bg-gray-800",
+            )}
           >
             {isSubmitting ? "Sending..." : "Send Message"}
           </button>
         </div>
 
         {submitStatus === "success" && (
-          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
-            <p className="text-green-800 font-medium">
+          <div
+            className={cn(
+              "mt-4 p-4",
+              isDarkVariant
+                ? "border border-emerald-900/60 bg-emerald-950/40"
+                : "rounded-md border border-green-200 bg-green-50",
+            )}
+          >
+            <p
+              className={cn(
+                isDarkVariant
+                  ? "font-medium text-emerald-200"
+                  : "text-green-800 font-medium",
+              )}
+            >
               Message sent successfully! 🎉
             </p>
-            <p className="text-green-700 text-sm mt-1">
+            <p
+              className={cn(
+                "mt-1 text-sm",
+                isDarkVariant ? "text-emerald-300/80" : "text-green-700",
+              )}
+            >
               Thank you for reaching out. We&apos;ll get back to you soon!
             </p>
           </div>
         )}
 
         {submitStatus === "error" && (
-          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-red-800 font-medium">Unable to send message</p>
-            <p className="text-red-700 text-sm mt-1">
+          <div
+            className={cn(
+              "mt-4 p-4",
+              isDarkVariant
+                ? "border border-red-950/80 bg-red-950/40"
+                : "rounded-md border border-red-200 bg-red-50",
+            )}
+          >
+            <p
+              className={cn(
+                isDarkVariant
+                  ? "font-medium text-red-200"
+                  : "text-red-800 font-medium",
+              )}
+            >
+              Unable to send message
+            </p>
+            <p
+              className={cn(
+                "mt-1 text-sm",
+                isDarkVariant ? "text-red-300/80" : "text-red-700",
+              )}
+            >
               Failed to send message. Please try again or contact us directly.
             </p>
           </div>

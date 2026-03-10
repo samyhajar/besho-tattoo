@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Cormorant_Garamond, Jost, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 
@@ -9,8 +10,19 @@ const bebasNeue = localFont({
   display: "swap",
 });
 
-// Keep Geist Mono for code/monospace text if needed
-import { Geist_Mono } from "next/font/google";
+const cormorantGaramond = Cormorant_Garamond({
+  variable: "--font-cormorant-garamond",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
+});
+
+const jost = Jost({
+  variable: "--font-jost",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["300", "400", "500", "600"],
+});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -18,9 +30,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Besho Tattoo Studio",
-  description: "Professional tattoo studio with portfolio and booking system",
+  title: {
+    default: "THINK.BEFORE.YOU.INK",
+    template: "%s | THINK.BEFORE.YOU.INK",
+  },
+  description:
+    "Custom tattoos connecting history and modern art, specializing in Arabic calligraphy, Mesopotamian symbols, and elegant fine line tattooing.",
 };
+
+const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin
+  : null;
 
 export default function RootLayout({
   children,
@@ -28,9 +48,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="bg-black text-white">
+    <html lang="en" className="bg-[#0d0d0d] text-white">
+      <head>
+        <meta
+          name="description"
+          content="Custom tattoos connecting history and modern art, specializing in Arabic calligraphy, Mesopotamian symbols, and elegant fine line tattooing."
+        />
+        <meta name="theme-color" content="#0d0d0d" />
+        {supabaseOrigin ? (
+          <>
+            <link rel="preconnect" href={supabaseOrigin} crossOrigin="" />
+            <link rel="dns-prefetch" href={supabaseOrigin} />
+          </>
+        ) : null}
+      </head>
       <body
-        className={`${bebasNeue.variable} ${geistMono.variable} antialiased bg-black text-white`}
+        className={`${bebasNeue.variable} ${cormorantGaramond.variable} ${jost.variable} ${geistMono.variable} bg-[#0d0d0d] text-white antialiased`}
       >
         <AuthProvider>{children}</AuthProvider>
       </body>

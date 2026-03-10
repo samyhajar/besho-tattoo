@@ -26,14 +26,14 @@ export default function TattooModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 z-50 cursor-pointer animate-fade-in"
+      className="fixed inset-0 z-50 flex cursor-pointer items-center justify-center bg-black/95 p-3 backdrop-blur-md sm:p-4"
       onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="button"
       aria-label="Close image viewer"
     >
-      <div className="relative max-w-7xl w-full max-h-[95vh] sm:max-h-[90vh] flex items-center justify-center cursor-default">
+      <div className="relative flex w-full max-w-[min(92vw,1180px)] cursor-default flex-col items-center justify-center">
         {/* Close button */}
         <button
           onClick={onClose}
@@ -57,19 +57,19 @@ export default function TattooModal({
         </button>
 
         {/* Image Container */}
-        <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-black/50 border border-white/10 bg-white/5 backdrop-blur-sm">
+        <div className="relative flex max-h-[78vh] w-full max-w-[min(92vw,1180px)] items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-2xl shadow-black/50 backdrop-blur-sm">
           <Image
             src={publicUrl || "/placeholder-image.svg"}
             alt={tattoo.title}
             width={1000}
             height={1000}
-            className="max-w-full max-h-full object-contain"
+            className="h-auto max-h-[78vh] w-auto max-w-full object-contain"
           />
         </div>
 
         {/* Image Info */}
-        <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 text-center">
-          <div className="bg-black/60 backdrop-blur-md rounded-2xl p-4 sm:p-6 inline-block border border-white/10 shadow-xl shadow-black/40">
+        <div className="mt-4 w-full text-center">
+          <div className="mx-auto inline-block max-w-[min(88vw,760px)] rounded-2xl border border-white/10 bg-black/60 p-4 shadow-xl shadow-black/40 backdrop-blur-md sm:p-6">
             <h2 className="text-white font-bold text-xl sm:text-2xl mb-2">
               {tattoo.title}
             </h2>

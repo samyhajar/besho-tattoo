@@ -70,12 +70,12 @@ export default function BookingConfirmContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-[#0d0d0d]">
         <Header />
-        <div className="bg-white min-h-screen flex items-center justify-center">
+        <div className="flex min-h-screen items-center justify-center bg-[#0d0d0d]">
           <div className="text-center p-6">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading appointment details...</p>
+            <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-white"></div>
+            <p className="text-neutral-400">Loading appointment details...</p>
           </div>
         </div>
       </div>
@@ -84,9 +84,9 @@ export default function BookingConfirmContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-[#0d0d0d]">
         <Header />
-        <div className="bg-white min-h-screen flex items-center justify-center p-4">
+        <div className="flex min-h-screen items-center justify-center bg-[#0d0d0d] p-4">
           <Card className="w-full max-w-md bg-white border-gray-200">
             <CardContent className="text-center py-8 sm:py-12">
               <div className="w-16 h-16 sm:w-20 sm:h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -114,46 +114,46 @@ export default function BookingConfirmContent() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#0d0d0d]">
       <Header />
 
-      <div className="bg-white min-h-screen">
+      <div className="min-h-screen bg-[#0d0d0d]">
         <div className="container mx-auto px-4 py-6 sm:py-8 lg:py-12">
           {/* Header */}
           <div className="text-center mb-6 sm:mb-8">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-black mb-3 sm:mb-4">
+            <h1 className="mb-3 text-2xl font-bold text-white sm:text-3xl lg:mb-4 lg:text-4xl">
               Complete Your Booking
             </h1>
-            <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="mx-auto max-w-2xl text-sm text-neutral-400 sm:text-base lg:text-lg">
               You&apos;re just one step away from booking your appointment
             </p>
           </div>
 
           {/* Progress Indicator */}
           <div className="max-w-md mx-auto mb-6 sm:mb-8">
-            <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
+            <div className="rounded-lg border border-white/10 bg-[#141414] p-4">
               <div className="flex items-center justify-center space-x-4 text-sm">
-                <div className="flex items-center space-x-2 text-black">
-                  <div className="w-6 h-6 rounded-full border-2 border-black bg-black flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                <div className="flex items-center space-x-2 text-white">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-white">
+                    <div className="h-2 w-2 rounded-full bg-black"></div>
                   </div>
                   <span className="font-medium">Date</span>
                 </div>
 
-                <div className="w-8 h-0.5 bg-black"></div>
+                <div className="h-0.5 w-8 bg-white"></div>
 
-                <div className="flex items-center space-x-2 text-black">
-                  <div className="w-6 h-6 rounded-full border-2 border-black bg-black flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                <div className="flex items-center space-x-2 text-white">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-white">
+                    <div className="h-2 w-2 rounded-full bg-black"></div>
                   </div>
                   <span className="font-medium">Time</span>
                 </div>
 
-                <div className="w-8 h-0.5 bg-black"></div>
+                <div className="h-0.5 w-8 bg-white"></div>
 
-                <div className="flex items-center space-x-2 text-black">
-                  <div className="w-6 h-6 rounded-full border-2 border-black bg-black flex items-center justify-center">
-                    <span className="text-xs text-white font-medium">3</span>
+                <div className="flex items-center space-x-2 text-white">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-white">
+                    <span className="text-xs font-medium text-black">3</span>
                   </div>
                   <span className="font-medium">Book</span>
                 </div>
