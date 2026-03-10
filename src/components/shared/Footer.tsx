@@ -5,7 +5,6 @@ interface FooterProps {
 }
 
 export default function Footer({ variant = "default" }: FooterProps) {
-  const currentYear = new Date().getFullYear();
   const footerClassName =
     variant === "home"
       ? "border-t border-white/5 bg-[#0f0f0f] px-4 py-16 text-white sm:px-6 lg:px-8"
@@ -23,7 +22,7 @@ export default function Footer({ variant = "default" }: FooterProps) {
         </p>
 
         <p className="mt-14 font-home-sans text-sm tracking-[0.03em] text-neutral-500">
-          © {currentYear} THINK.BEFORE.YOU.INK. All rights reserved.
+          © 2014 THINK.BEFORE.YOU.INK. All rights reserved.
         </p>
       </div>
     </footer>
