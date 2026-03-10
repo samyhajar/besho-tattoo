@@ -1,33 +1,48 @@
-import js from '@eslint/js';
-import { FlatCompat } from '@eslint/eslintrc';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
+import nextTypeScript from 'eslint-config-next/typescript';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+function promoteSeverity(value) {
+  if (value === 'warn' || value === 1) {
+    return 'error';
+  }
 
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-});
+  if (Array.isArray(value) && (value[0] === 'warn' || value[0] === 1)) {
+    return ['error', ...value.slice(1)];
+  }
 
-export default [
-  ...compat.extends('next/core-web-vitals'),
+  return value;
+}
+
+function promoteWarnings(configs) {
+  return configs.map((config) => {
+    if (!config.rules) {
+      return config;
+    }
+
+    return {
+      ...config,
+      rules: Object.fromEntries(
+        Object.entries(config.rules).map(([ruleName, ruleValue]) => [
+          ruleName,
+          promoteSeverity(ruleValue),
+        ]),
+      ),
+    };
+  });
+}
+
+const eslintConfig = [
+  ...promoteWarnings(nextCoreWebVitals),
+  ...promoteWarnings(nextTypeScript),
   {
-    files: ['**/*.ts', '**/*.tsx'],
-    languageOptions: {
-      parserOptions: {
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
-    },
+    files: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts'],
     rules: {
       'prefer-const': 'error',
       'no-var': 'error',
-      'no-unused-vars': 'warn',
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': 'error',
     },
   },
 ];
+
+export default eslintConfig;
