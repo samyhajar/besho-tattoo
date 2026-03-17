@@ -57,6 +57,22 @@ export default function Header({ variant = "default" }: HeaderProps) {
     };
   }, []);
 
+  useEffect(() => {
+    if (!isMenuOpen) {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+      return;
+    }
+
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    };
+  }, [isMenuOpen]);
+
   const isActiveLink = (href: string) => {
     if (href === "/portfolio") {
       return pathname === "/portfolio" || pathname.startsWith("/portfolio/");
@@ -99,11 +115,13 @@ export default function Header({ variant = "default" }: HeaderProps) {
   );
 
   const headerClassName = `sticky top-0 z-50 text-white transition-[background-color,box-shadow,backdrop-filter] duration-300 ${
-    hasScrolled
-      ? "bg-[#0d0d0d]/88 shadow-[0_16px_40px_rgba(0,0,0,0.22)] backdrop-blur-xl"
-      : isHomeVariant
-        ? "bg-[#0d0d0d]"
-        : "bg-[#0d0d0d]/95 backdrop-blur-md"
+    isMenuOpen
+      ? "bg-[#0d0d0d] shadow-[0_16px_40px_rgba(0,0,0,0.22)]"
+      : hasScrolled
+        ? "bg-[#0d0d0d]/88 shadow-[0_16px_40px_rgba(0,0,0,0.22)] backdrop-blur-xl"
+        : isHomeVariant
+          ? "bg-[#0d0d0d]"
+          : "bg-[#0d0d0d]/95 backdrop-blur-md"
   }`;
 
   return (

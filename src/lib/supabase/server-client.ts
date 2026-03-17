@@ -1,9 +1,9 @@
 import {
   createServerClient,
   type CookieOptions as SupabaseCookieOptions,
-} from '@supabase/ssr';
-import { cookies } from 'next/headers';
-import type { Database } from '@/types/supabase';
+} from "@supabase/ssr";
+import { cookies } from "next/headers";
+import type { Database } from "@/types/supabase";
 
 // Define the expected cookie structure for Supabase
 interface SupabaseCookie {
@@ -46,9 +46,9 @@ export async function createClient() {
                 maxAge: supabaseOptions.maxAge,
                 path: supabaseOptions.path,
                 sameSite:
-                  supabaseOptions.sameSite === 'none' ||
-                  supabaseOptions.sameSite === 'lax' ||
-                  supabaseOptions.sameSite === 'strict'
+                  supabaseOptions.sameSite === "none" ||
+                  supabaseOptions.sameSite === "lax" ||
+                  supabaseOptions.sameSite === "strict"
                     ? supabaseOptions.sameSite
                     : undefined,
                 secure: supabaseOptions.secure,
@@ -64,7 +64,7 @@ export async function createClient() {
               // No type assertion needed
               cookieStore.set(name, value, nextCookieOptions);
             });
-          } catch (_err) {
+          } catch {
             // The `setAll` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing user sessions,
             // or if the user is logged out.

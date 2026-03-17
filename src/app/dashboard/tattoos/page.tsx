@@ -190,7 +190,7 @@ export default function TattoosPage() {
   const handleCategorizeLegacyTattoos = async () => {
     try {
       // Update all tattoos with null category to 'tattoos' category
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("tattoos")
         .update({ category: "tattoos" })
         .is("category", null);

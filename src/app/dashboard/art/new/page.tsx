@@ -59,7 +59,7 @@ export default function NewArtPage() {
     setFormData((prev) => ({ ...prev, [name]: inputValue }));
   };
 
-  const handleCategoryChange = (value: string) => {
+  const handleCategoryChange = () => {
     // Category is fixed to "art", but we keep this for the form component
     setFormData((prev) => ({ ...prev, category: "art" }));
   };

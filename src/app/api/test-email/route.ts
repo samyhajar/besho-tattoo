@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { sendContactForm } from "@/lib/resend";
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // Test email data
     const testData = {

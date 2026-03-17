@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { Resend } = require("resend");
 
 // Load environment variables

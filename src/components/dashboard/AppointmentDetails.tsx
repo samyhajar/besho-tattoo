@@ -138,7 +138,6 @@ export default function AppointmentDetails({
               <GoogleMeetButton
                 appointmentId={appointment.id}
                 existingMeetLink={appointment.google_meet_link}
-                existingEventId={appointment.google_meet_event_id}
               />
             </div>
           </CardContent>

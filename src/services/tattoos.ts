@@ -70,7 +70,7 @@ export async function uploadTattooImage(
   const bucketName = category === "tattoos" ? "tattoos" : category;
 
   // Upload file to storage
-  const { data: _uploadData, error: uploadError } = await supabase.storage
+  const { error: uploadError } = await supabase.storage
     .from(bucketName)
     .upload(filePath, file, {
       cacheControl: "3600",

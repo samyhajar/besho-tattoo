@@ -59,7 +59,7 @@ export default function NewDesignPage() {
     setFormData((prev) => ({ ...prev, [name]: inputValue }));
   };
 
-  const handleCategoryChange = (value: string) => {
+  const handleCategoryChange = () => {
     // Category is fixed to "designs", but we keep this for the form component
     setFormData((prev) => ({ ...prev, category: "designs" }));
   };

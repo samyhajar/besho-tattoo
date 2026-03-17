@@ -10,15 +10,7 @@ import {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const {
-      availability_id,
-      full_name,
-      email,
-      phone,
-      notes,
-      image_url,
-      create_google_meet = false,
-    } = body;
+    const { availability_id, full_name, email, phone, notes, image_url } = body;
 
     if (!availability_id || !full_name || !email) {
       return NextResponse.json(

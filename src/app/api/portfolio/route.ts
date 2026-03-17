@@ -12,6 +12,8 @@ type Tattoo = {
   created_at: string;
 };
 
+type FeatureImage = Tattoo | null;
+
 export async function GET() {
   try {
     const supabase = await createClient();
@@ -41,13 +43,13 @@ export async function GET() {
       { portfolio: "art", dbCategories: ["art"] },
       { portfolio: "designs", dbCategories: ["designs"] },
     ];
-    const featureImages: Record<string, any> = {};
+    const featureImages: Record<string, FeatureImage> = {};
 
     for (const { portfolio, dbCategories } of portfolioCategories) {
       try {
         // Look for feature images in any of the mapped database categories
         for (const dbCategory of dbCategories) {
-          let featureImage = null;
+          let featureImage: FeatureImage = null;
 
           if (dbCategory === null) {
             // Handle null category by querying directly
@@ -109,7 +111,7 @@ export async function GET() {
         .filter(Boolean);
 
       // Add feature images to the list
-      Object.values(featureImages).forEach((featureImage: any) => {
+      Object.values(featureImages).forEach((featureImage) => {
         if (
           featureImage?.image_url &&
           !imagePaths.includes(featureImage.image_url)
@@ -123,7 +125,7 @@ export async function GET() {
         // Find the tattoo that has this image to determine the correct bucket
         const tattoo = (tattoos as Tattoo[]).find((t) => t.image_url === path);
         const featureImage = Object.values(featureImages).find(
-          (fi: any) => fi?.image_url === path,
+          (fi) => fi?.image_url === path,
         );
 
         let bucketName = "tattoos"; // default bucket

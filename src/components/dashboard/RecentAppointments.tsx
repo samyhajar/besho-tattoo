@@ -181,7 +181,6 @@ export default function RecentAppointments() {
                   <GoogleMeetButton
                     appointmentId={appointment.id}
                     existingMeetLink={appointment.google_meet_link}
-                    existingEventId={appointment.google_meet_event_id}
                     onMeetCreated={(meetLink) =>
                       handleMeetCreated(appointment.id, meetLink)
                     }

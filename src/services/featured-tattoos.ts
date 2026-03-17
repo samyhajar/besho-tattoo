@@ -19,7 +19,7 @@ export async function testFeaturedTattooFunctions(): Promise<{
 
   try {
     // Test 1: Check if we can call the function
-    const { data, error } = await supabase.rpc("get_featured_tattoo_with_data");
+    const { error } = await supabase.rpc("get_featured_tattoo_with_data");
 
     if (error) {
       return {

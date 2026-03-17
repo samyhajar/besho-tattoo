@@ -22,6 +22,34 @@ export interface CreateMeetingParams {
   timeZone?: string;
 }
 
+interface OAuthTokenResponse {
+  access_token?: string;
+  error?: string;
+  error_description?: string;
+  expires_in?: number;
+  token_type?: string;
+}
+
+interface GoogleCalendarEntryPoint {
+  entryPointType?: string;
+  uri?: string;
+}
+
+interface GoogleCalendarEventResponse {
+  id?: string;
+  hangoutLink?: string;
+  conferenceData?: {
+    conferenceId?: string;
+    entryPoints?: GoogleCalendarEntryPoint[];
+  };
+}
+
+interface GoogleCalendarApiErrorResponse {
+  error?: {
+    message?: string;
+  };
+}
+
 /**
  * Gets access token using refresh token (OAuth flow)
  */
@@ -40,13 +68,16 @@ async function getAccessToken(config: SimpleMeetConfig): Promise<string> {
   });
 
   if (!response.ok) {
-    const error = await response.json();
+    const error = (await response.json()) as OAuthTokenResponse;
     throw new Error(
       `Failed to get access token: ${error.error_description || error.error}`,
     );
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as OAuthTokenResponse;
+  if (!data.access_token) {
+    throw new Error("Google OAuth response did not include an access token");
+  }
   return data.access_token;
 }
 
@@ -98,22 +129,23 @@ export async function createSimpleGoogleMeetSession(
     );
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData =
+        (await response.json()) as GoogleCalendarApiErrorResponse;
       throw new Error(
         `Google Calendar API error: ${errorData.error?.message || response.statusText}`,
       );
     }
 
-    const event = await response.json();
+    const event = (await response.json()) as GoogleCalendarEventResponse;
 
     // Extract Meet information from the response
     const meetLink =
       event.hangoutLink ||
       event.conferenceData?.entryPoints?.find(
-        (ep: any) => ep.entryPointType === "video",
+        (entryPoint) => entryPoint.entryPointType === "video",
       )?.uri;
 
-    if (!meetLink) {
+    if (!meetLink || !event.id) {
       throw new Error("Failed to create Google Meet link");
     }
 

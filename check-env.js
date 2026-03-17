@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 require("dotenv").config({ path: ".env.local" });
 
 console.log("🔍 Checking Google Meet Environment Variables...\n");

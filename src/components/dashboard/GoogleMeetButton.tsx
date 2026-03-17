@@ -10,7 +10,6 @@ import {
 interface GoogleMeetButtonProps {
   appointmentId: string;
   existingMeetLink?: string | null;
-  existingEventId?: string | null;
   onMeetCreated?: (meetLink: string) => void;
   onMeetDeleted?: () => void;
 }
@@ -18,21 +17,18 @@ interface GoogleMeetButtonProps {
 export default function GoogleMeetButton({
   appointmentId,
   existingMeetLink,
-  existingEventId,
   onMeetCreated,
   onMeetDeleted,
 }: GoogleMeetButtonProps) {
   const [isCreating, setIsCreating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [meetLink, setMeetLink] = useState(existingMeetLink);
-  const [eventId, setEventId] = useState(existingEventId);
 
   const handleCreateMeet = async () => {
     setIsCreating(true);
     try {
       const result = await createGoogleMeetForAppointment(appointmentId);
       setMeetLink(result.meetLink);
-      setEventId(result.eventId);
       onMeetCreated?.(result.meetLink);
     } catch (error) {
       console.error("Error creating Google Meet:", error);
@@ -51,7 +47,6 @@ export default function GoogleMeetButton({
     try {
       await deleteGoogleMeetForAppointment(appointmentId);
       setMeetLink(null);
-      setEventId(null);
       onMeetDeleted?.();
     } catch (error) {
       console.error("Error deleting Google Meet:", error);

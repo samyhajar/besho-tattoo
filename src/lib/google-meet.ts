@@ -22,6 +22,40 @@ export interface CreateMeetingParams {
   timeZone?: string;
 }
 
+interface GoogleCalendarEntryPoint {
+  entryPointType?: string;
+  uri?: string;
+}
+
+interface GoogleCalendarEventResponse {
+  id?: string;
+  hangoutLink?: string;
+  conferenceData?: {
+    conferenceId?: string;
+    entryPoints?: GoogleCalendarEntryPoint[];
+  };
+}
+
+interface GoogleCalendarApiErrorResponse {
+  error?: {
+    message?: string;
+  };
+}
+
+interface GoogleCalendarEventUpdate {
+  summary?: string;
+  description?: string;
+  start?: {
+    dateTime: string;
+    timeZone: string;
+  };
+  end?: {
+    dateTime: string;
+    timeZone: string;
+  };
+  attendees?: Array<{ email: string }>;
+}
+
 /**
  * Creates a Google Meet session for an appointment
  * Uses Google Calendar API to create an event with Meet integration
@@ -86,22 +120,23 @@ export async function createGoogleMeetSession(
     );
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData =
+        (await response.json()) as GoogleCalendarApiErrorResponse;
       throw new Error(
         `Google Calendar API error: ${errorData.error?.message || response.statusText}`,
       );
     }
 
-    const event = await response.json();
+    const event = (await response.json()) as GoogleCalendarEventResponse;
 
     // Extract Meet information from the response
     const meetLink =
       event.hangoutLink ||
       event.conferenceData?.entryPoints?.find(
-        (ep: any) => ep.entryPointType === "video",
+        (entryPoint) => entryPoint.entryPointType === "video",
       )?.uri;
 
-    if (!meetLink) {
+    if (!meetLink || !event.id) {
       throw new Error("Failed to create Google Meet link");
     }
 
@@ -144,7 +179,7 @@ export async function updateGoogleMeetSession(
     }
 
     // Prepare update data
-    const updateData: any = {};
+    const updateData: GoogleCalendarEventUpdate = {};
 
     if (params.title) updateData.summary = params.title;
     if (params.description) updateData.description = params.description;
@@ -178,7 +213,8 @@ export async function updateGoogleMeetSession(
     );
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData =
+        (await response.json()) as GoogleCalendarApiErrorResponse;
       throw new Error(
         `Google Calendar API error: ${errorData.error?.message || response.statusText}`,
       );
@@ -228,7 +264,8 @@ export async function deleteGoogleMeetSession(
 
     if (!response.ok && response.status !== 410) {
       // 410 = already deleted
-      const errorData = await response.json();
+      const errorData =
+        (await response.json()) as GoogleCalendarApiErrorResponse;
       throw new Error(
         `Google Calendar API error: ${errorData.error?.message || response.statusText}`,
       );
