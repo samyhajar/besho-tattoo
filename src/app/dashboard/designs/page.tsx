@@ -8,9 +8,7 @@ import {
   fetchAllTattoos,
   getTattooStats,
   deleteTattoo,
-  getTattooImageUrls,
   updateTattoo,
-  uploadTattooImage,
   setFeatureImage,
   unsetFeatureImage,
   type Tattoo,
@@ -25,7 +23,6 @@ export default function DesignsPage() {
   const router = useRouter();
   const [designs, setDesigns] = useState<Tattoo[]>([]);
   const [stats, setStats] = useState({ total: 0, categories: 0, thisMonth: 0 });
-  const [publicUrls, setPublicUrls] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedDesign, setSelectedDesign] = useState<Tattoo | null>(null);
@@ -71,21 +68,6 @@ export default function DesignsPage() {
         }).length,
       };
       setStats(designStats);
-
-      // Generate signed URLs for all design images
-      if (designsOnly.length > 0) {
-        const imagePaths = designsOnly
-          .map((design) => design.image_url)
-          .filter(Boolean); // Remove any null/undefined URLs
-
-        console.log("Image paths for designs:", imagePaths);
-
-        if (imagePaths.length > 0) {
-          const urls = await getTattooImageUrls(imagePaths, "designs");
-          console.log("Generated signed URLs:", urls);
-          setPublicUrls(urls);
-        }
-      }
     } catch (err) {
       console.error("Error loading designs:", err);
       setError("Failed to load designs");
@@ -115,24 +97,16 @@ export default function DesignsPage() {
       description: string;
       category: string;
       is_public: boolean;
-      image?: File;
+      media: import("@/types/tattoo").PortfolioMediaChangeSet;
     },
   ) => {
     try {
-      let imageUrl = design.image_url;
-
-      // Upload new image if provided
-      if (updates.image) {
-        imageUrl = await uploadTattooImage(updates.image, "designs");
-      }
-
-      // Update design with new data
       const updatedDesign = await updateTattoo(design.id, {
         title: updates.title,
         description: updates.description,
         category: updates.category,
         is_public: updates.is_public,
-        image_url: imageUrl,
+        media: updates.media,
       });
 
       // Update local state
@@ -140,12 +114,6 @@ export default function DesignsPage() {
         prev.map((d) => (d.id === design.id ? updatedDesign : d)),
       );
       setSelectedDesign(updatedDesign);
-
-      // Update signed URLs if image was changed
-      if (updates.image && imageUrl) {
-        const newSignedUrls = await getTattooImageUrls([imageUrl], "designs");
-        setPublicUrls((prev) => ({ ...prev, ...newSignedUrls }));
-      }
 
       // Refresh stats
       const statsData = await getTattooStats();
@@ -223,7 +191,6 @@ export default function DesignsPage() {
       {/* Gallery */}
       <DashboardDesignsGallery
         designs={designs}
-        publicUrls={publicUrls}
         onDesignClick={setSelectedDesign}
         onAddNew={handleAddNew}
         onFeaturedChange={handleFeaturedChange}
@@ -234,7 +201,6 @@ export default function DesignsPage() {
       {selectedDesign && (
         <DashboardTattooModal
           tattoo={selectedDesign}
-          publicUrl={publicUrls[selectedDesign.image_url]}
           isDeleting={isDeleting === selectedDesign.id}
           onClose={() => setSelectedDesign(null)}
           onDelete={handleDelete}

@@ -1,24 +1,80 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server-client";
-import { getFeatureImage } from "@/services/tattoos";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { getPortfolioSection } from "@/lib/portfolio-media";
+import type { Database } from "@/types/supabase";
+import type { PortfolioMedia, Tattoo } from "@/types/tattoo";
 
-type Tattoo = {
-  id: string;
-  title: string;
-  description: string | null;
-  category: string | null;
-  image_url: string;
-  is_public: boolean;
-  created_at: string;
-};
+type TattooRow = Database["public"]["Tables"]["tattoos"]["Row"];
+type PortfolioMediaRow = Database["public"]["Tables"]["portfolio_media"]["Row"];
 
-type FeatureImage = Tattoo | null;
+function createLegacyMediaRow(tattoo: TattooRow): PortfolioMediaRow | null {
+  if (!tattoo.image_url) {
+    return null;
+  }
+
+  return {
+    id: `legacy-${tattoo.id}`,
+    tattoo_id: tattoo.id,
+    storage_path: tattoo.image_url,
+    media_type: "image",
+    sort_order: 0,
+    is_primary: true,
+    created_at: tattoo.created_at,
+  };
+}
+
+function sortMedia(media: PortfolioMedia[]) {
+  return [...media].sort((left, right) => {
+    if (left.is_primary && !right.is_primary) {
+      return -1;
+    }
+
+    if (!left.is_primary && right.is_primary) {
+      return 1;
+    }
+
+    if (left.sort_order !== right.sort_order) {
+      return left.sort_order - right.sort_order;
+    }
+
+    return left.created_at.localeCompare(right.created_at);
+  });
+}
+
+function hydrateTattoo(
+  tattoo: TattooRow,
+  mediaRows: PortfolioMediaRow[],
+  displayUrls: Record<string, string>,
+): Tattoo {
+  const media = sortMedia(
+    mediaRows.map((mediaRow) => ({
+      id: mediaRow.id,
+      tattoo_id: mediaRow.tattoo_id,
+      storage_path: mediaRow.storage_path,
+      media_type: mediaRow.media_type as PortfolioMedia["media_type"],
+      sort_order: mediaRow.sort_order,
+      is_primary: mediaRow.is_primary,
+      created_at: mediaRow.created_at,
+      display_url: displayUrls[mediaRow.storage_path] || null,
+    })),
+  );
+  const primaryMedia =
+    media.find((entry) => entry.is_primary && entry.media_type === "image") ||
+    media.find((entry) => entry.media_type === "image") ||
+    media[0] ||
+    null;
+
+  return {
+    ...tattoo,
+    media,
+    primaryMedia,
+    image_url: primaryMedia?.storage_path || tattoo.image_url,
+  };
+}
 
 export async function GET() {
   try {
-    const supabase = await createClient();
-
-    // Fetch only public tattoos for portfolio display
+    const supabase = createAdminClient();
     const { data: tattoos, error: tattoosError } = await supabase
       .from("tattoos")
       .select("*")
@@ -26,142 +82,83 @@ export async function GET() {
       .order("created_at", { ascending: false });
 
     if (tattoosError) {
-      console.error("Error fetching tattoos:", tattoosError);
       return NextResponse.json(
         { error: "Failed to fetch tattoos", details: tattoosError.message },
         { status: 500 },
       );
     }
 
-    // Fetch feature images for each portfolio category
-    // Map portfolio categories to actual database categories
-    const portfolioCategories = [
-      {
-        portfolio: "tattoos",
-        dbCategories: ["Fine line", "Arabic design", "Maori", null, ""],
-      },
-      { portfolio: "art", dbCategories: ["art"] },
-      { portfolio: "designs", dbCategories: ["designs"] },
-    ];
-    const featureImages: Record<string, FeatureImage> = {};
+    const tattooRows = tattoos || [];
+    const tattooIds = tattooRows.map((tattoo) => tattoo.id);
+    const mediaMap = new Map<string, PortfolioMediaRow[]>();
 
-    for (const { portfolio, dbCategories } of portfolioCategories) {
-      try {
-        // Look for feature images in any of the mapped database categories
-        for (const dbCategory of dbCategories) {
-          let featureImage: FeatureImage = null;
+    if (tattooIds.length > 0) {
+      const { data: mediaRows, error: mediaError } = await supabase
+        .from("portfolio_media")
+        .select("*")
+        .in("tattoo_id", tattooIds)
+        .order("sort_order", { ascending: true });
 
-          if (dbCategory === null) {
-            // Handle null category by querying directly
-            const { data, error } = await supabase
-              .from("tattoos")
-              .select("*")
-              .is("category", null)
-              .eq("is_feature_image", true)
-              .eq("is_public", true)
-              .single();
-
-            if (!error || error.code === "PGRST116") {
-              featureImage = data;
-            }
-            console.log(`Feature image for ${portfolio} (null):`, featureImage);
-          } else if (dbCategory === "") {
-            // Handle empty string category
-            const { data, error } = await supabase
-              .from("tattoos")
-              .select("*")
-              .eq("category", "")
-              .eq("is_feature_image", true)
-              .eq("is_public", true)
-              .single();
-
-            if (!error || error.code === "PGRST116") {
-              featureImage = data;
-            }
-            console.log(
-              `Feature image for ${portfolio} (empty):`,
-              featureImage,
-            );
-          } else {
-            featureImage = await getFeatureImage(dbCategory);
-            console.log(
-              `Feature image for ${portfolio} (${dbCategory}):`,
-              featureImage,
-            );
-          }
-
-          if (featureImage) {
-            featureImages[portfolio] = featureImage;
-            break; // Found a feature image for this portfolio category
-          }
-        }
-      } catch (error) {
-        console.warn(`Error fetching feature image for ${portfolio}:`, error);
-      }
-    }
-
-    console.log("All feature images:", featureImages);
-
-    // Generate public URLs for all images
-    const publicUrls: Record<string, string> = {};
-
-    if (tattoos && tattoos.length > 0) {
-      const imagePaths = (tattoos as Tattoo[])
-        .map((tattoo) => tattoo.image_url)
-        .filter(Boolean);
-
-      // Add feature images to the list
-      Object.values(featureImages).forEach((featureImage) => {
-        if (
-          featureImage?.image_url &&
-          !imagePaths.includes(featureImage.image_url)
-        ) {
-          imagePaths.push(featureImage.image_url);
-        }
-      });
-
-      // Generate public URLs for all images
-      imagePaths.forEach((path) => {
-        // Find the tattoo that has this image to determine the correct bucket
-        const tattoo = (tattoos as Tattoo[]).find((t) => t.image_url === path);
-        const featureImage = Object.values(featureImages).find(
-          (fi) => fi?.image_url === path,
+      if (
+        mediaError &&
+        !mediaError.message.includes("portfolio_media") &&
+        !mediaError.message.includes("relation")
+      ) {
+        return NextResponse.json(
+          {
+            error: "Failed to fetch portfolio media",
+            details: mediaError.message,
+          },
+          { status: 500 },
         );
+      }
 
-        let bucketName = "tattoos"; // default bucket
-
-        if (tattoo) {
-          // Determine bucket based on category
-          if (tattoo.category === "art") {
-            bucketName = "art";
-          } else if (tattoo.category === "designs") {
-            bucketName = "designs";
-          } else {
-            bucketName = "tattoos"; // Fine line, Arabic design, Maori, etc.
-          }
-        } else if (featureImage) {
-          // For feature images, use the same logic
-          if (featureImage.category === "art") {
-            bucketName = "art";
-          } else if (featureImage.category === "designs") {
-            bucketName = "designs";
-          } else {
-            bucketName = "tattoos";
-          }
-        }
-
-        const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${bucketName}/${path}`;
-        publicUrls[path] = publicUrl;
+      (mediaRows || []).forEach((media) => {
+        const currentRows = mediaMap.get(media.tattoo_id) || [];
+        currentRows.push(media);
+        mediaMap.set(media.tattoo_id, currentRows);
       });
     }
 
-    const response = NextResponse.json({
-      tattoos: tattoos || [],
-      publicUrls,
-      featureImages,
+    tattooRows.forEach((tattoo) => {
+      if (mediaMap.has(tattoo.id)) {
+        return;
+      }
+
+      const legacyMedia = createLegacyMediaRow(tattoo);
+      if (legacyMedia) {
+        mediaMap.set(tattoo.id, [legacyMedia]);
+      }
     });
 
-    // Add minimal caching to allow quick updates when tattoos change visibility
+    const displayUrls: Record<string, string> = {};
+    await Promise.all(
+      tattooRows.flatMap((tattoo) => {
+        const bucket = getPortfolioSection(tattoo.category);
+        const mediaRows = mediaMap.get(tattoo.id) || [];
+
+        return mediaRows.map(async (media) => {
+          if (!media.storage_path || displayUrls[media.storage_path]) {
+            return;
+          }
+
+          const { data, error } = await supabase.storage
+            .from(bucket)
+            .createSignedUrl(media.storage_path, 3600);
+
+          if (!error && data?.signedUrl) {
+            displayUrls[media.storage_path] = data.signedUrl;
+          }
+        });
+      }),
+    );
+
+    const response = NextResponse.json({
+      tattoos: tattooRows.map((tattoo) =>
+        hydrateTattoo(tattoo, mediaMap.get(tattoo.id) || [], displayUrls),
+      ),
+    });
+
     response.headers.set(
       "Cache-Control",
       "public, s-maxage=30, stale-while-revalidate=10",

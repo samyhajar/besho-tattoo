@@ -11,7 +11,6 @@ import DashboardTattooCard from "./DashboardTattooCard";
 
 interface DashboardTattooGalleryProps {
   tattoos: Tattoo[];
-  publicUrls: Record<string, string>;
   onTattooClick: (tattoo: Tattoo) => void;
   onAddNew: () => void;
   onFeaturedChange?: () => void;
@@ -20,7 +19,6 @@ interface DashboardTattooGalleryProps {
 
 export default function DashboardTattooGallery({
   tattoos,
-  publicUrls,
   onTattooClick,
   onAddNew,
   onFeaturedChange,
@@ -81,7 +79,6 @@ export default function DashboardTattooGallery({
             <DashboardTattooCard
               key={tattoo.id}
               tattoo={tattoo}
-              publicUrl={publicUrls[tattoo.image_url]}
               onTattooClick={onTattooClick}
               onFeaturedChange={onFeaturedChange}
               onToggleFeature={onToggleFeature}

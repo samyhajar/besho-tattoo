@@ -10,8 +10,8 @@ import { Label } from "@/components/ui/Label";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import CategoryInput from "@/components/ui/CategoryInput";
-import BackgroundRemovalControls from "@/components/dashboard/BackgroundRemovalControls";
-import { MAX_PORTFOLIO_IMAGE_SIZE_MB } from "@/lib/portfolio-image";
+import PortfolioMediaEditor from "@/components/dashboard/PortfolioMediaEditor";
+import type { PortfolioMediaManagerState } from "@/hooks/usePortfolioMediaManager";
 import type { TattooFormData } from "@/types/tattoo";
 
 interface TattooUploadFormProps {
@@ -21,20 +21,13 @@ interface TattooUploadFormProps {
   ) => void;
   onCategoryChange: (value: string) => void;
   onVisibilityChange: (isPublic: boolean) => void;
-  onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: () => Promise<void>;
   onCancel: () => void;
-  selectedFile: File | null;
+  mediaManager: PortfolioMediaManagerState;
+  onMediaError: (message: string | null) => void;
   error: string | null;
   isLoading: boolean;
-  isProcessingImage?: boolean;
-  processingError?: string | null;
-  hasProcessedImage?: boolean;
-  isUsingProcessed?: boolean;
-  onRemoveBackground: () => void;
-  onUseOriginalImage: () => void;
-  onUseProcessedImage: () => void;
-  fixedCategory?: string; // Optional fixed category
+  fixedCategory?: string;
 }
 
 export default function TattooUploadForm({
@@ -42,19 +35,12 @@ export default function TattooUploadForm({
   onInputChange,
   onCategoryChange,
   onVisibilityChange,
-  onFileChange,
   onSubmit,
   onCancel,
-  selectedFile,
+  mediaManager,
+  onMediaError,
   error,
   isLoading,
-  isProcessingImage = false,
-  processingError = null,
-  hasProcessedImage = false,
-  isUsingProcessed = false,
-  onRemoveBackground,
-  onUseOriginalImage,
-  onUseProcessedImage,
   fixedCategory,
 }: TattooUploadFormProps) {
   return (
@@ -69,73 +55,28 @@ export default function TattooUploadForm({
         </CardTitle>
         <CardDescription>
           {fixedCategory === "art"
-            ? "Fill in the information about your artwork"
+            ? "Fill in the information about your artwork and upload multiple images or videos."
             : fixedCategory === "designs"
-              ? "Fill in the information about your design"
-              : "Fill in the information about your tattoo"}
+              ? "Fill in the information about your design and upload multiple images or videos."
+              : "Fill in the information about your tattoo and upload multiple images or videos."}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form
-          onSubmit={(e) => {
-            e.preventDefault();
+          onSubmit={(event) => {
+            event.preventDefault();
             void onSubmit();
           }}
           className="space-y-6"
         >
-          {error && <Alert variant="destructive">{error}</Alert>}
+          {error ? <Alert variant="destructive">{error}</Alert> : null}
 
-          {/* Image Upload */}
-          <div className="space-y-2">
-            <Label htmlFor="image">Image *</Label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-              <input
-                id="image"
-                type="file"
-                accept="image/*"
-                onChange={onFileChange}
-                className="hidden"
-              />
-              <label
-                htmlFor="image"
-                className="cursor-pointer flex flex-col items-center space-y-2"
-              >
-                <svg
-                  className="w-8 h-8 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                  />
-                </svg>
-                <span className="text-sm text-gray-600">
-                  {selectedFile ? selectedFile.name : "Click to upload image"}
-                </span>
-                <span className="text-xs text-gray-500">
-                  PNG, JPG, WEBP, GIF up to {MAX_PORTFOLIO_IMAGE_SIZE_MB}MB
-                </span>
-              </label>
-            </div>
+          <PortfolioMediaEditor
+            mediaManager={mediaManager}
+            disabled={isLoading}
+            onError={onMediaError}
+          />
 
-            <BackgroundRemovalControls
-              disabled={isLoading}
-              hasImage={!!selectedFile}
-              hasProcessedImage={hasProcessedImage}
-              isProcessing={isProcessingImage}
-              isUsingProcessed={isUsingProcessed}
-              processingError={processingError}
-              onProcess={onRemoveBackground}
-              onUseOriginal={onUseOriginalImage}
-              onUseProcessed={onUseProcessedImage}
-            />
-          </div>
-
-          {/* Title */}
           <div className="space-y-2">
             <Label htmlFor="title">Title *</Label>
             <Input
@@ -148,15 +89,14 @@ export default function TattooUploadForm({
             />
           </div>
 
-          {/* Category */}
           {fixedCategory ? (
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
-              <div className="px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-sm text-gray-700 capitalize">
+              <div className="rounded-lg border border-gray-300 bg-gray-100 px-3 py-2 text-sm capitalize text-gray-700">
                 {fixedCategory}
               </div>
               <p className="text-xs text-gray-500">
-                Category is automatically set to {fixedCategory}
+                Category is automatically set to {fixedCategory}.
               </p>
             </div>
           ) : (
@@ -168,7 +108,6 @@ export default function TattooUploadForm({
             />
           )}
 
-          {/* Visibility Toggle */}
           <div className="space-y-2">
             <Label>Visibility</Label>
             <div className="flex items-center space-x-3">
@@ -177,9 +116,9 @@ export default function TattooUploadForm({
                   id="is_public"
                   type="checkbox"
                   checked={formData.is_public}
-                  onChange={(e) => onVisibilityChange(e.target.checked)}
+                  onChange={(event) => onVisibilityChange(event.target.checked)}
                   disabled={isLoading}
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                  className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500"
                 />
                 <Label
                   htmlFor="is_public"
@@ -191,12 +130,11 @@ export default function TattooUploadForm({
             </div>
             <p className="text-xs text-gray-500">
               {formData.is_public
-                ? "✅ This tattoo will be visible to visitors on your portfolio page"
-                : "🔒 This tattoo will only be visible in the admin dashboard"}
+                ? "✅ This item will be visible to visitors."
+                : "🔒 This item will stay visible only in the dashboard."}
             </p>
           </div>
 
-          {/* Description */}
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
             <textarea
@@ -206,30 +144,27 @@ export default function TattooUploadForm({
               onChange={onInputChange}
               placeholder="Describe the tattoo, inspiration, or story behind it..."
               rows={4}
-              className="flex w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm transition-all duration-200 placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900/20 focus-visible:border-gray-900 hover:border-gray-400 disabled:cursor-not-allowed disabled:opacity-50 text-gray-900 resize-none"
+              className="flex w-full resize-none rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 transition-all duration-200 placeholder:text-gray-500 hover:border-gray-400 focus-visible:border-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900/20 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
 
-          {/* Submit Button */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-4">
+          <div className="flex flex-col gap-3 pt-4 sm:flex-row">
             <Button
               type="submit"
-              disabled={
-                isLoading ||
-                isProcessingImage ||
-                !selectedFile ||
-                !formData.title.trim()
-              }
-              className="w-full sm:flex-1"
+              disabled={isLoading || !mediaManager.hasImages}
+              className="w-full sm:w-auto"
             >
-              {isLoading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
-                  Uploading...
-                </>
-              ) : (
-                "Add to Portfolio"
-              )}
+              {isLoading
+                ? fixedCategory === "art"
+                  ? "Creating Artwork..."
+                  : fixedCategory === "designs"
+                    ? "Creating Design..."
+                    : "Creating Tattoo..."
+                : fixedCategory === "art"
+                  ? "Create Artwork"
+                  : fixedCategory === "designs"
+                    ? "Create Design"
+                    : "Create Tattoo"}
             </Button>
             <Button
               type="button"

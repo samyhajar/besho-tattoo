@@ -35,7 +35,6 @@ interface PortfolioGalleryPageProps {
 
 interface PortfolioApiResponse {
   tattoos: Tattoo[];
-  publicUrls: Record<string, string>;
 }
 
 function getPortfolioSection(category: string | null): PortfolioSection {
@@ -82,21 +81,21 @@ function getTattooStyleFilter(category: string | null): string {
 
 interface PortfolioGalleryCardProps {
   tattoo: Tattoo;
-  publicUrl?: string;
   index: number;
   onSelect: Dispatch<SetStateAction<Tattoo | null>>;
 }
 
 function PortfolioGalleryCard({
   tattoo,
-  publicUrl,
   index,
   onSelect,
 }: PortfolioGalleryCardProps) {
   const [imageError, setImageError] = useState(false);
   const imageSrc =
-    !imageError && publicUrl ? publicUrl : "/placeholder-image.svg";
-  const canOpen = Boolean(publicUrl && !imageError);
+    !imageError && tattoo.primaryMedia?.display_url
+      ? tattoo.primaryMedia.display_url
+      : "/placeholder-image.svg";
+  const canOpen = Boolean(tattoo.media?.length);
 
   const handleClick = () => {
     if (canOpen) {
@@ -167,7 +166,6 @@ export default function PortfolioGalleryPage({
   const router = useRouter();
   const [activeTattooFilter, setActiveTattooFilter] = useState("All");
   const [tattoos, setTattoos] = useState<Tattoo[]>([]);
-  const [publicUrls, setPublicUrls] = useState<Record<string, string>>({});
   const [selectedTattoo, setSelectedTattoo] = useState<Tattoo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -207,7 +205,6 @@ export default function PortfolioGalleryPage({
         }
 
         setTattoos(data.tattoos || []);
-        setPublicUrls(data.publicUrls || {});
       } catch (portfolioError) {
         console.error("Error loading portfolio:", portfolioError);
 
@@ -221,7 +218,6 @@ export default function PortfolioGalleryPage({
             : "Failed to load portfolio",
         );
         setTattoos([]);
-        setPublicUrls({});
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -348,7 +344,6 @@ export default function PortfolioGalleryPage({
                 <PortfolioGalleryCard
                   key={tattoo.id}
                   tattoo={tattoo}
-                  publicUrl={publicUrls[tattoo.image_url]}
                   index={index}
                   onSelect={setSelectedTattoo}
                 />
@@ -361,7 +356,6 @@ export default function PortfolioGalleryPage({
       {selectedTattoo ? (
         <TattooModal
           tattoo={selectedTattoo}
-          publicUrl={publicUrls[selectedTattoo.image_url]}
           onClose={() => setSelectedTattoo(null)}
         />
       ) : null}

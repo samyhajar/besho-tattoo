@@ -1,32 +1,30 @@
 import { useState } from "react";
-import { X, Edit } from "lucide-react";
+import { Edit, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Alert } from "@/components/ui/Alert";
 import Modal from "@/components/ui/Modal";
 import CategoryInput from "@/components/ui/CategoryInput";
-import TattooImageUpload from "@/components/dashboard/TattooImageUpload";
-import { usePortfolioImageProcessing } from "@/hooks/usePortfolioImageProcessing";
-import type { Tattoo } from "@/types/tattoo";
+import PortfolioMediaEditor from "@/components/dashboard/PortfolioMediaEditor";
+import { usePortfolioMediaManager } from "@/hooks/usePortfolioMediaManager";
+import type { PortfolioMediaChangeSet, Tattoo } from "@/types/tattoo";
 
 interface TattooEditFormProps {
   tattoo: Tattoo;
-  currentImageUrl?: string;
   isLoading?: boolean;
   onSave: (updates: {
     title: string;
     description: string;
     category: string;
     is_public: boolean;
-    image?: File;
+    media: PortfolioMediaChangeSet;
   }) => Promise<void>;
   onCancel: () => void;
 }
 
 export default function TattooEditForm({
   tattoo,
-  currentImageUrl,
   isLoading = false,
   onSave,
   onCancel,
@@ -35,111 +33,91 @@ export default function TattooEditForm({
     title: tattoo.title || "",
     description: tattoo.description || "",
     category: tattoo.category || "",
-    is_public: tattoo.is_public ?? true, // Default to true if undefined
+    is_public: tattoo.is_public ?? true,
   });
   const [formError, setFormError] = useState<string | null>(null);
-  const imageProcessing = usePortfolioImageProcessing();
+  const mediaManager = usePortfolioMediaManager(tattoo.media || []);
+  const fixedCategory =
+    tattoo.category === "art" || tattoo.category === "designs"
+      ? tattoo.category
+      : undefined;
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    const { name, value, type } = e.target;
-    const inputValue =
-      type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
-    setFormData((prev) => ({ ...prev, [name]: inputValue }));
+    const { name, value } = event.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleCategoryChange = (value: string) => {
     setFormData((prev) => ({ ...prev, category: value }));
   };
 
-  const handleImageChange = (file: File | null) => {
-    try {
-      imageProcessing.setFile(file);
-      setFormError(null);
-    } catch (error) {
-      setFormError(
-        error instanceof Error ? error.message : "Failed to select image.",
-      );
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
 
     if (!formData.title.trim()) {
       setFormError("Title is required.");
       return;
     }
 
+    if (!mediaManager.hasImages) {
+      setFormError("At least one image is required.");
+      return;
+    }
+
     setFormError(null);
 
-    const updates = {
-      title: formData.title,
-      description: formData.description,
-      category: formData.category,
+    await onSave({
+      title: formData.title.trim(),
+      description: formData.description.trim(),
+      category: fixedCategory || formData.category.trim(),
       is_public: formData.is_public,
-      ...(imageProcessing.fileForUpload && {
-        image: imageProcessing.fileForUpload,
-      }),
-    };
-
-    await onSave(updates);
+      media: mediaManager.buildChangeSet(),
+    });
   };
 
   return (
     <Modal
       isOpen={true}
       onClose={onCancel}
-      className="max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+      className="max-h-[90vh] w-full max-w-5xl overflow-y-auto"
       ariaLabelledBy="edit-tattoo-title"
     >
       <div className="p-4 sm:p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Edit className="w-5 h-5 text-gray-600" />
+            <Edit className="h-5 w-5 text-gray-600" />
             <h2
               id="edit-tattoo-title"
-              className="text-xl sm:text-2xl font-bold text-gray-900"
+              className="text-xl font-bold text-gray-900 sm:text-2xl"
             >
-              Edit Tattoo
+              Edit Portfolio Item
             </h2>
           </div>
           <button
             onClick={onCancel}
             disabled={isLoading}
-            className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+            className="p-1 text-gray-400 transition-colors hover:text-gray-600"
             aria-label="Close edit form"
+            type="button"
           >
-            <X className="w-5 h-5" />
+            <X className="h-5 w-5" />
           </button>
         </div>
 
         <form
-          onSubmit={(e) => {
-            void handleSubmit(e);
+          onSubmit={(event) => {
+            void handleSubmit(event);
           }}
-          className="space-y-4 sm:space-y-6"
+          className="space-y-6"
         >
           {formError ? <Alert variant="destructive">{formError}</Alert> : null}
 
-          {/* Image Section */}
-          <TattooImageUpload
-            currentImageUrl={currentImageUrl}
-            imagePreview={imageProcessing.previewUrl}
-            imageFile={imageProcessing.originalFile}
-            isLoading={isLoading}
-            onImageChange={handleImageChange}
-            isProcessingImage={imageProcessing.isProcessing}
-            processingError={imageProcessing.processingError}
-            hasProcessedImage={imageProcessing.hasProcessedImage}
-            isUsingProcessed={imageProcessing.isUsingProcessed}
-            onRemoveBackground={() => {
-              void imageProcessing.processImage().catch(() => undefined);
-            }}
-            onUseOriginalImage={imageProcessing.useOriginalImage}
-            onUseProcessedImage={imageProcessing.useProcessedImage}
+          <PortfolioMediaEditor
+            mediaManager={mediaManager}
+            disabled={isLoading}
+            onError={setFormError}
           />
 
           <div className="space-y-2">
@@ -151,17 +129,26 @@ export default function TattooEditForm({
               onChange={handleInputChange}
               disabled={isLoading}
               required
-              className="w-full"
               placeholder="Enter tattoo title"
             />
           </div>
 
-          <CategoryInput
-            value={formData.category}
-            onChange={handleCategoryChange}
-            disabled={isLoading}
-            placeholder="e.g., Traditional, Realistic, Geometric"
-          />
+          {fixedCategory ? (
+            <div className="space-y-2">
+              <Label htmlFor="category">Category</Label>
+              <div className="rounded-lg border border-gray-300 bg-gray-100 px-3 py-2 text-sm capitalize text-gray-700">
+                {fixedCategory}
+              </div>
+            </div>
+          ) : (
+            <CategoryInput
+              value={formData.category}
+              onChange={handleCategoryChange}
+              disabled={isLoading}
+              placeholder="e.g., Traditional, Realistic, Geometric"
+            />
+          )}
+
           <div className="space-y-2">
             <Label>Visibility</Label>
             <div className="flex items-center space-x-2">
@@ -169,20 +156,20 @@ export default function TattooEditForm({
                 id="is_public"
                 type="checkbox"
                 checked={formData.is_public}
-                onChange={(e) =>
+                onChange={(event) =>
                   setFormData((prev) => ({
                     ...prev,
-                    is_public: e.target.checked,
+                    is_public: event.target.checked,
                   }))
                 }
                 disabled={isLoading}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500"
               />
               <Label
                 htmlFor="is_public"
                 className="text-sm font-medium text-gray-700"
               >
-                Make this tattoo visible in public portfolio
+                Make this item visible in public portfolio
               </Label>
             </div>
             <p className="text-xs text-gray-500">
@@ -199,13 +186,12 @@ export default function TattooEditForm({
               onChange={handleInputChange}
               disabled={isLoading}
               rows={4}
-              className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-              placeholder="Describe this tattoo design..."
+              className="w-full resize-none rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Describe this piece..."
             />
           </div>
 
-          {/* Actions */}
-          <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
+          <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row">
             <Button
               type="button"
               variant="secondary"
@@ -218,17 +204,10 @@ export default function TattooEditForm({
             <Button
               type="submit"
               variant="primary"
-              disabled={isLoading || imageProcessing.isProcessing}
+              disabled={isLoading || !mediaManager.hasImages}
               className="w-full sm:w-auto"
             >
-              {isLoading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
-                  Saving...
-                </>
-              ) : (
-                "Save Changes"
-              )}
+              {isLoading ? "Saving..." : "Save Changes"}
             </Button>
           </div>
         </form>

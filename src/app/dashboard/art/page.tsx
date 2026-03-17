@@ -8,9 +8,7 @@ import {
   fetchAllTattoos,
   getTattooStats,
   deleteTattoo,
-  getTattooImageUrls,
   updateTattoo,
-  uploadTattooImage,
   setFeatureImage,
   unsetFeatureImage,
   type Tattoo,
@@ -25,7 +23,6 @@ export default function ArtPage() {
   const router = useRouter();
   const [artworks, setArtworks] = useState<Tattoo[]>([]);
   const [stats, setStats] = useState({ total: 0, categories: 0, thisMonth: 0 });
-  const [publicUrls, setPublicUrls] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedArtwork, setSelectedArtwork] = useState<Tattoo | null>(null);
@@ -71,21 +68,6 @@ export default function ArtPage() {
         }).length,
       };
       setStats(artStats);
-
-      // Generate signed URLs for all art images
-      if (artOnly.length > 0) {
-        const imagePaths = artOnly
-          .map((artwork) => artwork.image_url)
-          .filter(Boolean); // Remove any null/undefined URLs
-
-        console.log("Image paths for art:", imagePaths);
-
-        if (imagePaths.length > 0) {
-          const urls = await getTattooImageUrls(imagePaths, "art");
-          console.log("Generated signed URLs:", urls);
-          setPublicUrls(urls);
-        }
-      }
     } catch (err) {
       console.error("Error loading artworks:", err);
       setError("Failed to load artworks");
@@ -115,24 +97,16 @@ export default function ArtPage() {
       description: string;
       category: string;
       is_public: boolean;
-      image?: File;
+      media: import("@/types/tattoo").PortfolioMediaChangeSet;
     },
   ) => {
     try {
-      let imageUrl = artwork.image_url;
-
-      // Upload new image if provided
-      if (updates.image) {
-        imageUrl = await uploadTattooImage(updates.image, "art");
-      }
-
-      // Update artwork with new data
       const updatedArtwork = await updateTattoo(artwork.id, {
         title: updates.title,
         description: updates.description,
         category: updates.category,
         is_public: updates.is_public,
-        image_url: imageUrl,
+        media: updates.media,
       });
 
       // Update local state
@@ -140,12 +114,6 @@ export default function ArtPage() {
         prev.map((a) => (a.id === artwork.id ? updatedArtwork : a)),
       );
       setSelectedArtwork(updatedArtwork);
-
-      // Update signed URLs if image was changed
-      if (updates.image && imageUrl) {
-        const newSignedUrls = await getTattooImageUrls([imageUrl], "art");
-        setPublicUrls((prev) => ({ ...prev, ...newSignedUrls }));
-      }
 
       // Refresh stats
       const statsData = await getTattooStats();
@@ -223,7 +191,6 @@ export default function ArtPage() {
       {/* Gallery */}
       <DashboardArtGallery
         artworks={artworks}
-        publicUrls={publicUrls}
         onArtworkClick={setSelectedArtwork}
         onAddNew={handleAddNew}
         onFeaturedChange={handleFeaturedChange}
@@ -234,7 +201,6 @@ export default function ArtPage() {
       {selectedArtwork && (
         <DashboardTattooModal
           tattoo={selectedArtwork}
-          publicUrl={publicUrls[selectedArtwork.image_url]}
           isDeleting={isDeleting === selectedArtwork.id}
           onClose={() => setSelectedArtwork(null)}
           onDelete={handleDelete}

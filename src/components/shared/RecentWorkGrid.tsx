@@ -4,19 +4,10 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Palette } from "lucide-react";
-
-type Tattoo = {
-  id: string;
-  title: string;
-  description: string | null;
-  category: string | null;
-  image_url: string;
-  created_at: string;
-};
+import type { Tattoo } from "@/types/tattoo";
 
 type PortfolioResponse = {
   tattoos: Tattoo[];
-  signedUrls: Record<string, string>;
 };
 
 export default function RecentWorkGrid() {
@@ -85,7 +76,7 @@ export default function RecentWorkGrid() {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
       {recentTattoos.map((tattoo) => {
-        const imageUrl = portfolioData?.signedUrls[tattoo.image_url];
+        const imageUrl = tattoo.primaryMedia?.display_url;
 
         return (
           <Link

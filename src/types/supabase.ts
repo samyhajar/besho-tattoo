@@ -321,6 +321,44 @@ export type Database = {
         };
         Relationships: [];
       };
+      portfolio_media: {
+        Row: {
+          created_at: string;
+          id: string;
+          is_primary: boolean;
+          media_type: string;
+          sort_order: number;
+          storage_path: string;
+          tattoo_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          is_primary?: boolean;
+          media_type: string;
+          sort_order?: number;
+          storage_path: string;
+          tattoo_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          is_primary?: boolean;
+          media_type?: string;
+          sort_order?: number;
+          storage_path?: string;
+          tattoo_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_media_tattoo_id_fkey";
+            columns: ["tattoo_id"];
+            isOneToOne: false;
+            referencedRelation: "tattoos";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           created_at: string;

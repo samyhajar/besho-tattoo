@@ -1,242 +1,686 @@
 import { createClient } from "@/lib/supabase/browser-client";
+import {
+  buildPortfolioMediaPath,
+  getPortfolioSection,
+  type PortfolioSection,
+} from "@/lib/portfolio-media";
 import type { Database } from "@/types/supabase";
+import type {
+  PendingPortfolioMediaUpload,
+  PortfolioMedia,
+  PrimaryMediaSelection,
+  Tattoo as TattooModel,
+  TattooMutationInput,
+} from "@/types/tattoo";
 
-export type Tattoo = Database["public"]["Tables"]["tattoos"]["Row"];
-export type TattooInsert = Database["public"]["Tables"]["tattoos"]["Insert"];
-export type TattooUpdate = Database["public"]["Tables"]["tattoos"]["Update"];
+type SupabaseClient = ReturnType<typeof createClient<Database>>;
+type TattooRow = Database["public"]["Tables"]["tattoos"]["Row"];
+type TattooInsert = Database["public"]["Tables"]["tattoos"]["Insert"];
+type TattooUpdate = Database["public"]["Tables"]["tattoos"]["Update"];
+type PortfolioMediaRow = Database["public"]["Tables"]["portfolio_media"]["Row"];
+type PortfolioMediaInsert =
+  Database["public"]["Tables"]["portfolio_media"]["Insert"];
 
-/**
- * Fetches all public tattoo portfolio entries ordered by newest first.
- * For public display - only returns tattoos marked as public.
- */
-export async function fetchTattoos(): Promise<Tattoo[]> {
-  const supabase = createClient<Database>();
-  const { data, error } = await supabase
-    .from("tattoos")
-    .select("*")
-    .eq("is_public", true)
-    .order("created_at", { ascending: false });
+export type Tattoo = TattooModel;
 
-  if (error) throw error;
-  return data || [];
+type PreparedPendingMediaUpload = PendingPortfolioMediaUpload & {
+  mediaId: string;
+  storagePath: string;
+};
+
+function getBucketName(category: string | null | undefined): PortfolioSection {
+  return getPortfolioSection(category);
 }
 
-/**
- * Fetches all tattoo entries (public and private) for admin use.
- * Requires admin authentication.
- */
-export async function fetchAllTattoos(): Promise<Tattoo[]> {
-  const supabase = createClient<Database>();
-  const { data, error } = await supabase
-    .from("tattoos")
-    .select("*")
-    .order("created_at", { ascending: false });
+function sortMedia(media: PortfolioMedia[]) {
+  return [...media].sort((left, right) => {
+    if (left.is_primary && !right.is_primary) {
+      return -1;
+    }
 
-  if (error) throw error;
-  return data || [];
+    if (!left.is_primary && right.is_primary) {
+      return 1;
+    }
+
+    if (left.sort_order !== right.sort_order) {
+      return left.sort_order - right.sort_order;
+    }
+
+    return left.created_at.localeCompare(right.created_at);
+  });
 }
 
-/**
- * Fetch a single tattoo by ID. Returns `null` when not found.
- */
-export async function fetchTattoo(id: string): Promise<Tattoo | null> {
-  const supabase = createClient<Database>();
-  const { data, error } = await supabase
-    .from("tattoos")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (error && error.code !== "PGRST116") throw error; // not-found falls through
-  return data;
+function mapMediaRow(
+  media: PortfolioMediaRow,
+  displayUrl?: string | null,
+): PortfolioMedia {
+  return {
+    id: media.id,
+    tattoo_id: media.tattoo_id,
+    storage_path: media.storage_path,
+    media_type: media.media_type as PortfolioMedia["media_type"],
+    sort_order: media.sort_order,
+    is_primary: media.is_primary,
+    created_at: media.created_at,
+    display_url: displayUrl || null,
+  };
 }
 
-/**
- * Upload an image file to Supabase storage and return the file path.
- * Requires authentication.
- */
-export async function uploadTattooImage(
-  file: File,
-  category: string = "tattoos",
-): Promise<string> {
-  const supabase = createClient<Database>();
-
-  // Generate unique filename with timestamp
-  const fileExt = file.name.split(".").pop();
-  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-  const filePath = fileName; // Store directly in the category bucket
-
-  // Determine the bucket based on category
-  const bucketName = category === "tattoos" ? "tattoos" : category;
-
-  // Upload file to storage
-  const { error: uploadError } = await supabase.storage
-    .from(bucketName)
-    .upload(filePath, file, {
-      cacheControl: "3600",
-      upsert: false,
-    });
-
-  if (uploadError) throw uploadError;
-
-  // Return the file path (we'll generate signed URLs when needed)
-  return filePath;
-}
-
-/**
- * Generate a signed URL for a tattoo image.
- * This allows secure access to private storage bucket files.
- */
-export async function getTattooImageUrl(
-  imagePath: string,
-  category: string = "tattoos",
-): Promise<string> {
-  const supabase = createClient<Database>();
-
-  // Determine the bucket based on category
-  const bucketName = category === "tattoos" ? "tattoos" : category;
-
-  const { data, error } = await supabase.storage
-    .from(bucketName)
-    .createSignedUrl(imagePath, 3600); // 1 hour expiry
-
-  if (error) throw error;
-  return data.signedUrl;
-}
-
-/**
- * Generate signed URLs for multiple tattoo images at once.
- * More efficient than calling getTattooImageUrl multiple times.
- */
-export async function getTattooImageUrls(
-  imagePaths: string[],
-  category: string = "tattoos",
-): Promise<Record<string, string>> {
-  const supabase = createClient<Database>();
-
-  const signedUrls: Record<string, string> = {};
-
-  // Process in batches to avoid overwhelming the API
-  const batchSize = 10;
-  for (let i = 0; i < imagePaths.length; i += batchSize) {
-    const batch = imagePaths.slice(i, i + batchSize);
-
-    const promises = batch.map(async (path) => {
-      try {
-        // Determine the bucket based on category
-        const bucketName = category === "tattoos" ? "tattoos" : category;
-
-        const { data, error } = await supabase.storage
-          .from(bucketName)
-          .createSignedUrl(path, 3600);
-
-        if (error) throw error;
-        return { path, url: data?.signedUrl || null };
-      } catch (error) {
-        console.warn(`Failed to generate signed URL for ${path}:`, error);
-        return { path, url: null };
-      }
-    });
-
-    const results = await Promise.all(promises);
-    results.forEach(({ path, url }) => {
-      if (url) signedUrls[path] = url;
-    });
+function createLegacyMediaRow(tattoo: TattooRow): PortfolioMediaRow | null {
+  if (!tattoo.image_url) {
+    return null;
   }
 
-  return signedUrls;
+  return {
+    id: `legacy-${tattoo.id}`,
+    tattoo_id: tattoo.id,
+    storage_path: tattoo.image_url,
+    media_type: "image",
+    sort_order: 0,
+    is_primary: true,
+    created_at: tattoo.created_at,
+  };
 }
 
-/**
- * Create a new tattoo entry.
- * Requires admin authentication.
- */
-export async function createTattoo(
-  tattoo: Omit<TattooInsert, "id" | "created_at">,
-): Promise<Tattoo> {
-  const supabase = createClient<Database>();
+function findPrimaryMedia(media: PortfolioMedia[]): PortfolioMedia | null {
+  const primaryImage =
+    media.find((entry) => entry.is_primary && entry.media_type === "image") ||
+    media.find((entry) => entry.media_type === "image") ||
+    media[0];
+
+  return primaryImage || null;
+}
+
+function hydrateTattoo(
+  tattoo: TattooRow,
+  mediaRows: PortfolioMediaRow[],
+  displayUrls: Record<string, string>,
+): Tattoo {
+  const media = sortMedia(
+    mediaRows.map((entry) =>
+      mapMediaRow(entry, displayUrls[entry.storage_path]),
+    ),
+  );
+  const primaryMedia = findPrimaryMedia(media);
+
+  return {
+    ...tattoo,
+    media,
+    primaryMedia,
+    image_url: primaryMedia?.storage_path || tattoo.image_url,
+  };
+}
+
+async function fetchPortfolioMediaMap(
+  supabase: SupabaseClient,
+  tattooIds: string[],
+) {
+  const mediaMap = new Map<string, PortfolioMediaRow[]>();
+
+  if (tattooIds.length === 0) {
+    return mediaMap;
+  }
 
   const { data, error } = await supabase
-    .from("tattoos")
-    .insert(tattoo)
-    .select()
-    .single();
+    .from("portfolio_media")
+    .select("*")
+    .in("tattoo_id", tattooIds)
+    .order("sort_order", { ascending: true });
 
-  if (error) throw error;
+  if (error) {
+    // Allow read paths to keep working before the migration is applied.
+    if (
+      error.message.includes("portfolio_media") ||
+      error.message.includes("relation")
+    ) {
+      return mediaMap;
+    }
+
+    throw error;
+  }
+
+  (data || []).forEach((row) => {
+    const currentMedia = mediaMap.get(row.tattoo_id) || [];
+    currentMedia.push(row);
+    mediaMap.set(row.tattoo_id, currentMedia);
+  });
+
+  return mediaMap;
+}
+
+async function createMediaDisplayUrlMap(
+  supabase: SupabaseClient,
+  tattoos: TattooRow[],
+  mediaMap: Map<string, PortfolioMediaRow[]>,
+) {
+  const displayUrls: Record<string, string> = {};
+  const tasks: Array<Promise<void>> = [];
+
+  tattoos.forEach((tattoo) => {
+    const bucket = getBucketName(tattoo.category);
+    const mediaRows = mediaMap.get(tattoo.id) || [];
+
+    mediaRows.forEach((media) => {
+      if (!media.storage_path || displayUrls[media.storage_path]) {
+        return;
+      }
+
+      tasks.push(
+        supabase.storage
+          .from(bucket)
+          .createSignedUrl(media.storage_path, 3600)
+          .then(({ data, error }) => {
+            if (error) {
+              console.warn(
+                `Failed to generate signed URL for ${media.storage_path}:`,
+                error,
+              );
+              return;
+            }
+
+            if (data?.signedUrl) {
+              displayUrls[media.storage_path] = data.signedUrl;
+            }
+          }),
+      );
+    });
+  });
+
+  await Promise.all(tasks);
+  return displayUrls;
+}
+
+async function fetchTattooRows(
+  supabase: SupabaseClient,
+  publicOnly: boolean,
+): Promise<TattooRow[]> {
+  let query = supabase.from("tattoos").select("*").order("created_at", {
+    ascending: false,
+  });
+
+  if (publicOnly) {
+    query = query.eq("is_public", true);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw error;
+  }
+
+  return data || [];
+}
+
+async function hydrateTattooRows(
+  supabase: SupabaseClient,
+  rows: TattooRow[],
+): Promise<Tattoo[]> {
+  const mediaMap = await fetchPortfolioMediaMap(
+    supabase,
+    rows.map((row) => row.id),
+  );
+
+  rows.forEach((row) => {
+    if (mediaMap.has(row.id)) {
+      return;
+    }
+
+    const legacyMedia = createLegacyMediaRow(row);
+    if (legacyMedia) {
+      mediaMap.set(row.id, [legacyMedia]);
+    }
+  });
+
+  const displayUrls = await createMediaDisplayUrlMap(supabase, rows, mediaMap);
+
+  return rows.map((row) =>
+    hydrateTattoo(row, mediaMap.get(row.id) || [], displayUrls),
+  );
+}
+
+async function fetchTattooRowById(
+  supabase: SupabaseClient,
+  id: string,
+): Promise<TattooRow | null> {
+  const { data, error } = await supabase
+    .from("tattoos")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
   return data;
 }
 
-/**
- * Update an existing tattoo.
- * Requires admin authentication.
- */
+async function fetchTattooMediaRowsById(
+  supabase: SupabaseClient,
+  tattooId: string,
+): Promise<PortfolioMediaRow[]> {
+  const { data, error } = await supabase
+    .from("portfolio_media")
+    .select("*")
+    .eq("tattoo_id", tattooId)
+    .order("sort_order", { ascending: true });
+
+  if (error) {
+    if (
+      error.message.includes("portfolio_media") ||
+      error.message.includes("relation")
+    ) {
+      return [];
+    }
+
+    throw error;
+  }
+
+  return data || [];
+}
+
+function preparePendingUploads(
+  tattooId: string,
+  pendingMedia: PendingPortfolioMediaUpload[],
+  startingSortOrder: number,
+) {
+  return pendingMedia.map((media, index) => {
+    const mediaId = crypto.randomUUID();
+
+    return {
+      ...media,
+      mediaId,
+      sortOrder: startingSortOrder + index,
+      storagePath: buildPortfolioMediaPath({
+        tattooId,
+        mediaId,
+        fileName: media.file.name,
+      }),
+    };
+  });
+}
+
+function resolvePrimarySelection(params: {
+  existingMedia: PortfolioMediaRow[];
+  pendingMedia: PreparedPendingMediaUpload[];
+  removedMediaIds: string[];
+  primarySelection: PrimaryMediaSelection | null;
+}) {
+  const visibleExistingImages = params.existingMedia.filter(
+    (media) =>
+      media.media_type === "image" &&
+      !params.removedMediaIds.includes(media.id),
+  );
+  const visiblePendingImages = params.pendingMedia.filter(
+    (media) => media.mediaType === "image",
+  );
+
+  if (params.primarySelection?.kind === "existing") {
+    const primaryMediaId = params.primarySelection.mediaId;
+    const existing = visibleExistingImages.find(
+      (media) => media.id === primaryMediaId,
+    );
+
+    if (existing) {
+      return {
+        kind: "existing" as const,
+        mediaId: existing.id,
+        storagePath: existing.storage_path,
+      };
+    }
+  }
+
+  if (params.primarySelection?.kind === "pending") {
+    const primaryClientId = params.primarySelection.clientId;
+    const pending = visiblePendingImages.find(
+      (media) => media.clientId === primaryClientId,
+    );
+
+    if (pending) {
+      return {
+        kind: "pending" as const,
+        mediaId: pending.mediaId,
+        storagePath: pending.storagePath,
+      };
+    }
+  }
+
+  const existingPrimary =
+    visibleExistingImages.find((media) => media.is_primary) ||
+    visibleExistingImages[0];
+  if (existingPrimary) {
+    return {
+      kind: "existing" as const,
+      mediaId: existingPrimary.id,
+      storagePath: existingPrimary.storage_path,
+    };
+  }
+
+  const pendingPrimary = visiblePendingImages[0];
+  if (pendingPrimary) {
+    return {
+      kind: "pending" as const,
+      mediaId: pendingPrimary.mediaId,
+      storagePath: pendingPrimary.storagePath,
+    };
+  }
+
+  throw new Error("At least one image is required for each portfolio item.");
+}
+
+async function uploadPreparedMedia(
+  supabase: SupabaseClient,
+  bucket: PortfolioSection,
+  media: PreparedPendingMediaUpload[],
+) {
+  const uploadedPaths: string[] = [];
+
+  for (const item of media) {
+    const { error } = await supabase.storage
+      .from(bucket)
+      .upload(item.storagePath, item.file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    uploadedPaths.push(item.storagePath);
+  }
+
+  return uploadedPaths;
+}
+
+async function removeStorageObjects(
+  supabase: SupabaseClient,
+  bucket: PortfolioSection,
+  paths: string[],
+) {
+  if (paths.length === 0) {
+    return;
+  }
+
+  try {
+    await supabase.storage.from(bucket).remove(paths);
+  } catch (error) {
+    console.warn("Failed to delete media from storage:", error);
+  }
+}
+
+async function insertPortfolioMediaRows(
+  supabase: SupabaseClient,
+  tattooId: string,
+  pendingMedia: PreparedPendingMediaUpload[],
+  primaryMediaId: string,
+) {
+  if (pendingMedia.length === 0) {
+    return;
+  }
+
+  const inserts: PortfolioMediaInsert[] = pendingMedia.map((media) => ({
+    id: media.mediaId,
+    tattoo_id: tattooId,
+    storage_path: media.storagePath,
+    media_type: media.mediaType,
+    sort_order: media.sortOrder,
+    is_primary: media.mediaId === primaryMediaId,
+  }));
+
+  const { error } = await supabase.from("portfolio_media").insert(inserts);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+async function refetchTattooOrThrow(
+  supabase: SupabaseClient,
+  tattooId: string,
+): Promise<Tattoo> {
+  const tattooRow = await fetchTattooRowById(supabase, tattooId);
+  if (!tattooRow) {
+    throw new Error("Tattoo not found.");
+  }
+
+  const hydratedRows = await hydrateTattooRows(supabase, [tattooRow]);
+  return hydratedRows[0];
+}
+
+export async function fetchTattoos(): Promise<Tattoo[]> {
+  const supabase = createClient<Database>();
+  const rows = await fetchTattooRows(supabase, true);
+  return hydrateTattooRows(supabase, rows);
+}
+
+export async function fetchAllTattoos(): Promise<Tattoo[]> {
+  const supabase = createClient<Database>();
+  const rows = await fetchTattooRows(supabase, false);
+  return hydrateTattooRows(supabase, rows);
+}
+
+export async function fetchTattoo(id: string): Promise<Tattoo | null> {
+  const supabase = createClient<Database>();
+  const row = await fetchTattooRowById(supabase, id);
+
+  if (!row) {
+    return null;
+  }
+
+  return refetchTattooOrThrow(supabase, id);
+}
+
+export async function createTattoo(
+  tattoo: TattooMutationInput,
+): Promise<Tattoo> {
+  const supabase = createClient<Database>();
+  const tattooId = tattoo.id || crypto.randomUUID();
+  const bucket = getBucketName(tattoo.category);
+
+  if (tattoo.media.pendingMedia.length === 0) {
+    throw new Error("Please upload at least one image.");
+  }
+
+  const preparedPending = preparePendingUploads(
+    tattooId,
+    tattoo.media.pendingMedia,
+    0,
+  );
+  const primaryMedia = resolvePrimarySelection({
+    existingMedia: [],
+    pendingMedia: preparedPending,
+    removedMediaIds: [],
+    primarySelection: tattoo.media.primarySelection,
+  });
+
+  const tattooInsert: TattooInsert = {
+    id: tattooId,
+    title: tattoo.title,
+    description: tattoo.description,
+    category: tattoo.category,
+    is_public: tattoo.is_public,
+    image_url: primaryMedia.storagePath,
+  };
+
+  const { error: insertTattooError } = await supabase
+    .from("tattoos")
+    .insert(tattooInsert);
+
+  if (insertTattooError) {
+    throw new Error(insertTattooError.message);
+  }
+
+  let uploadedPaths: string[] = [];
+
+  try {
+    uploadedPaths = await uploadPreparedMedia(
+      supabase,
+      bucket,
+      preparedPending,
+    );
+    await insertPortfolioMediaRows(
+      supabase,
+      tattooId,
+      preparedPending,
+      primaryMedia.mediaId,
+    );
+
+    return await refetchTattooOrThrow(supabase, tattooId);
+  } catch (error) {
+    await removeStorageObjects(supabase, bucket, uploadedPaths);
+    await supabase.from("tattoos").delete().eq("id", tattooId);
+    throw error;
+  }
+}
+
 export async function updateTattoo(
   id: string,
-  updates: TattooUpdate,
+  tattoo: Omit<TattooMutationInput, "id">,
 ): Promise<Tattoo> {
   const supabase = createClient<Database>();
+  const tattooRow = await fetchTattooRowById(supabase, id);
 
-  const { data, error } = await supabase
-    .from("tattoos")
-    .update(updates)
-    .eq("id", id)
-    .select()
-    .single();
+  if (!tattooRow) {
+    throw new Error("Tattoo not found.");
+  }
 
-  if (error) throw error;
-  return data;
+  const existingMedia = await fetchTattooMediaRowsById(supabase, id);
+  const retainedExistingMedia = existingMedia.filter(
+    (media) => !tattoo.media.removedMediaIds.includes(media.id),
+  );
+  const imageCount =
+    retainedExistingMedia.filter((media) => media.media_type === "image")
+      .length +
+    tattoo.media.pendingMedia.filter((media) => media.mediaType === "image")
+      .length;
+
+  if (imageCount === 0) {
+    throw new Error("At least one image is required for each portfolio item.");
+  }
+
+  const nextSortOrder =
+    retainedExistingMedia.reduce(
+      (maxOrder, media) => Math.max(maxOrder, media.sort_order),
+      -1,
+    ) + 1;
+  const preparedPending = preparePendingUploads(
+    id,
+    tattoo.media.pendingMedia,
+    nextSortOrder,
+  );
+  const primaryMedia = resolvePrimarySelection({
+    existingMedia,
+    pendingMedia: preparedPending,
+    removedMediaIds: tattoo.media.removedMediaIds,
+    primarySelection: tattoo.media.primarySelection,
+  });
+  const bucket = getBucketName(tattoo.category ?? tattooRow.category);
+
+  let uploadedPaths: string[] = [];
+
+  try {
+    uploadedPaths = await uploadPreparedMedia(
+      supabase,
+      bucket,
+      preparedPending,
+    );
+
+    if (tattoo.media.removedMediaIds.length > 0) {
+      const { error: deleteMediaError } = await supabase
+        .from("portfolio_media")
+        .delete()
+        .in("id", tattoo.media.removedMediaIds);
+
+      if (deleteMediaError) {
+        throw new Error(deleteMediaError.message);
+      }
+    }
+
+    await insertPortfolioMediaRows(
+      supabase,
+      id,
+      preparedPending,
+      primaryMedia.mediaId,
+    );
+
+    const { error: unsetPrimaryError } = await supabase
+      .from("portfolio_media")
+      .update({ is_primary: false })
+      .eq("tattoo_id", id);
+
+    if (unsetPrimaryError) {
+      throw new Error(unsetPrimaryError.message);
+    }
+
+    const { error: setPrimaryError } = await supabase
+      .from("portfolio_media")
+      .update({ is_primary: true })
+      .eq("id", primaryMedia.mediaId);
+
+    if (setPrimaryError) {
+      throw new Error(setPrimaryError.message);
+    }
+
+    const tattooUpdate: TattooUpdate = {
+      title: tattoo.title,
+      description: tattoo.description,
+      category: tattoo.category,
+      is_public: tattoo.is_public,
+      image_url: primaryMedia.storagePath,
+    };
+
+    const { error: updateTattooError } = await supabase
+      .from("tattoos")
+      .update(tattooUpdate)
+      .eq("id", id);
+
+    if (updateTattooError) {
+      throw new Error(updateTattooError.message);
+    }
+
+    const removedStoragePaths = existingMedia
+      .filter((media) => tattoo.media.removedMediaIds.includes(media.id))
+      .map((media) => media.storage_path);
+    await removeStorageObjects(supabase, bucket, removedStoragePaths);
+
+    return await refetchTattooOrThrow(supabase, id);
+  } catch (error) {
+    await removeStorageObjects(supabase, bucket, uploadedPaths);
+    throw error;
+  }
 }
 
-/**
- * Delete a tattoo and its associated image.
- * Requires admin authentication.
- */
 export async function deleteTattoo(id: string): Promise<void> {
   const supabase = createClient<Database>();
-
-  // First get the tattoo to extract image path
   const tattoo = await fetchTattoo(id);
-  if (!tattoo) throw new Error("Tattoo not found");
+  if (!tattoo) {
+    throw new Error("Tattoo not found");
+  }
 
-  // Delete from database
+  const bucket = getBucketName(tattoo.category);
+  const mediaPaths = (tattoo.media || []).map((media) => media.storage_path);
+
   const { error: deleteError } = await supabase
     .from("tattoos")
     .delete()
     .eq("id", id);
 
-  if (deleteError) throw deleteError;
-
-  // Delete image from storage if it exists
-  if (tattoo.image_url) {
-    try {
-      // The image_url now contains just the file path, not a full URL
-      await supabase.storage.from("tattoos").remove([tattoo.image_url]);
-    } catch (error) {
-      // Log but don't throw - image deletion is not critical
-      console.warn("Failed to delete image from storage:", error);
-    }
+  if (deleteError) {
+    throw new Error(deleteError.message);
   }
+
+  await removeStorageObjects(supabase, bucket, mediaPaths);
 }
 
-/**
- * Set an image as the feature image for its category.
- * This will unset any other feature image in the same category.
- */
 export async function setFeatureImage(tattooId: string): Promise<Tattoo> {
   const supabase = createClient<Database>();
 
-  // First, get the tattoo to know its category
-  const { data: tattoo, error: fetchError } = await supabase
-    .from("tattoos")
-    .select("*")
-    .eq("id", tattooId)
-    .single();
-
-  if (fetchError || !tattoo) {
+  const tattoo = await fetchTattooRowById(supabase, tattooId);
+  if (!tattoo) {
     throw new Error("Tattoo not found");
   }
 
-  // Unset any existing feature image in the same category
   if (tattoo.category) {
     await supabase
       .from("tattoos")
@@ -245,38 +689,33 @@ export async function setFeatureImage(tattooId: string): Promise<Tattoo> {
       .eq("is_feature_image", true);
   }
 
-  // Set this tattoo as the feature image
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("tattoos")
     .update({ is_feature_image: true })
-    .eq("id", tattooId)
-    .select()
-    .single();
+    .eq("id", tattooId);
 
-  if (error) throw error;
-  return data;
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return refetchTattooOrThrow(supabase, tattooId);
 }
 
-/**
- * Unset a feature image.
- */
 export async function unsetFeatureImage(tattooId: string): Promise<Tattoo> {
   const supabase = createClient<Database>();
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("tattoos")
     .update({ is_feature_image: false })
-    .eq("id", tattooId)
-    .select()
-    .single();
+    .eq("id", tattooId);
 
-  if (error) throw error;
-  return data;
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return refetchTattooOrThrow(supabase, tattooId);
 }
 
-/**
- * Get the feature image for a specific category.
- */
 export async function getFeatureImage(
   category: string,
 ): Promise<Tattoo | null> {
@@ -288,15 +727,19 @@ export async function getFeatureImage(
     .eq("category", category)
     .eq("is_feature_image", true)
     .eq("is_public", true)
-    .single();
+    .maybeSingle();
 
-  if (error && error.code !== "PGRST116") throw error; // not-found falls through
-  return data;
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  return refetchTattooOrThrow(supabase, data.id);
 }
 
-/**
- * Get tattoo statistics for dashboard.
- */
 export async function getTattooStats() {
   const supabase = createClient<Database>();
 
@@ -304,27 +747,27 @@ export async function getTattooStats() {
     .from("tattoos")
     .select("id, category, created_at");
 
-  if (error) throw error;
-  if (!data) throw new Error("No data returned");
+  if (error) {
+    throw error;
+  }
 
-  const total = data.length;
-  const categories = new Set(data.map((t) => t.category).filter(Boolean)).size;
-  const thisMonth = data.filter((t) => {
-    const createdDate = new Date(t.created_at);
-    const now = new Date();
-    return (
-      createdDate.getMonth() === now.getMonth() &&
-      createdDate.getFullYear() === now.getFullYear()
-    );
-  }).length;
+  const total = data?.length || 0;
+  const categories = new Set(
+    data?.map((entry) => entry.category).filter(Boolean),
+  ).size;
+  const thisMonth =
+    data?.filter((entry) => {
+      const createdDate = new Date(entry.created_at);
+      const now = new Date();
+      return (
+        createdDate.getMonth() === now.getMonth() &&
+        createdDate.getFullYear() === now.getFullYear()
+      );
+    }).length || 0;
 
   return { total, categories, thisMonth };
 }
 
-/**
- * Get all existing categories from tattoos.
- * Returns categories that have at least one tattoo.
- */
 export async function getExistingCategories(): Promise<string[]> {
   const supabase = createClient<Database>();
 
@@ -334,35 +777,17 @@ export async function getExistingCategories(): Promise<string[]> {
     .not("category", "is", null)
     .not("category", "eq", "");
 
-  if (error) throw error;
-  if (!data) return [];
+  if (error) {
+    throw error;
+  }
 
-  // Get unique categories and sort them alphabetically
   const categories = [
-    ...new Set(data.map((t) => t.category).filter(Boolean)),
+    ...new Set((data || []).map((entry) => entry.category).filter(Boolean)),
   ] as string[];
+
   return categories.sort();
 }
 
-/**
- * Get categories that have at least one tattoo (for frontend display).
- * This ensures empty categories don't appear in the public portfolio.
- */
 export async function getActiveCategories(): Promise<string[]> {
-  const supabase = createClient<Database>();
-
-  const { data, error } = await supabase
-    .from("tattoos")
-    .select("category")
-    .not("category", "is", null)
-    .not("category", "eq", "");
-
-  if (error) throw error;
-  if (!data) return [];
-
-  // Get unique categories and sort them alphabetically
-  const categories = [
-    ...new Set(data.map((t) => t.category).filter(Boolean)),
-  ] as string[];
-  return categories.sort();
+  return getExistingCategories();
 }

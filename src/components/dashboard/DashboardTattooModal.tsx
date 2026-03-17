@@ -1,15 +1,14 @@
 import { useState } from "react";
-import { X, Edit, Trash2 } from "lucide-react";
-import Image from "next/image";
-import type { Tattoo } from "@/types/tattoo";
+import { Edit, Trash2, X } from "lucide-react";
+import type { PortfolioMediaChangeSet, Tattoo } from "@/types/tattoo";
 import { Button } from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import TattooEditForm from "@/components/dashboard/TattooEditForm";
+import PortfolioMediaCarousel from "@/components/shared/PortfolioMediaCarousel";
 
 interface DashboardTattooModalProps {
   tattoo: Tattoo;
-  publicUrl: string;
   isDeleting: boolean;
   onClose: () => void;
   onDelete: (tattoo: Tattoo) => Promise<void>;
@@ -20,14 +19,13 @@ interface DashboardTattooModalProps {
       description: string;
       category: string;
       is_public: boolean;
-      image?: File;
+      media: PortfolioMediaChangeSet;
     },
   ) => Promise<void>;
 }
 
 export default function DashboardTattooModal({
   tattoo,
-  publicUrl,
   isDeleting,
   onClose,
   onDelete,
@@ -47,7 +45,7 @@ export default function DashboardTattooModal({
     description: string;
     category: string;
     is_public: boolean;
-    image?: File;
+    media: PortfolioMediaChangeSet;
   }) => {
     try {
       setIsEditing(true);
@@ -60,12 +58,10 @@ export default function DashboardTattooModal({
     }
   };
 
-  // Show edit form if editing
   if (showEditForm) {
     return (
       <TattooEditForm
         tattoo={tattoo}
-        currentImageUrl={publicUrl}
         isLoading={isEditing}
         onSave={handleEdit}
         onCancel={() => setShowEditForm(false)}
@@ -78,80 +74,82 @@ export default function DashboardTattooModal({
       <Modal
         isOpen={true}
         onClose={onClose}
-        className="max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+        className="max-h-[90vh] w-full max-w-6xl overflow-y-auto"
         ariaLabelledBy="tattoo-modal-title"
       >
         <div className="p-4 sm:p-6">
-          <div className="flex items-start justify-between mb-4 sm:mb-6">
+          <div className="mb-4 flex items-start justify-between sm:mb-6">
             <div>
               <h2
                 id="tattoo-modal-title"
-                className="text-xl sm:text-2xl font-bold text-gray-900"
+                className="text-xl font-bold text-gray-900 sm:text-2xl"
               >
                 {tattoo.title}
               </h2>
-              {tattoo.category && (
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-sm bg-gray-100 text-gray-800 mt-2">
+              {tattoo.category ? (
+                <span className="mt-2 inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-sm text-gray-800">
                   {tattoo.category}
                 </span>
-              )}
+              ) : null}
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+              className="p-1 text-gray-400 transition-colors hover:text-gray-600"
               aria-label="Close modal"
+              type="button"
             >
-              <X className="w-6 h-6" />
+              <X className="h-6 w-6" />
             </button>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
-              <Image
-                src={publicUrl || "/placeholder-image.svg"}
-                alt={tattoo.title}
-                width={500}
-                height={500}
-                className="w-full h-full object-cover"
-              />
-            </div>
+          <div className="grid gap-6 lg:grid-cols-[1.4fr,0.9fr]">
+            <PortfolioMediaCarousel tattoo={tattoo} theme="light" />
 
             <div className="space-y-4">
-              {tattoo.description && (
+              {tattoo.description ? (
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-2">
+                  <h3 className="mb-2 font-medium text-gray-900">
                     Description
                   </h3>
-                  <p className="text-gray-700 leading-relaxed">
+                  <p className="leading-relaxed text-gray-700">
                     {tattoo.description}
                   </p>
                 </div>
-              )}
+              ) : null}
 
               <div>
-                <h3 className="font-medium text-gray-900 mb-2">Details</h3>
+                <h3 className="mb-2 font-medium text-gray-900">Details</h3>
                 <dl className="space-y-2 text-sm">
-                  <div className="flex justify-between">
+                  <div className="flex justify-between gap-4">
                     <dt className="text-gray-600">Created:</dt>
-                    <dd className="text-gray-900">
+                    <dd className="text-right text-gray-900">
                       {new Date(tattoo.created_at).toLocaleDateString()}
                     </dd>
                   </div>
-                  {tattoo.category && (
-                    <div className="flex justify-between">
-                      <dt className="text-gray-600">Category:</dt>
-                      <dd className="text-gray-900">{tattoo.category}</dd>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
+                  <div className="flex justify-between gap-4">
+                    <dt className="text-gray-600">Media:</dt>
+                    <dd className="text-right text-gray-900">
+                      {tattoo.media?.length || 0} items
+                    </dd>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <dt className="text-gray-600">Primary image:</dt>
+                    <dd className="text-right text-gray-900">
+                      {tattoo.primaryMedia?.storage_path
+                        ?.split("/")
+                        .pop()
+                        ?.slice(0, 28) || "None"}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between gap-4">
                     <dt className="text-gray-600">Visibility:</dt>
-                    <dd className="text-gray-900">
+                    <dd className="text-right text-gray-900">
                       {tattoo.is_public ? (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
                           ✅ Public
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800">
                           🔒 Private
                         </span>
                       )}
@@ -160,32 +158,25 @@ export default function DashboardTattooModal({
                 </dl>
               </div>
 
-              <div className="pt-4 space-y-3">
+              <div className="space-y-3 pt-4">
                 <Button
                   variant="outline"
                   onClick={() => setShowEditForm(true)}
                   disabled={isDeleting}
                   className="w-full sm:w-auto"
                 >
-                  <Edit className="w-4 h-4 mr-2" />
-                  Edit Tattoo
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Item
                 </Button>
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row">
                   <Button
                     variant="destructive"
                     onClick={() => setShowDeleteConfirmation(true)}
                     disabled={isDeleting}
                     className="w-full sm:w-auto"
                   >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    {isDeleting ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
-                        Deleting...
-                      </>
-                    ) : (
-                      "Delete Tattoo"
-                    )}
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    {isDeleting ? "Deleting..." : "Delete Item"}
                   </Button>
                   <Button
                     variant="secondary"
@@ -202,11 +193,10 @@ export default function DashboardTattooModal({
         </div>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
       <ConfirmationModal
         isOpen={showDeleteConfirmation}
-        title="Delete Tattoo"
-        message={`Are you sure you want to delete "${tattoo.title}"? This action cannot be undone and will permanently remove the tattoo from your portfolio.`}
+        title="Delete Portfolio Item"
+        message={`Are you sure you want to delete "${tattoo.title}"? This action cannot be undone and will remove every uploaded image and video for this item.`}
         confirmText="Delete"
         cancelText="Cancel"
         isDestructive={true}

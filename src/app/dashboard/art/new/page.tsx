@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import BackButton from "@/components/ui/BackButton";
-import { usePortfolioImageProcessing } from "@/hooks/usePortfolioImageProcessing";
-import { uploadTattooImage, createTattoo } from "@/services/tattoos";
+import { usePortfolioMediaManager } from "@/hooks/usePortfolioMediaManager";
+import { createTattoo } from "@/services/tattoos";
 import type { TattooFormData } from "@/types/tattoo";
 import TattooUploadForm from "@/components/dashboard/TattooUploadForm";
 import TattooPreview from "@/components/dashboard/TattooPreview";
@@ -14,7 +14,7 @@ export default function NewArtPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const imageProcessing = usePortfolioImageProcessing();
+  const mediaManager = usePortfolioMediaManager();
 
   const [formData, setFormData] = useState<TattooFormData>({
     title: "",
@@ -22,19 +22,6 @@ export default function NewArtPage() {
     category: "art", // Fixed to art category
     is_public: true, // Default to public
   });
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      imageProcessing.setFile(e.target.files?.[0] || null);
-      setError(null);
-    } catch (fileError) {
-      setError(
-        fileError instanceof Error
-          ? fileError.message
-          : "Please select a valid image file.",
-      );
-    }
-  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -55,8 +42,8 @@ export default function NewArtPage() {
   };
 
   const handleSubmit = async () => {
-    if (!imageProcessing.fileForUpload) {
-      setError("Please select an image.");
+    if (!mediaManager.hasImages) {
+      setError("Please upload at least one image.");
       return;
     }
 
@@ -69,25 +56,15 @@ export default function NewArtPage() {
     setError(null);
 
     try {
-      // Upload image first with art category
-      const fileToUpload = imageProcessing.fileForUpload;
-      if (!fileToUpload) {
-        setError("Please select an image.");
-        return;
-      }
-
-      const imageUrl = await uploadTattooImage(fileToUpload, "art");
-
-      // Create art record
       await createTattoo({
+        id: crypto.randomUUID(),
         title: formData.title.trim(),
         description: formData.description.trim() || null,
         category: "art", // Always art category
-        image_url: imageUrl,
         is_public: formData.is_public,
+        media: mediaManager.buildChangeSet(),
       });
 
-      // Redirect to art page
       router.push("/dashboard/art");
     } catch (err) {
       console.error("Error creating artwork:", err);
@@ -131,31 +108,15 @@ export default function NewArtPage() {
           onInputChange={handleInputChange}
           onCategoryChange={handleCategoryChange}
           onVisibilityChange={handleVisibilityChange}
-          onFileChange={handleFileChange}
           onSubmit={handleSubmit}
           onCancel={() => router.back()}
-          selectedFile={imageProcessing.originalFile}
+          mediaManager={mediaManager}
+          onMediaError={setError}
           error={error}
           isLoading={isLoading}
-          isProcessingImage={imageProcessing.isProcessing}
-          processingError={imageProcessing.processingError}
-          hasProcessedImage={imageProcessing.hasProcessedImage}
-          isUsingProcessed={imageProcessing.isUsingProcessed}
-          onRemoveBackground={() => {
-            void imageProcessing.processImage().catch(() => undefined);
-          }}
-          onUseOriginalImage={imageProcessing.useOriginalImage}
-          onUseProcessedImage={imageProcessing.useProcessedImage}
           fixedCategory="art" // Pass fixed category to form
         />
-        <TattooPreview
-          imagePreview={imageProcessing.previewUrl}
-          formData={formData}
-          previewVariant={
-            imageProcessing.isUsingProcessed ? "processed" : "original"
-          }
-          isProcessing={imageProcessing.isProcessing}
-        />
+        <TattooPreview formData={formData} mediaManager={mediaManager} />
       </div>
     </div>
   );

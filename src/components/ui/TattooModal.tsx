@@ -1,25 +1,20 @@
-import Image from "next/image";
+import PortfolioMediaCarousel from "@/components/shared/PortfolioMediaCarousel";
 import type { Tattoo } from "@/types/tattoo";
 
 interface TattooModalProps {
   tattoo: Tattoo;
-  publicUrl: string;
   onClose: () => void;
 }
 
-export default function TattooModal({
-  tattoo,
-  publicUrl,
-  onClose,
-}: TattooModalProps) {
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
+export default function TattooModal({ tattoo, onClose }: TattooModalProps) {
+  const handleBackdropClick = (event: React.MouseEvent) => {
+    if (event.target === event.currentTarget) {
       onClose();
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Escape") {
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Escape") {
       onClose();
     }
   };
@@ -33,16 +28,15 @@ export default function TattooModal({
       role="button"
       aria-label="Close image viewer"
     >
-      <div className="relative flex w-full max-w-[min(92vw,1180px)] cursor-default flex-col items-center justify-center">
-        {/* Close button */}
+      <div className="relative mx-auto flex max-h-[calc(100vh-1.5rem)] w-full max-w-[min(92vw,1180px)] cursor-default flex-col items-center justify-center overflow-y-auto">
         <button
           onClick={onClose}
-          className="absolute top-2 sm:top-4 right-2 sm:right-4 z-10 w-12 h-12 sm:w-14 sm:h-14 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white hover:bg-white/20 hover:scale-110 transition-all duration-300 border border-white/20 shadow-lg shadow-black/30"
+          className="absolute right-2 top-2 z-10 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-white shadow-lg shadow-black/30 transition-all duration-300 hover:scale-110 hover:bg-white/20 sm:right-4 sm:top-4 sm:h-14 sm:w-14"
           aria-label="Close image viewer"
           type="button"
         >
           <svg
-            className="w-6 h-6 sm:w-7 sm:h-7"
+            className="h-6 w-6 sm:h-7 sm:w-7"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -56,29 +50,21 @@ export default function TattooModal({
           </svg>
         </button>
 
-        {/* Image Container */}
-        <div className="relative flex max-h-[78vh] w-full max-w-[min(92vw,1180px)] items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-2xl shadow-black/50 backdrop-blur-sm">
-          <Image
-            src={publicUrl || "/placeholder-image.svg"}
-            alt={tattoo.title}
-            width={1000}
-            height={1000}
-            className="h-auto max-h-[78vh] w-auto max-w-full object-contain"
-          />
+        <div className="w-full max-w-[min(92vw,1180px)]">
+          <PortfolioMediaCarousel tattoo={tattoo} theme="dark" />
         </div>
 
-        {/* Image Info */}
         <div className="mt-4 w-full text-center">
           <div className="mx-auto inline-block max-w-[min(88vw,760px)] rounded-2xl border border-white/10 bg-black/60 p-4 shadow-xl shadow-black/40 backdrop-blur-md sm:p-6">
-            <h2 className="text-white font-bold text-xl sm:text-2xl mb-2">
+            <h2 className="mb-2 text-xl font-bold text-white sm:text-2xl">
               {tattoo.title}
             </h2>
             <div className="flex items-center justify-center gap-4 text-sm sm:text-base">
-              {tattoo.category && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/10 text-white/80 backdrop-blur-sm">
+              {tattoo.category ? (
+                <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/80 backdrop-blur-sm">
                   {tattoo.category}
                 </span>
-              )}
+              ) : null}
               <span className="text-white/60">
                 {new Date(tattoo.created_at).toLocaleDateString("en-US", {
                   month: "long",
@@ -87,11 +73,11 @@ export default function TattooModal({
                 })}
               </span>
             </div>
-            {tattoo.description && (
-              <p className="text-white/80 text-sm sm:text-base mt-3 max-w-md mx-auto">
+            {tattoo.description ? (
+              <p className="mx-auto mt-3 max-w-md text-sm text-white/80 sm:text-base">
                 {tattoo.description}
               </p>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

@@ -6,99 +6,132 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
+import type {
+  PortfolioMediaManagerState,
+  VisiblePortfolioMediaItem,
+} from "@/hooks/usePortfolioMediaManager";
 import type { TattooFormData } from "@/types/tattoo";
 
 interface TattooPreviewProps {
-  imagePreview: string | null;
   formData: TattooFormData;
-  previewVariant?: "original" | "processed";
-  isProcessing?: boolean;
+  mediaManager: PortfolioMediaManagerState;
+}
+
+function renderPreview(item: VisiblePortfolioMediaItem) {
+  if (item.mediaType === "image" && item.previewUrl) {
+    return (
+      <div className="relative h-full w-full">
+        <Image
+          src={item.previewUrl}
+          alt={item.name}
+          fill
+          unoptimized
+          className="object-cover"
+        />
+      </div>
+    );
+  }
+
+  if (item.previewUrl) {
+    return (
+      <video
+        src={item.previewUrl}
+        className="h-full w-full object-cover"
+        controls
+        muted
+        playsInline
+      />
+    );
+  }
+
+  return (
+    <div className="flex h-full items-center justify-center text-sm text-gray-500">
+      Preview unavailable
+    </div>
+  );
 }
 
 export default function TattooPreview({
-  imagePreview,
   formData,
-  previewVariant = "original",
-  isProcessing = false,
+  mediaManager,
 }: TattooPreviewProps) {
+  const previewItem = mediaManager.selectedPreviewItem;
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Preview</CardTitle>
         <CardDescription>
-          {isProcessing
-            ? "Removing the background from the selected image..."
-            : previewVariant === "processed"
-              ? "Processed preview that will be uploaded if you keep it selected"
-              : "Original preview of the selected upload"}
+          Click any image or video on the left to preview it here. The primary
+          image still controls the gallery cover and first carousel slide.
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        {imagePreview ? (
-          <div className="space-y-4">
+      <CardContent className="space-y-5">
+        {previewItem ? (
+          <>
             <div className="flex items-center justify-between gap-3">
-              <span
-                className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
-                  previewVariant === "processed"
-                    ? "bg-gray-900 text-white"
-                    : "bg-gray-100 text-gray-700"
-                }`}
-              >
-                {previewVariant === "processed"
-                  ? "Processed Preview"
-                  : "Original Preview"}
-              </span>
-              {isProcessing ? (
-                <span className="text-xs text-gray-500">Processing...</span>
-              ) : null}
-            </div>
-            <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
-              <Image
-                src={imagePreview}
-                alt="Preview"
-                width={400}
-                height={400}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="space-y-2">
-              <h3 className="font-semibold text-gray-900">
-                {formData.title || "Untitled Tattoo"}
-              </h3>
-              {formData.category && (
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">
-                  {formData.category}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center rounded-full bg-gray-900 px-3 py-1 text-xs font-medium text-white">
+                  Selected Preview
                 </span>
-              )}
-              {formData.description && (
-                <p className="text-sm text-gray-600 line-clamp-3">
-                  {formData.description}
-                </p>
-              )}
+                {previewItem.isPrimary ? (
+                  <span className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
+                    Primary Gallery Image
+                  </span>
+                ) : null}
+              </div>
+              <span className="text-xs text-gray-500">
+                {mediaManager.visibleMedia.length} media item
+                {mediaManager.visibleMedia.length === 1 ? "" : "s"}
+              </span>
             </div>
-          </div>
+            <div className="aspect-square overflow-hidden rounded-xl bg-gray-100">
+              {renderPreview(previewItem)}
+            </div>
+            <div className="grid grid-cols-4 gap-3">
+              {mediaManager.visibleMedia.slice(0, 8).map((item) => (
+                <div
+                  key={item.key}
+                  className={`overflow-hidden rounded-lg border ${
+                    item.isSelectedPreview
+                      ? "border-gray-900 ring-2 ring-gray-900/10"
+                      : item.isPrimary
+                        ? "border-gray-900 ring-2 ring-gray-900/10"
+                        : "border-gray-200"
+                  }`}
+                >
+                  <div className="aspect-square bg-gray-100">
+                    {renderPreview(item)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         ) : (
           <div className="aspect-square rounded-lg bg-gray-100 flex items-center justify-center">
             <div className="text-center">
-              <svg
-                className="w-12 h-12 text-gray-400 mx-auto mb-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
               <p className="text-sm text-gray-500">
-                Upload an image to see preview
+                Upload at least one image to see the gallery preview
               </p>
             </div>
           </div>
         )}
+
+        <div className="space-y-2">
+          <h3 className="font-semibold text-gray-900">
+            {formData.title || "Untitled Tattoo"}
+          </h3>
+          {formData.category ? (
+            <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-800">
+              {formData.category}
+            </span>
+          ) : null}
+          {formData.description ? (
+            <p className="text-sm text-gray-600 line-clamp-4">
+              {formData.description}
+            </p>
+          ) : null}
+        </div>
       </CardContent>
     </Card>
   );
