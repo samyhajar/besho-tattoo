@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import BackButton from "@/components/ui/BackButton";
+import { usePortfolioImageProcessing } from "@/hooks/usePortfolioImageProcessing";
 import { uploadTattooImage, createTattoo } from "@/services/tattoos";
 import type { TattooFormData } from "@/types/tattoo";
 import TattooUploadForm from "@/components/dashboard/TattooUploadForm";
@@ -13,8 +14,7 @@ export default function NewDesignPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const imageProcessing = usePortfolioImageProcessing();
 
   const [formData, setFormData] = useState<TattooFormData>({
     title: "",
@@ -24,29 +24,15 @@ export default function NewDesignPage() {
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith("image/")) {
-        setError("Please select a valid image file.");
-        return;
-      }
-
-      // Validate file size (max 50MB)
-      if (file.size > 50 * 1024 * 1024) {
-        setError("File size must be less than 50MB.");
-        return;
-      }
-
-      setSelectedFile(file);
+    try {
+      imageProcessing.setFile(e.target.files?.[0] || null);
       setError(null);
-
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+    } catch (fileError) {
+      setError(
+        fileError instanceof Error
+          ? fileError.message
+          : "Please select a valid image file.",
+      );
     }
   };
 
@@ -69,7 +55,7 @@ export default function NewDesignPage() {
   };
 
   const handleSubmit = async () => {
-    if (!selectedFile) {
+    if (!imageProcessing.fileForUpload) {
       setError("Please select an image.");
       return;
     }
@@ -84,7 +70,13 @@ export default function NewDesignPage() {
 
     try {
       // Upload image first with designs category
-      const imageUrl = await uploadTattooImage(selectedFile, "designs");
+      const fileToUpload = imageProcessing.fileForUpload;
+      if (!fileToUpload) {
+        setError("Please select an image.");
+        return;
+      }
+
+      const imageUrl = await uploadTattooImage(fileToUpload, "designs");
 
       // Create design record
       await createTattoo({
@@ -142,12 +134,28 @@ export default function NewDesignPage() {
           onFileChange={handleFileChange}
           onSubmit={handleSubmit}
           onCancel={() => router.back()}
-          selectedFile={selectedFile}
+          selectedFile={imageProcessing.originalFile}
           error={error}
           isLoading={isLoading}
+          isProcessingImage={imageProcessing.isProcessing}
+          processingError={imageProcessing.processingError}
+          hasProcessedImage={imageProcessing.hasProcessedImage}
+          isUsingProcessed={imageProcessing.isUsingProcessed}
+          onRemoveBackground={() => {
+            void imageProcessing.processImage().catch(() => undefined);
+          }}
+          onUseOriginalImage={imageProcessing.useOriginalImage}
+          onUseProcessedImage={imageProcessing.useProcessedImage}
           fixedCategory="designs" // Pass fixed category to form
         />
-        <TattooPreview imagePreview={imagePreview} formData={formData} />
+        <TattooPreview
+          imagePreview={imageProcessing.previewUrl}
+          formData={formData}
+          previewVariant={
+            imageProcessing.isUsingProcessed ? "processed" : "original"
+          }
+          isProcessing={imageProcessing.isProcessing}
+        />
       </div>
     </div>
   );

@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/Label";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import CategoryInput from "@/components/ui/CategoryInput";
+import BackgroundRemovalControls from "@/components/dashboard/BackgroundRemovalControls";
+import { MAX_PORTFOLIO_IMAGE_SIZE_MB } from "@/lib/portfolio-image";
 import type { TattooFormData } from "@/types/tattoo";
 
 interface TattooUploadFormProps {
@@ -25,6 +27,13 @@ interface TattooUploadFormProps {
   selectedFile: File | null;
   error: string | null;
   isLoading: boolean;
+  isProcessingImage?: boolean;
+  processingError?: string | null;
+  hasProcessedImage?: boolean;
+  isUsingProcessed?: boolean;
+  onRemoveBackground: () => void;
+  onUseOriginalImage: () => void;
+  onUseProcessedImage: () => void;
   fixedCategory?: string; // Optional fixed category
 }
 
@@ -39,6 +48,13 @@ export default function TattooUploadForm({
   selectedFile,
   error,
   isLoading,
+  isProcessingImage = false,
+  processingError = null,
+  hasProcessedImage = false,
+  isUsingProcessed = false,
+  onRemoveBackground,
+  onUseOriginalImage,
+  onUseProcessedImage,
   fixedCategory,
 }: TattooUploadFormProps) {
   return (
@@ -101,10 +117,22 @@ export default function TattooUploadForm({
                   {selectedFile ? selectedFile.name : "Click to upload image"}
                 </span>
                 <span className="text-xs text-gray-500">
-                  PNG, JPG, GIF up to 50MB
+                  PNG, JPG, WEBP, GIF up to {MAX_PORTFOLIO_IMAGE_SIZE_MB}MB
                 </span>
               </label>
             </div>
+
+            <BackgroundRemovalControls
+              disabled={isLoading}
+              hasImage={!!selectedFile}
+              hasProcessedImage={hasProcessedImage}
+              isProcessing={isProcessingImage}
+              isUsingProcessed={isUsingProcessed}
+              processingError={processingError}
+              onProcess={onRemoveBackground}
+              onUseOriginal={onUseOriginalImage}
+              onUseProcessed={onUseProcessedImage}
+            />
           </div>
 
           {/* Title */}
@@ -186,7 +214,12 @@ export default function TattooUploadForm({
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button
               type="submit"
-              disabled={isLoading || !selectedFile || !formData.title.trim()}
+              disabled={
+                isLoading ||
+                isProcessingImage ||
+                !selectedFile ||
+                !formData.title.trim()
+              }
               className="w-full sm:flex-1"
             >
               {isLoading ? (

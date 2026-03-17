@@ -1,7 +1,9 @@
 import { Upload } from "lucide-react";
 import Image from "next/image";
+import BackgroundRemovalControls from "@/components/dashboard/BackgroundRemovalControls";
 import { Button } from "@/components/ui/Button";
 import { Label } from "@/components/ui/Label";
+import { MAX_PORTFOLIO_IMAGE_SIZE_MB } from "@/lib/portfolio-image";
 
 interface TattooImageUploadProps {
   currentImageUrl?: string;
@@ -9,6 +11,13 @@ interface TattooImageUploadProps {
   imageFile?: File | null;
   isLoading?: boolean;
   onImageChange: (file: File | null) => void;
+  isProcessingImage?: boolean;
+  processingError?: string | null;
+  hasProcessedImage?: boolean;
+  isUsingProcessed?: boolean;
+  onRemoveBackground: () => void;
+  onUseOriginalImage: () => void;
+  onUseProcessedImage: () => void;
 }
 
 export default function TattooImageUpload({
@@ -17,6 +26,13 @@ export default function TattooImageUpload({
   imageFile,
   isLoading = false,
   onImageChange,
+  isProcessingImage = false,
+  processingError = null,
+  hasProcessedImage = false,
+  isUsingProcessed = false,
+  onRemoveBackground,
+  onUseOriginalImage,
+  onUseProcessedImage,
 }: TattooImageUploadProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -26,7 +42,7 @@ export default function TattooImageUpload({
   };
 
   const handleButtonClick = () => {
-    const input = document.getElementById('image-upload') as HTMLInputElement;
+    const input = document.getElementById("image-upload") as HTMLInputElement;
     input?.click();
   };
 
@@ -38,7 +54,7 @@ export default function TattooImageUpload({
         <div className="flex-1">
           <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 border-2 border-dashed border-gray-300">
             <Image
-              src={imagePreview || currentImageUrl || '/placeholder-image.svg'}
+              src={imagePreview || currentImageUrl || "/placeholder-image.svg"}
               alt="Tattoo preview"
               width={300}
               height={300}
@@ -55,7 +71,7 @@ export default function TattooImageUpload({
               Click to upload a new image
             </p>
             <p className="text-xs text-gray-500 mb-4">
-              PNG, JPG, GIF up to 10MB
+              PNG, JPG, WEBP, GIF up to {MAX_PORTFOLIO_IMAGE_SIZE_MB}MB
             </p>
             <input
               type="file"
@@ -75,6 +91,17 @@ export default function TattooImageUpload({
               Choose File
             </Button>
           </div>
+          <BackgroundRemovalControls
+            disabled={isLoading}
+            hasImage={!!imageFile}
+            hasProcessedImage={hasProcessedImage}
+            isProcessing={isProcessingImage}
+            isUsingProcessed={isUsingProcessed}
+            processingError={processingError}
+            onProcess={onRemoveBackground}
+            onUseOriginal={onUseOriginalImage}
+            onUseProcessed={onUseProcessedImage}
+          />
           {imageFile && (
             <p className="text-sm text-green-600 text-center">
               New image selected: {imageFile.name}

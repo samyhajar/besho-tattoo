@@ -3,9 +3,11 @@ import { X, Edit } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
+import { Alert } from "@/components/ui/Alert";
 import Modal from "@/components/ui/Modal";
 import CategoryInput from "@/components/ui/CategoryInput";
 import TattooImageUpload from "@/components/dashboard/TattooImageUpload";
+import { usePortfolioImageProcessing } from "@/hooks/usePortfolioImageProcessing";
 import type { Tattoo } from "@/types/tattoo";
 
 interface TattooEditFormProps {
@@ -35,14 +37,15 @@ export default function TattooEditForm({
     category: tattoo.category || "",
     is_public: tattoo.is_public ?? true, // Default to true if undefined
   });
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const imageProcessing = usePortfolioImageProcessing();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value, type } = e.target;
-    const inputValue = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
+    const inputValue =
+      type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
     setFormData((prev) => ({ ...prev, [name]: inputValue }));
   };
 
@@ -51,15 +54,13 @@ export default function TattooEditForm({
   };
 
   const handleImageChange = (file: File | null) => {
-    setImageFile(file);
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setImagePreview(null);
+    try {
+      imageProcessing.setFile(file);
+      setFormError(null);
+    } catch (error) {
+      setFormError(
+        error instanceof Error ? error.message : "Failed to select image.",
+      );
     }
   };
 
@@ -67,16 +68,20 @@ export default function TattooEditForm({
     e.preventDefault();
 
     if (!formData.title.trim()) {
-      alert("Title is required");
+      setFormError("Title is required.");
       return;
     }
+
+    setFormError(null);
 
     const updates = {
       title: formData.title,
       description: formData.description,
       category: formData.category,
       is_public: formData.is_public,
-      ...(imageFile && { image: imageFile }),
+      ...(imageProcessing.fileForUpload && {
+        image: imageProcessing.fileForUpload,
+      }),
     };
 
     await onSave(updates);
@@ -117,16 +122,27 @@ export default function TattooEditForm({
           }}
           className="space-y-4 sm:space-y-6"
         >
+          {formError ? <Alert variant="destructive">{formError}</Alert> : null}
+
           {/* Image Section */}
           <TattooImageUpload
             currentImageUrl={currentImageUrl}
-            imagePreview={imagePreview}
-            imageFile={imageFile}
+            imagePreview={imageProcessing.previewUrl}
+            imageFile={imageProcessing.originalFile}
             isLoading={isLoading}
             onImageChange={handleImageChange}
+            isProcessingImage={imageProcessing.isProcessing}
+            processingError={imageProcessing.processingError}
+            hasProcessedImage={imageProcessing.hasProcessedImage}
+            isUsingProcessed={imageProcessing.isUsingProcessed}
+            onRemoveBackground={() => {
+              void imageProcessing.processImage().catch(() => undefined);
+            }}
+            onUseOriginalImage={imageProcessing.useOriginalImage}
+            onUseProcessedImage={imageProcessing.useProcessedImage}
           />
 
-                    <div className="space-y-2">
+          <div className="space-y-2">
             <Label htmlFor="title">Title *</Label>
             <Input
               id="title"
@@ -146,25 +162,33 @@ export default function TattooEditForm({
             disabled={isLoading}
             placeholder="e.g., Traditional, Realistic, Geometric"
           />
-            <div className="space-y-2">
-              <Label>Visibility</Label>
-              <div className="flex items-center space-x-2">
-                <input
-                  id="is_public"
-                  type="checkbox"
-                  checked={formData.is_public}
-                  onChange={(e) => setFormData(prev => ({ ...prev, is_public: e.target.checked }))}
-                  disabled={isLoading}
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-                />
-                <Label htmlFor="is_public" className="text-sm font-medium text-gray-700">
-                  Make this tattoo visible in public portfolio
-                </Label>
-              </div>
-              <p className="text-xs text-gray-500">
-                {formData.is_public ? "✅ Visible to visitors" : "🔒 Admin only"}
-              </p>
+          <div className="space-y-2">
+            <Label>Visibility</Label>
+            <div className="flex items-center space-x-2">
+              <input
+                id="is_public"
+                type="checkbox"
+                checked={formData.is_public}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    is_public: e.target.checked,
+                  }))
+                }
+                disabled={isLoading}
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+              />
+              <Label
+                htmlFor="is_public"
+                className="text-sm font-medium text-gray-700"
+              >
+                Make this tattoo visible in public portfolio
+              </Label>
             </div>
+            <p className="text-xs text-gray-500">
+              {formData.is_public ? "✅ Visible to visitors" : "🔒 Admin only"}
+            </p>
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
@@ -194,7 +218,7 @@ export default function TattooEditForm({
             <Button
               type="submit"
               variant="primary"
-              disabled={isLoading}
+              disabled={isLoading || imageProcessing.isProcessing}
               className="w-full sm:w-auto"
             >
               {isLoading ? (
