@@ -4,15 +4,23 @@ import Image from "next/image";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import ContactInfo from "@/components/shared/ContactInfo";
+import { useLocale } from "@/contexts/LocaleContext";
 import { useSiteContent } from "@/hooks/useSiteContent";
+import { DEFAULT_CONTACT_PAGE_IMAGE } from "@/lib/page-assets";
 
 export default function ContactPage() {
-  const { getContentByField } = useSiteContent();
-  const title =
-    getContentByField("contact", "header", "title") || "Get in Touch";
-  const description =
-    getContentByField("contact", "header", "description") ||
-    "I am a mobile tattoo artist, traveling internationally to create art and participate in global exhibitions. Catch me in my next destination.";
+  const { getContentByField, getContactContent } = useSiteContent();
+  const { locale, copy } = useLocale();
+  const useLocalizedDefaults = locale === "de";
+  const contactContent = getContactContent();
+  const title = useLocalizedDefaults
+    ? copy.contact.title
+    : getContentByField("contact", "header", "title") || copy.contact.title;
+  const description = useLocalizedDefaults
+    ? copy.contact.description
+    : getContentByField("contact", "header", "description") ||
+      copy.contact.description;
+  const imageSrc = contactContent.imageUrl || DEFAULT_CONTACT_PAGE_IMAGE;
 
   return (
     <div className="min-h-screen bg-[#0d0d0d] text-white font-home-sans">
@@ -43,8 +51,8 @@ export default function ContactPage() {
           <div className="relative mx-auto w-full max-w-[480px]">
             <div className="relative aspect-[2/3] overflow-hidden">
               <Image
-                src="/1de18774-5b5c-4058-8ebc-26ad6594bdcf.png"
-                alt="Tattoo artist at work"
+                src={imageSrc}
+                alt={copy.contact.imageAlt}
                 fill
                 className="object-cover object-center grayscale contrast-110 brightness-[0.82]"
                 priority

@@ -1,4 +1,6 @@
 import PortfolioMediaCarousel from "@/components/shared/PortfolioMediaCarousel";
+import { useLocale } from "@/contexts/LocaleContext";
+import { formatDateForLocale } from "@/lib/i18n";
 import type { Tattoo } from "@/types/tattoo";
 
 interface TattooModalProps {
@@ -7,6 +9,7 @@ interface TattooModalProps {
 }
 
 export default function TattooModal({ tattoo, onClose }: TattooModalProps) {
+  const { locale, copy } = useLocale();
   const handleBackdropClick = (event: React.MouseEvent) => {
     if (event.target === event.currentTarget) {
       onClose();
@@ -26,13 +29,13 @@ export default function TattooModal({ tattoo, onClose }: TattooModalProps) {
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="button"
-      aria-label="Close image viewer"
+      aria-label={copy.portfolio.closeImageViewer}
     >
       <div className="relative mx-auto flex max-h-[calc(100vh-1.5rem)] w-full max-w-[min(92vw,1180px)] cursor-default flex-col items-center justify-center overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute right-2 top-2 z-10 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-white shadow-lg shadow-black/30 transition-all duration-300 hover:scale-110 hover:bg-white/20 sm:right-4 sm:top-4 sm:h-14 sm:w-14"
-          aria-label="Close image viewer"
+          aria-label={copy.portfolio.closeImageViewer}
           type="button"
         >
           <svg
@@ -66,7 +69,7 @@ export default function TattooModal({ tattoo, onClose }: TattooModalProps) {
                 </span>
               ) : null}
               <span className="text-white/60">
-                {new Date(tattoo.created_at).toLocaleDateString("en-US", {
+                {formatDateForLocale(locale, new Date(tattoo.created_at), {
                   month: "long",
                   day: "numeric",
                   year: "numeric",

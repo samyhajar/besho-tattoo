@@ -6,6 +6,8 @@ import {
   CardHeader,
 } from "@/components/ui/Card";
 import { Alert, AlertDescription } from "@/components/ui/Alert";
+import { useLocale } from "@/contexts/LocaleContext";
+import { formatDateForLocale } from "@/lib/i18n";
 import { formatLocalDateString } from "@/lib/utils";
 import CalendarHeader from "./CalendarHeader";
 import CalendarGrid from "./CalendarGrid";
@@ -36,6 +38,7 @@ export default function CalendarView({
   loading,
   error,
 }: CalendarViewProps) {
+  const { locale, copy } = useLocale();
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const generateCalendarDays = (): CalendarDay[] => {
@@ -91,7 +94,7 @@ export default function CalendarView({
   };
 
   const calendarDays = generateCalendarDays();
-  const monthName = currentDate.toLocaleString("default", {
+  const monthName = formatDateForLocale(locale, currentDate, {
     month: "long",
     year: "numeric",
   });
@@ -105,7 +108,7 @@ export default function CalendarView({
           onNavigateMonth={navigateMonth}
         />
         <CardDescription className="text-sm text-gray-600">
-          Click on any available date to see time slots
+          {copy.booking.calendarDescription}
         </CardDescription>
       </CardHeader>
       <CardContent className="p-3 sm:p-6">
@@ -119,7 +122,7 @@ export default function CalendarView({
           <div className="text-center py-8 sm:py-12">
             <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-black mx-auto"></div>
             <p className="mt-2 text-sm sm:text-base text-gray-600">
-              Loading available slots...
+              {copy.booking.loadingSlots}
             </p>
           </div>
         ) : (

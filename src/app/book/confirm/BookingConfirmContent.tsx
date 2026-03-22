@@ -8,12 +8,14 @@ import BookingForm from "@/components/ui/BookingForm";
 import BookingSuccess from "../BookingSuccess";
 import Footer from "@/components/shared/Footer";
 import Header from "@/components/shared/Header";
+import { useLocale } from "@/contexts/LocaleContext";
 import { createClient } from "@/lib/supabase/browser-client";
 import type { Availability, Appointment } from "@/services/appointments";
 
 export default function BookingConfirmContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { copy } = useLocale();
   const slotId = searchParams.get("slot");
 
   const [selectedSlot, setSelectedSlot] = useState<Availability | null>(null);
@@ -26,7 +28,7 @@ export default function BookingConfirmContent() {
   useEffect(() => {
     const loadSlot = async () => {
       if (!slotId) {
-        setError("No appointment slot selected");
+        setError(copy.booking.noAppointmentSlotSelected);
         setLoading(false);
         return;
       }
@@ -42,22 +44,25 @@ export default function BookingConfirmContent() {
 
         if (error) throw error;
         if (!data) {
-          throw new Error("This time slot is no longer available");
+          throw new Error(copy.booking.timeSlotUnavailable);
         }
 
         setSelectedSlot(data);
       } catch (err) {
         console.error("Error loading slot:", err);
-        setError(
-          "Failed to load appointment slot. It may no longer be available.",
-        );
+        setError(copy.booking.failedToLoadSlot);
       } finally {
         setLoading(false);
       }
     };
 
     void loadSlot();
-  }, [slotId]);
+  }, [
+    copy.booking.failedToLoadSlot,
+    copy.booking.noAppointmentSlotSelected,
+    copy.booking.timeSlotUnavailable,
+    slotId,
+  ]);
 
   const handleSuccess = (appointment: Appointment) => {
     setBookedAppointment(appointment);
@@ -75,7 +80,9 @@ export default function BookingConfirmContent() {
         <div className="flex min-h-screen items-center justify-center bg-[#0d0d0d]">
           <div className="text-center p-6">
             <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-white"></div>
-            <p className="text-neutral-400">Loading appointment details...</p>
+            <p className="text-neutral-400">
+              {copy.booking.loadingAppointmentDetails}
+            </p>
           </div>
         </div>
       </div>
@@ -93,14 +100,14 @@ export default function BookingConfirmContent() {
                 <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 text-red-400" />
               </div>
               <h2 className="text-lg sm:text-xl font-semibold text-black mb-2">
-                Booking Error
+                {copy.booking.bookingError}
               </h2>
               <p className="text-sm sm:text-base text-gray-600 mb-6">{error}</p>
               <button
                 onClick={handleCancel}
                 className="inline-flex items-center px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors"
               >
-                Back to Calendar
+                {copy.booking.backToCalendar}
               </button>
             </CardContent>
           </Card>
@@ -122,10 +129,10 @@ export default function BookingConfirmContent() {
           {/* Header */}
           <div className="text-center mb-6 sm:mb-8">
             <h1 className="mb-3 text-2xl font-bold text-white sm:text-3xl lg:mb-4 lg:text-4xl">
-              Complete Your Booking
+              {copy.booking.completeBooking}
             </h1>
             <p className="mx-auto max-w-2xl text-sm text-neutral-400 sm:text-base lg:text-lg">
-              You&apos;re just one step away from booking your appointment
+              {copy.booking.oneStepAway}
             </p>
           </div>
 
@@ -137,7 +144,7 @@ export default function BookingConfirmContent() {
                   <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-white">
                     <div className="h-2 w-2 rounded-full bg-black"></div>
                   </div>
-                  <span className="font-medium">Date</span>
+                  <span className="font-medium">{copy.booking.stepDate}</span>
                 </div>
 
                 <div className="h-0.5 w-8 bg-white"></div>
@@ -146,7 +153,7 @@ export default function BookingConfirmContent() {
                   <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-white">
                     <div className="h-2 w-2 rounded-full bg-black"></div>
                   </div>
-                  <span className="font-medium">Time</span>
+                  <span className="font-medium">{copy.booking.stepTime}</span>
                 </div>
 
                 <div className="h-0.5 w-8 bg-white"></div>
@@ -155,7 +162,7 @@ export default function BookingConfirmContent() {
                   <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-white">
                     <span className="text-xs font-medium text-black">3</span>
                   </div>
-                  <span className="font-medium">Book</span>
+                  <span className="font-medium">{copy.booking.stepBook}</span>
                 </div>
               </div>
             </div>

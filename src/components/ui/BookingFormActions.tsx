@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/Button";
+import { useLocale } from "@/contexts/LocaleContext";
 
 interface BookingFormActionsProps {
   submitting: boolean;
@@ -9,6 +10,8 @@ export default function BookingFormActions({
   submitting,
   onCancel,
 }: BookingFormActionsProps) {
+  const { copy } = useLocale();
+
   return (
     <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-6 border-t border-gray-200">
       <Button
@@ -18,7 +21,7 @@ export default function BookingFormActions({
         disabled={submitting}
         className="order-2 sm:order-1 w-full sm:flex-1"
       >
-        Back to Calendar
+        {copy.booking.backToCalendar}
       </Button>
       <Button
         type="submit"
@@ -28,10 +31,10 @@ export default function BookingFormActions({
         {submitting ? (
           <div className="flex items-center justify-center gap-2">
             <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-            <span>Booking...</span>
+            <span>{copy.booking.bookingProgress}</span>
           </div>
         ) : (
-          "Book Appointment"
+          copy.booking.bookAppointment
         )}
       </Button>
     </div>

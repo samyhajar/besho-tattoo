@@ -1,5 +1,6 @@
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
+import { useLocale } from "@/contexts/LocaleContext";
 
 interface ContactData {
   full_name: string;
@@ -19,6 +20,8 @@ export default function ContactInformationFields({
   onUpdate,
   disabled = false,
 }: ContactInformationFieldsProps) {
+  const { copy } = useLocale();
+
   return (
     <div className="space-y-4 sm:space-y-5">
       {/* Name and Email Row */}
@@ -28,14 +31,14 @@ export default function ContactInformationFields({
             htmlFor="full_name"
             className="text-sm sm:text-base font-medium"
           >
-            Full Name <span className="text-red-500">*</span>
+            {copy.booking.fullName} <span className="text-red-500">*</span>
           </Label>
           <Input
             id="full_name"
             type="text"
             value={formData.full_name}
             onChange={(e) => onUpdate("full_name", e.target.value)}
-            placeholder="Enter your full name"
+            placeholder={copy.booking.fullNamePlaceholder}
             className="text-sm sm:text-base py-2 sm:py-3"
             disabled={disabled}
             required
@@ -44,14 +47,14 @@ export default function ContactInformationFields({
 
         <div className="space-y-2">
           <Label htmlFor="email" className="text-sm sm:text-base font-medium">
-            Email Address <span className="text-red-500">*</span>
+            {copy.booking.emailAddress} <span className="text-red-500">*</span>
           </Label>
           <Input
             id="email"
             type="email"
             value={formData.email}
             onChange={(e) => onUpdate("email", e.target.value)}
-            placeholder="Enter your email address"
+            placeholder={copy.booking.emailPlaceholder}
             className="text-sm sm:text-base py-2 sm:py-3"
             disabled={disabled}
             required
@@ -62,32 +65,32 @@ export default function ContactInformationFields({
       {/* Phone Number */}
       <div className="space-y-2">
         <Label htmlFor="phone" className="text-sm sm:text-base font-medium">
-          Phone Number (Optional)
+          {copy.booking.phoneNumber}
         </Label>
         <Input
           id="phone"
           type="tel"
           value={formData.phone}
           onChange={(e) => onUpdate("phone", e.target.value)}
-          placeholder="Enter your phone number"
+          placeholder={copy.booking.phonePlaceholder}
           className="text-sm sm:text-base py-2 sm:py-3"
           disabled={disabled}
         />
         <p className="text-xs sm:text-sm text-gray-500">
-          We may contact you to confirm appointment details
+          {copy.booking.phoneDescription}
         </p>
       </div>
 
       {/* Notes */}
       <div className="space-y-2">
         <Label htmlFor="notes" className="text-sm sm:text-base font-medium">
-          Additional Notes (Optional)
+          {copy.booking.additionalNotes}
         </Label>
         <textarea
           id="notes"
           value={formData.notes}
           onChange={(e) => onUpdate("notes", e.target.value)}
-          placeholder="Describe your tattoo ideas, size, placement, style preferences, etc."
+          placeholder={copy.booking.notesPlaceholder}
           rows={4}
           className="w-full px-3 py-2 sm:py-3 text-sm sm:text-base text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm
                      placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
@@ -95,7 +98,7 @@ export default function ContactInformationFields({
           disabled={disabled}
         />
         <p className="text-xs sm:text-sm text-gray-500">
-          Help us prepare for your appointment by sharing your vision
+          {copy.booking.notesDescription}
         </p>
       </div>
     </div>

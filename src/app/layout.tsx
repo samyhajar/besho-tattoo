@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import localFont from "next/font/local";
 import { Cormorant_Garamond, Jost, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { LocaleProvider } from "@/contexts/LocaleContext";
+import { localeCookieName, normalizeLocale } from "@/lib/i18n";
 
 const bebasNeue = localFont({
   src: "../../public/fonts/Bebas_Neue/BebasNeue-Regular.ttf",
@@ -47,13 +50,18 @@ const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL
   ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin
   : null;
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const initialLocale = normalizeLocale(
+    cookieStore.get(localeCookieName)?.value,
+  );
+
   return (
-    <html lang="en" className="bg-[#0d0d0d] text-white">
+    <html lang={initialLocale} className="bg-[#0d0d0d] text-white">
       <head>
         <meta
           name="description"
@@ -70,7 +78,9 @@ export default function RootLayout({
       <body
         className={`${bebasNeue.variable} ${cormorantGaramond.variable} ${jost.variable} ${geistMono.variable} bg-[#0d0d0d] text-white antialiased`}
       >
-        <AuthProvider>{children}</AuthProvider>
+        <LocaleProvider initialLocale={initialLocale}>
+          <AuthProvider>{children}</AuthProvider>
+        </LocaleProvider>
       </body>
     </html>
   );

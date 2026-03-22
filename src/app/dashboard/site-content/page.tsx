@@ -74,7 +74,8 @@ export default function SiteContentPage() {
               Site Content Management
             </h1>
             <p className="text-gray-600">
-              Manage the text content for your website&apos;s home page hero section, About Me section, and contact information.
+              Manage the text and image content for your home page, About
+              section, and contact page.
             </p>
           </div>
 

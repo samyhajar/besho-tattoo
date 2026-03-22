@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocale } from "@/contexts/LocaleContext";
 import ImageUploadField from "./ImageUploadField";
 
 interface BookingImageUploadProps {
@@ -12,6 +13,7 @@ export default function BookingImageUpload({
   onError,
   disabled,
 }: BookingImageUploadProps) {
+  const { copy } = useLocale();
   const [referenceImage, setReferenceImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -33,12 +35,11 @@ export default function BookingImageUpload({
   return (
     <div className="space-y-4">
       <h3 className="text-base sm:text-lg font-medium text-gray-900 pb-2 border-b border-gray-200">
-        Reference Image (Optional)
+        {copy.booking.referenceImage}
       </h3>
       <div className="bg-gray-50 p-4 rounded-lg">
         <p className="text-xs sm:text-sm text-gray-600 mb-4">
-          Upload a reference image to help us understand your tattoo vision
-          better.
+          {copy.booking.referenceImageDescription}
         </p>
         <ImageUploadField
           label=""

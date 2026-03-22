@@ -6,28 +6,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
+import { useLocale } from "@/contexts/LocaleContext";
 import TattooModal from "@/components/ui/TattooModal";
 import type { Tattoo } from "@/types/tattoo";
 
 type PortfolioSection = "tattoos" | "designs" | "art";
-
-const SECTION_CONTENT: Record<
-  PortfolioSection,
-  { title: string; helper: string }
-> = {
-  tattoos: {
-    title: "Tattoos",
-    helper: "Explore tattoo work by style and category.",
-  },
-  designs: {
-    title: "Designs",
-    helper: "Original concepts and design studies.",
-  },
-  art: {
-    title: "Art",
-    helper: "Independent art and visual work.",
-  },
-};
+const ALL_FILTER = "__all__";
 
 interface PortfolioGalleryPageProps {
   initialSection?: PortfolioSection;
@@ -51,19 +35,26 @@ function getPortfolioSection(category: string | null): PortfolioSection {
   return "tattoos";
 }
 
-function getCardLabel(category: string | null): string {
+function getCardLabel(
+  category: string | null,
+  labels: {
+    tattoo: string;
+    designs: string;
+    art: string;
+  },
+): string {
   const normalizedCategory = category?.trim();
 
   if (!normalizedCategory) {
-    return "Tattoo";
+    return labels.tattoo;
   }
 
   if (normalizedCategory.toLowerCase() === "designs") {
-    return "Designs";
+    return labels.designs;
   }
 
   if (normalizedCategory.toLowerCase() === "art") {
-    return "Art";
+    return labels.art;
   }
 
   return normalizedCategory;
@@ -90,6 +81,7 @@ function PortfolioGalleryCard({
   index,
   onSelect,
 }: PortfolioGalleryCardProps) {
+  const { copy } = useLocale();
   const [imageError, setImageError] = useState(false);
   const imageSrc =
     !imageError && tattoo.primaryMedia?.display_url
@@ -120,12 +112,14 @@ function PortfolioGalleryCard({
         animationDelay: `${index * 80}ms`,
         animationFillMode: "both",
       }}
-      aria-label={`View ${tattoo.title || "Untitled"} in full size`}
+      aria-label={copy.portfolio.viewInFullSize(
+        tattoo.title || copy.portfolio.labels.untitled,
+      )}
       disabled={!canOpen}
     >
       <Image
         src={imageSrc}
-        alt={tattoo.title || "Portfolio artwork"}
+        alt={tattoo.title || copy.portfolio.imageAlt}
         fill
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         className="h-full w-full object-cover opacity-80 transition-all duration-700 group-hover:scale-110 group-hover:opacity-100"
@@ -145,10 +139,10 @@ function PortfolioGalleryCard({
 
       <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 p-6">
         <p className="mb-1 font-home-sans text-[0.68rem] uppercase tracking-[0.24em] text-neutral-400">
-          {getCardLabel(tattoo.category)}
+          {getCardLabel(tattoo.category, copy.portfolio.labels)}
         </p>
         <h3 className="font-home-serif text-xl italic text-white">
-          {tattoo.title || "Untitled"}
+          {tattoo.title || copy.portfolio.labels.untitled}
         </h3>
         {tattoo.description ? (
           <p className="mt-2 line-clamp-2 text-xs text-neutral-300">
@@ -164,14 +158,15 @@ export default function PortfolioGalleryPage({
   initialSection = "tattoos",
 }: PortfolioGalleryPageProps) {
   const router = useRouter();
-  const [activeTattooFilter, setActiveTattooFilter] = useState("All");
+  const { copy } = useLocale();
+  const [activeTattooFilter, setActiveTattooFilter] = useState(ALL_FILTER);
   const [tattoos, setTattoos] = useState<Tattoo[]>([]);
   const [selectedTattoo, setSelectedTattoo] = useState<Tattoo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setActiveTattooFilter("All");
+    setActiveTattooFilter(ALL_FILTER);
   }, [initialSection]);
 
   useEffect(() => {
@@ -195,7 +190,7 @@ export default function PortfolioGalleryPage({
             statusText: response.statusText,
             errorText,
           });
-          throw new Error(`Failed to load portfolio (${response.status})`);
+          throw new Error(copy.portfolio.errorMessage);
         }
 
         const data = (await response.json()) as PortfolioApiResponse;
@@ -215,7 +210,7 @@ export default function PortfolioGalleryPage({
         setError(
           portfolioError instanceof Error
             ? portfolioError.message
-            : "Failed to load portfolio",
+            : copy.portfolio.errorMessage,
         );
         setTattoos([]);
       } finally {
@@ -230,14 +225,14 @@ export default function PortfolioGalleryPage({
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [copy.portfolio.errorMessage]);
 
   const sectionItems = tattoos.filter(
     (tattoo) => getPortfolioSection(tattoo.category) === initialSection,
   );
 
   const tattooStyleFilters = [
-    "All",
+    ALL_FILTER,
     ...Array.from(
       new Set(
         sectionItems.map((tattoo) => getTattooStyleFilter(tattoo.category)),
@@ -246,15 +241,15 @@ export default function PortfolioGalleryPage({
   ];
 
   const visibleItems =
-    initialSection === "tattoos" && activeTattooFilter !== "All"
+    initialSection === "tattoos" && activeTattooFilter !== ALL_FILTER
       ? sectionItems.filter(
           (tattoo) =>
             getTattooStyleFilter(tattoo.category) === activeTattooFilter,
         )
       : sectionItems;
 
-  const sectionTitle = SECTION_CONTENT[initialSection].title;
-  const sectionHelper = SECTION_CONTENT[initialSection].helper;
+  const sectionTitle = copy.portfolio.sections[initialSection].title;
+  const sectionHelper = copy.portfolio.sections[initialSection].helper;
 
   return (
     <div className="min-h-screen bg-[#0d0d0d] text-white font-home-sans">
@@ -264,7 +259,7 @@ export default function PortfolioGalleryPage({
         <div className="container mx-auto max-w-6xl space-y-16">
           <div className="space-y-8 text-center">
             <p className="font-home-sans text-[0.7rem] uppercase tracking-[0.34em] text-neutral-500">
-              Portfolio
+              {copy.portfolio.heading}
             </p>
             <h1 className="font-home-serif text-4xl text-white md:text-6xl">
               {sectionTitle}
@@ -286,7 +281,7 @@ export default function PortfolioGalleryPage({
                         : "border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-white"
                     }`}
                   >
-                    {filter}
+                    {filter === ALL_FILTER ? copy.portfolio.labels.all : filter}
                   </button>
                 ))}
               </div>
@@ -297,14 +292,14 @@ export default function PortfolioGalleryPage({
             <div className="flex min-h-[40vh] items-center justify-center">
               <div className="text-center">
                 <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-2 border-neutral-800 border-t-white" />
-                <p className="text-neutral-400">Loading portfolio...</p>
+                <p className="text-neutral-400">{copy.portfolio.loading}</p>
               </div>
             </div>
           ) : error ? (
             <div className="flex min-h-[40vh] items-center justify-center">
               <div className="max-w-lg text-center">
                 <h2 className="font-home-serif text-3xl text-white">
-                  Unable to Load Portfolio
+                  {copy.portfolio.errorTitle}
                 </h2>
                 <p className="mt-4 text-neutral-400">{error}</p>
                 <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -313,14 +308,14 @@ export default function PortfolioGalleryPage({
                     onClick={() => router.refresh()}
                     className="border border-white bg-white px-8 py-3 text-sm uppercase tracking-[0.2em] text-black transition-colors duration-300 hover:bg-neutral-200"
                   >
-                    Try Again
+                    {copy.portfolio.retry}
                   </button>
                   <button
                     type="button"
                     onClick={() => router.push("/portfolio/tattoos")}
                     className="border border-neutral-700 px-8 py-3 text-sm uppercase tracking-[0.2em] text-neutral-300 transition-colors duration-300 hover:border-neutral-500 hover:text-white"
                   >
-                    Open Tattoos
+                    {copy.portfolio.openTattoos}
                   </button>
                 </div>
               </div>
@@ -329,12 +324,15 @@ export default function PortfolioGalleryPage({
             <div className="flex min-h-[40vh] items-center justify-center">
               <div className="max-w-md text-center">
                 <h2 className="font-home-serif text-3xl text-white">
-                  No Works Yet
+                  {copy.portfolio.noWorksYet}
                 </h2>
                 <p className="mt-4 text-neutral-400">
-                  {initialSection === "tattoos" && activeTattooFilter !== "All"
-                    ? `There are no public items available in the ${activeTattooFilter} tattoo category right now.`
-                    : `There are no public items available in the ${sectionTitle.toLowerCase()} collection right now.`}
+                  {initialSection === "tattoos" &&
+                  activeTattooFilter !== ALL_FILTER
+                    ? copy.portfolio.noCategoryItems(activeTattooFilter)
+                    : copy.portfolio.noCollectionItems(
+                        sectionTitle.toLowerCase(),
+                      )}
                 </p>
               </div>
             </div>

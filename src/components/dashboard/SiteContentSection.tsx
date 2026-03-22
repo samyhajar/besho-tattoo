@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Label } from "@/components/ui/Label";
@@ -15,6 +16,7 @@ interface SiteContentSectionProps {
     type?: "input" | "textarea";
   }>;
   gridCols?: 1 | 2;
+  children?: ReactNode;
 }
 
 export function SiteContentSection({
@@ -22,6 +24,7 @@ export function SiteContentSection({
   description,
   fields,
   gridCols = 2,
+  children,
 }: SiteContentSectionProps) {
   return (
     <Card className="p-6">
@@ -34,7 +37,14 @@ export function SiteContentSection({
         className={`grid grid-cols-1 ${gridCols === 2 ? "md:grid-cols-2" : ""} gap-4`}
       >
         {fields.map((field) => (
-          <div key={field.id} className={field.type === "textarea" ? "col-span-full" : ""}>
+          <div
+            key={field.id}
+            className={field.type === "textarea" ? "col-span-full" : ""}
+          >
+            <Label htmlFor={field.id} className="text-gray-900">
+              {field.label}
+            </Label>
+
             {field.type === "textarea" ? (
               <Textarea
                 id={field.id}
@@ -44,20 +54,21 @@ export function SiteContentSection({
                 className="mt-1"
               />
             ) : (
-              <>
-                <Label htmlFor={field.id}>{field.label}</Label>
-                <Input
-                  id={field.id}
-                  value={field.value}
-                  onChange={(e) => field.onChange(e.target.value)}
-                  placeholder={field.placeholder}
-                  className="mt-1"
-                />
-              </>
+              <Input
+                id={field.id}
+                value={field.value}
+                onChange={(e) => field.onChange(e.target.value)}
+                placeholder={field.placeholder}
+                className="mt-1"
+              />
             )}
           </div>
         ))}
       </div>
+
+      {children ? (
+        <div className="mt-6 border-t border-gray-200 pt-6">{children}</div>
+      ) : null}
     </Card>
   );
 }

@@ -6,12 +6,14 @@ import CalendarView from "@/components/ui/CalendarView";
 import TimeSlotSelector from "@/components/ui/TimeSlotSelector";
 import Footer from "@/components/shared/Footer";
 import Header from "@/components/shared/Header";
+import { useLocale } from "@/contexts/LocaleContext";
 import { formatLocalDateString } from "@/lib/utils";
 import { fetchAvailableSlots } from "@/services/appointments";
 import type { Availability } from "@/services/appointments";
 
 export default function BookPage() {
   const router = useRouter();
+  const { copy } = useLocale();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [availableSlots, setAvailableSlots] = useState<Availability[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -19,28 +21,31 @@ export default function BookPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadAvailableSlots = useCallback(async (date: Date) => {
-    try {
-      setLoading(true);
-      setError(null);
+  const loadAvailableSlots = useCallback(
+    async (date: Date) => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      // Get slots for the current month
-      const startDate = new Date(date.getFullYear(), date.getMonth(), 1);
-      const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        // Get slots for the current month
+        const startDate = new Date(date.getFullYear(), date.getMonth(), 1);
+        const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
-      const slots = await fetchAvailableSlots(
-        formatLocalDateString(startDate),
-        formatLocalDateString(endDate),
-      );
+        const slots = await fetchAvailableSlots(
+          formatLocalDateString(startDate),
+          formatLocalDateString(endDate),
+        );
 
-      setAvailableSlots(slots);
-    } catch (err) {
-      console.error("Error loading available slots:", err);
-      setError("Failed to load available appointments. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+        setAvailableSlots(slots);
+      } catch (err) {
+        console.error("Error loading available slots:", err);
+        setError(copy.booking.failedToLoadAppointments);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [copy.booking.failedToLoadAppointments],
+  );
 
   useEffect(() => {
     void loadAvailableSlots(currentDate);
@@ -76,11 +81,10 @@ export default function BookPage() {
           {/* Header */}
           <div className="text-center mb-8 sm:mb-10 lg:mb-12">
             <h1 className="mb-3 text-2xl font-bold text-white sm:text-3xl lg:mb-4 lg:text-4xl">
-              Book Your Appointment
+              {copy.booking.pageTitle}
             </h1>
             <p className="mx-auto max-w-2xl leading-relaxed text-neutral-400 sm:text-lg">
-              Select an available date and time for your tattoo consultation or
-              session.
+              {copy.booking.pageDescription}
             </p>
           </div>
 
@@ -108,7 +112,7 @@ export default function BookPage() {
                         </span>
                       )}
                     </div>
-                    <span className="font-medium">Date</span>
+                    <span className="font-medium">{copy.booking.stepDate}</span>
                   </div>
 
                   <div
@@ -133,7 +137,7 @@ export default function BookPage() {
                         </span>
                       )}
                     </div>
-                    <span className="font-medium">Time</span>
+                    <span className="font-medium">{copy.booking.stepTime}</span>
                   </div>
 
                   <div
@@ -146,7 +150,7 @@ export default function BookPage() {
                         3
                       </span>
                     </div>
-                    <span className="font-medium">Book</span>
+                    <span className="font-medium">{copy.booking.stepBook}</span>
                   </div>
                 </div>
               </div>
@@ -157,7 +161,7 @@ export default function BookPage() {
               <div className="space-y-4">
                 <div className="hidden lg:block">
                   <h2 className="mb-4 text-xl font-semibold text-white">
-                    Choose a Date
+                    {copy.booking.chooseDate}
                   </h2>
                 </div>
                 <CalendarView
@@ -174,7 +178,7 @@ export default function BookPage() {
               <div className="space-y-4">
                 <div className="hidden lg:block">
                   <h2 className="mb-4 text-xl font-semibold text-white">
-                    Choose a Time
+                    {copy.booking.chooseTime}
                   </h2>
                 </div>
                 <TimeSlotSelector

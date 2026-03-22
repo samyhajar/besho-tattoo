@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/Card";
 import { CheckCircle, Video, ExternalLink } from "lucide-react";
 import Header from "@/components/shared/Header";
+import { useLocale } from "@/contexts/LocaleContext";
 import type { Appointment } from "@/services/appointments";
 
 interface BookingSuccessProps {
@@ -16,6 +17,7 @@ interface BookingSuccessProps {
 
 export default function BookingSuccess({ appointment }: BookingSuccessProps) {
   const router = useRouter();
+  const { copy } = useLocale();
 
   return (
     <div className="min-h-screen bg-[#0d0d0d]">
@@ -28,11 +30,10 @@ export default function BookingSuccess({ appointment }: BookingSuccessProps) {
               <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 text-green-400" />
             </div>
             <CardTitle className="text-xl sm:text-2xl lg:text-3xl text-white">
-              Booking Confirmed!
+              {copy.booking.bookingConfirmed}
             </CardTitle>
             <CardDescription className="text-sm sm:text-base mt-2 text-gray-300">
-              Your appointment has been successfully booked. We&apos;ll review
-              your request and send you a confirmation email shortly.
+              {copy.booking.bookingConfirmedDescription}
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-6">
@@ -41,12 +42,11 @@ export default function BookingSuccess({ appointment }: BookingSuccessProps) {
                 <div className="flex items-center justify-center gap-2 mb-3">
                   <Video className="w-5 h-5 text-blue-400" />
                   <h3 className="font-medium text-blue-100 text-sm sm:text-base">
-                    Google Meet Session Created
+                    {copy.booking.meetCreated}
                   </h3>
                 </div>
                 <p className="text-xs sm:text-sm text-blue-200 mb-4">
-                  A Google Meet session has been automatically created for your
-                  appointment. You can join the call at your scheduled time.
+                  {copy.booking.meetDescription}
                 </p>
                 <a
                   href={appointment.google_meet_link}
@@ -55,7 +55,7 @@ export default function BookingSuccess({ appointment }: BookingSuccessProps) {
                   className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-sm font-medium"
                 >
                   <Video className="w-4 h-4" />
-                  Join Google Meet
+                  {copy.booking.joinMeet}
                   <ExternalLink className="w-4 h-4" />
                 </a>
               </div>
@@ -63,33 +63,28 @@ export default function BookingSuccess({ appointment }: BookingSuccessProps) {
 
             <div className="bg-gray-700 p-4 sm:p-6 rounded-lg border border-gray-600">
               <h3 className="font-medium text-white mb-3 text-sm sm:text-base">
-                What happens next?
+                {copy.booking.nextSteps}
               </h3>
               <div className="text-xs sm:text-sm text-gray-300 space-y-2 text-left">
                 <div className="flex items-start space-x-2">
                   <span className="font-medium">•</span>
-                  <span>We&apos;ll review your booking within 24 hours</span>
+                  <span>{copy.booking.nextStepReview}</span>
                 </div>
                 <div className="flex items-start space-x-2">
                   <span className="font-medium">•</span>
                   <span>
-                    You&apos;ll receive a confirmation email with details
-                    {appointment?.google_meet_link &&
-                      " and your Google Meet link"}
+                    {copy.booking.nextStepEmail(
+                      Boolean(appointment?.google_meet_link),
+                    )}
                   </span>
                 </div>
                 <div className="flex items-start space-x-2">
                   <span className="font-medium">•</span>
-                  <span>
-                    If we need to discuss your design, we&apos;ll reach out
-                  </span>
+                  <span>{copy.booking.nextStepDiscuss}</span>
                 </div>
                 <div className="flex items-start space-x-2">
                   <span className="font-medium">•</span>
-                  <span>
-                    Please bring your ID and any additional references to your
-                    appointment
-                  </span>
+                  <span>{copy.booking.nextStepBringId}</span>
                 </div>
               </div>
             </div>
@@ -99,13 +94,13 @@ export default function BookingSuccess({ appointment }: BookingSuccessProps) {
                 onClick={() => router.push("/portfolio")}
                 className="order-2 sm:order-1 inline-flex items-center justify-center px-4 py-3 bg-gray-700 border border-gray-600 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
               >
-                View Our Portfolio
+                {copy.booking.viewPortfolio}
               </button>
               <button
                 onClick={() => router.push("/contact")}
                 className="order-1 sm:order-2 inline-flex items-center justify-center px-4 py-3 bg-white text-black rounded-md hover:bg-gray-200 transition-colors text-sm sm:text-base font-medium"
               >
-                Book Another Appointment
+                {copy.booking.bookAnotherAppointment}
               </button>
             </div>
           </CardContent>

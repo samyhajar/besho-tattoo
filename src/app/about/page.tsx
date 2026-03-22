@@ -3,35 +3,8 @@
 import { motion } from "framer-motion";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
+import { useLocale } from "@/contexts/LocaleContext";
 import { useSiteContent } from "@/hooks/useSiteContent";
-
-type Offering = {
-  title: string;
-  description: string;
-};
-
-const defaultOfferings: Offering[] = [
-  { title: "Fine Line Tattoos", description: "modern, minimal, timeless." },
-  {
-    title: "Arabic & Mesopotamian-Inspired Art",
-    description: "cultural depth, ancient meaning.",
-  },
-  {
-    title: "Creative Freehand Designs",
-    description: "drawn directly for you, one of a kind.",
-  },
-  {
-    title: "Cover-Ups",
-    description: "transforming old ink into new art.",
-  },
-  {
-    title: "Small Tattoos & Special Requests",
-    description: "playful details, personal symbols.",
-  },
-];
-
-const defaultSeoPortfolio =
-  "I offer exclusive, appointment-based tattoos that combine ancient traditions with modern fine line art globally.";
 
 function splitParagraphs(...values: string[]) {
   return values
@@ -117,32 +90,43 @@ const cardMotion = {
 
 export default function AboutPage() {
   const { getAboutContent } = useSiteContent();
+  const { locale, copy } = useLocale();
   const aboutContent = getAboutContent();
+  const aboutCopy = copy.about;
+  const useLocalizedDefaults = locale === "de";
 
-  const aboutTitle = aboutContent.title || "About Me";
-  const aboutParagraphs = splitParagraphs(
-    aboutContent.intro,
-    aboutContent.description,
-  );
-  const offeringsTitle = aboutContent.servicesTitle || "What I Offer";
-  const offerings = defaultOfferings;
-  const appointmentsTitle =
-    aboutContent.appointmentsTitle || "Appointments Only";
-  const appointmentsText =
-    aboutContent.appointmentsText ||
-    "Every tattoo is personal. That's why I work only by appointment – to give it the time it deserves, the attention, and a design that's truly yours.";
-  const seoTitle =
-    aboutContent.seoTitle ||
-    "Looking for a fine line tattoo artist who specializes in Arabic tattoos, Mesopotamian-inspired tattoos, and custom creative designs?";
-  const seoDescription =
-    sanitizeSeoCopy(aboutContent.seoDescription) ||
-    "I create tattoos that connect history, cultural symbolism, and modern fine line aesthetics.";
+  const aboutTitle = useLocalizedDefaults
+    ? aboutCopy.title
+    : aboutContent.title || aboutCopy.title;
+  const aboutParagraphs = useLocalizedDefaults
+    ? aboutCopy.paragraphs
+    : splitParagraphs(aboutContent.intro, aboutContent.description);
+  const offeringsTitle = useLocalizedDefaults
+    ? aboutCopy.offeringsTitle
+    : aboutContent.servicesTitle || aboutCopy.offeringsTitle;
+  const offerings = aboutCopy.offerings;
+  const appointmentsTitle = useLocalizedDefaults
+    ? aboutCopy.appointmentsTitle
+    : aboutContent.appointmentsTitle || aboutCopy.appointmentsTitle;
+  const appointmentsText = useLocalizedDefaults
+    ? aboutCopy.appointmentsText
+    : aboutContent.appointmentsText || aboutCopy.appointmentsText;
+  const seoTitle = useLocalizedDefaults
+    ? aboutCopy.seoTitle
+    : aboutContent.seoTitle || aboutCopy.seoTitle;
+  const seoDescription = useLocalizedDefaults
+    ? aboutCopy.seoDescription
+    : sanitizeSeoCopy(aboutContent.seoDescription) || aboutCopy.seoDescription;
   const seoPortfolioLines = splitParagraphs(
-    sanitizeSeoCopy(aboutContent.seoPortfolio) || defaultSeoPortfolio,
+    useLocalizedDefaults
+      ? aboutCopy.seoPortfolio
+      : sanitizeSeoCopy(aboutContent.seoPortfolio) || aboutCopy.seoPortfolio,
   );
-  const seoConclusion = aboutContent.seoConclusion || "";
+  const seoConclusion = useLocalizedDefaults
+    ? ""
+    : aboutContent.seoConclusion || "";
   const seoSectionBody =
-    seoPortfolioLines[0] || seoDescription || defaultSeoPortfolio;
+    seoPortfolioLines[0] || seoDescription || aboutCopy.seoPortfolio;
 
   return (
     <div className="min-h-screen bg-[#0d0d0d] text-white font-home-sans">
@@ -168,17 +152,9 @@ export default function AboutPage() {
                 ))
               ) : (
                 <>
-                  <p>
-                    My journey into the world of tattooing began on June 16,
-                    2013. Since then, I have been dedicated to perfecting my
-                    craft and blending cultural heritage with modern aesthetics.
-                  </p>
-                  <p>
-                    I create tattoos that connect history and modern art. My
-                    work is inspired by Arabic calligraphy, Mesopotamian
-                    symbols, and ancient traditions, combined with the clean
-                    elegance of fine line tattooing.
-                  </p>
+                  {aboutCopy.paragraphs.map((paragraph) => (
+                    <p key={paragraph}>{paragraph}</p>
+                  ))}
                 </>
               )}
             </motion.div>
@@ -193,6 +169,7 @@ export default function AboutPage() {
             </motion.h2>
 
             <motion.div
+              key={`offerings-${locale}`}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.18 }}

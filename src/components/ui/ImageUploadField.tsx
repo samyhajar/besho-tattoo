@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/Button";
 import { Label } from "@/components/ui/Label";
+import { useLocale } from "@/contexts/LocaleContext";
 import { Upload, X } from "lucide-react";
 import Image from "next/image";
 
@@ -24,17 +25,19 @@ export default function ImageUploadField({
   disabled = false,
   maxSizeMB = 5,
 }: ImageUploadFieldProps) {
+  const { copy } = useLocale();
+
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (!selectedFile) return;
 
     if (selectedFile.size > maxSizeMB * 1024 * 1024) {
-      onError(`File size must be less than ${maxSizeMB}MB`);
+      onError(copy.booking.fileTooLarge(maxSizeMB));
       return;
     }
 
     if (!selectedFile.type.startsWith("image/")) {
-      onError("Please select a valid image file");
+      onError(copy.booking.invalidImageFile);
       return;
     }
 
@@ -63,7 +66,7 @@ export default function ImageUploadField({
             <div className="relative w-full aspect-video max-w-sm mx-auto bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200">
               <Image
                 src={preview}
-                alt="Preview"
+                alt={copy.booking.previewAlt}
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -110,10 +113,10 @@ export default function ImageUploadField({
               <Upload className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400 mb-3 sm:mb-4" />
               <div className="text-center space-y-1 sm:space-y-2">
                 <p className="text-sm sm:text-base font-medium text-gray-600">
-                  Click to upload an image
+                  {copy.booking.uploadImage}
                 </p>
                 <p className="text-xs sm:text-sm text-gray-500">
-                  PNG, JPG, JPEG up to {maxSizeMB}MB
+                  {copy.booking.uploadFormats(maxSizeMB)}
                 </p>
               </div>
             </div>
@@ -123,9 +126,9 @@ export default function ImageUploadField({
 
       {/* Help Text */}
       <div className="text-xs sm:text-sm text-gray-500 space-y-1">
-        <p>• Images help us understand your tattoo vision</p>
-        <p>• You can upload photos, drawings, or design references</p>
-        <p>• Maximum file size: {maxSizeMB}MB</p>
+        <p>• {copy.booking.uploadHelpVision}</p>
+        <p>• {copy.booking.uploadHelpReferences}</p>
+        <p>• {copy.booking.uploadHelpSize(maxSizeMB)}</p>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { MapPin, Phone, Mail, Clock, Instagram } from "lucide-react";
+import { useLocale } from "@/contexts/LocaleContext";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { cn } from "@/lib/utils";
 
@@ -56,7 +57,9 @@ export default function ContactInfo({
   alignCenter = false,
 }: ContactInfoProps) {
   const { getContactContent, loading } = useSiteContent();
+  const { copy } = useLocale();
   const contactContent = getContactContent();
+  const contactCopy = copy.contactInfo;
   const isDarkVariant = variant === "dark";
 
   const formatAddress = (address: string) => {
@@ -80,48 +83,45 @@ export default function ContactInfo({
   const items = [
     {
       key: "address",
-      label: "Studio Location",
-      eyebrow: "Location",
+      eyebrow: contactCopy.eyebrows.address,
       icon: MapPin,
       value: loading
-        ? "Loading..."
-        : contactContent.address || "Vienna, Austria\nBy appointment only",
+        ? contactCopy.loading
+        : contactContent.address || contactCopy.defaultAddress,
       href: null,
       renderValue: (value: string) => formatAddress(value),
     },
     {
       key: "phone",
-      label: "Phone",
-      eyebrow: "Phone",
+      eyebrow: contactCopy.eyebrows.phone,
       icon: Phone,
-      value: loading ? "Loading..." : contactContent.phone || "+43 123 456 789",
+      value: loading
+        ? contactCopy.loading
+        : contactContent.phone || "+43 123 456 789",
       href: (value: string) => `tel:${value}`,
     },
     {
       key: "email",
-      label: "Email",
-      eyebrow: "Email",
+      eyebrow: contactCopy.eyebrows.email,
       icon: Mail,
       value: loading
-        ? "Loading..."
+        ? contactCopy.loading
         : contactContent.email || "info@beshotattoo.com",
       href: (value: string) => `mailto:${value}`,
     },
     {
       key: "hours",
-      label: "Hours",
-      eyebrow: "Availability",
+      eyebrow: contactCopy.eyebrows.hours,
       icon: Clock,
       value: loading
-        ? "Loading..."
-        : contactContent.hours || "By appointment only\nTuesday - Saturday",
+        ? contactCopy.loading
+        : contactContent.hours || contactCopy.defaultHours,
       href: null,
       renderValue: (value: string) => formatHours(value),
     },
     {
       key: "social",
-      label: "Instagram",
-      eyebrow: "Instagram",
+      eyebrow: contactCopy.eyebrows.social,
       icon: Instagram,
       value: contactContent.socialMedia || DEFAULT_INSTAGRAM_HANDLE,
       href: (value: string) => getInstagramHref(value),
@@ -146,7 +146,7 @@ export default function ContactInfo({
                   : "font-semibold text-gray-900",
               )}
             >
-              Contact Information
+              {contactCopy.heading}
             </h2>
           ) : null}
           {showIntro ? (
@@ -157,8 +157,7 @@ export default function ContactInfo({
                   : "text-gray-600",
               )}
             >
-              Ready to start your tattoo journey? Get in touch with us to
-              discuss your ideas and schedule a consultation.
+              {contactCopy.intro}
             </p>
           ) : null}
         </div>

@@ -6,6 +6,7 @@ import AppointmentSummary from "./AppointmentSummary";
 import BookingFormHeader from "./BookingFormHeader";
 import BookingImageUpload from "./BookingImageUpload";
 import BookingFormActions from "./BookingFormActions";
+import { useLocale } from "@/contexts/LocaleContext";
 import { createPublicAppointment } from "@/services/appointments";
 import type { Availability, Appointment } from "@/services/appointments";
 
@@ -20,6 +21,7 @@ export default function BookingFormContent({
   onSuccess,
   onCancel,
 }: BookingFormContentProps) {
+  const { copy } = useLocale();
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
@@ -54,7 +56,9 @@ export default function BookingFormContent({
 
     if (uploadError) {
       console.error("❌ Image upload failed:", uploadError);
-      throw new Error("Failed to upload image: " + uploadError.message);
+      throw new Error(
+        `${copy.booking.failedToUploadImage}: ${uploadError.message}`,
+      );
     }
 
     console.log("✅ Image uploaded successfully:", filePath);
@@ -65,7 +69,7 @@ export default function BookingFormContent({
     e.preventDefault();
 
     if (!formData.full_name.trim() || !formData.email.trim()) {
-      setError("Please fill in all required fields");
+      setError(copy.booking.requiredFields);
       return;
     }
 
@@ -101,7 +105,7 @@ export default function BookingFormContent({
     } catch (err) {
       console.error("❌ Error creating appointment:", err);
 
-      let errorMessage = "Failed to book appointment. Please try again.";
+      let errorMessage: string = copy.booking.failedToBook;
 
       if (err instanceof Error) {
         errorMessage = err.message;
@@ -135,7 +139,7 @@ export default function BookingFormContent({
         <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
           <div className="space-y-4">
             <h3 className="text-base sm:text-lg font-medium text-gray-900 pb-2 border-b border-gray-200">
-              Contact Information
+              {copy.booking.contactInformation}
             </h3>
             <ContactInformationFields
               formData={formData}

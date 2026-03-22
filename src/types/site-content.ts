@@ -42,6 +42,7 @@ export interface SiteContentFormData {
     email: string;
     hours: string;
     social_media: string;
+    image_url: string;
   };
 }
 

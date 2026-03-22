@@ -11,11 +11,12 @@ import {
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { CalendarDays, ExternalLink, MapPin } from "lucide-react";
+import { useLocale } from "@/contexts/LocaleContext";
+import { formatLocalDateForLocale } from "@/lib/i18n";
 import Footer from "@/components/shared/Footer";
 import Header from "@/components/shared/Header";
 import { Button } from "@/components/ui/Button";
 import { pageMotionTransition, pageMotionViewport } from "@/lib/page-motion";
-import { formatEventDate } from "@/services/events";
 import type { Event } from "@/types/event";
 
 export interface HomeHeroContent {
@@ -57,20 +58,24 @@ const heroSwapTransition = {
 const APP_REDIRECT_FALLBACK_DELAY_MS = 900;
 const TIMELINE_SLOT_MIN_WIDTH = 176;
 
-function formatRedirectLabel(url: string) {
+function formatRedirectLabel(
+  url: string,
+  visitHost: (host: string) => string,
+  openEventPage: string,
+) {
   try {
     const host = new URL(url).hostname.replace(/^www\./, "");
-    return `Visit ${host}`;
+    return visitHost(host);
   } catch {
-    return "Open event page";
+    return openEventPage;
   }
 }
 
-function formatTimelineDate(dateString: string) {
-  return new Intl.DateTimeFormat("en-US", {
+function formatTimelineDate(locale: "en" | "de", dateString: string) {
+  return formatLocalDateForLocale(locale, dateString, {
     month: "short",
     day: "numeric",
-  }).format(new Date(`${dateString}T00:00:00`));
+  });
 }
 
 function getAppRedirectUrl(url: string) {
@@ -141,12 +146,19 @@ interface EventDetailRowsProps {
 }
 
 function EventDetailRows({ event, onRedirectClick }: EventDetailRowsProps) {
+  const { locale, copy } = useLocale();
   const redirectUrl = event.redirect_url;
   const content = (
     <div className="mx-auto flex w-full max-w-[30rem] flex-col items-center gap-3">
       <div className="flex items-center gap-3 text-sm uppercase tracking-[0.24em] text-neutral-300 md:text-base">
         <CalendarDays className="h-4 w-4 text-white/65" />
-        <span>{formatEventDate(event.event_date)}</span>
+        <span>
+          {formatLocalDateForLocale(locale, event.event_date, {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          })}
+        </span>
       </div>
       <div className="flex items-center gap-3 text-sm uppercase tracking-[0.22em] text-neutral-300 md:text-base">
         <MapPin className="h-4 w-4 text-white/65" />
@@ -155,7 +167,13 @@ function EventDetailRows({ event, onRedirectClick }: EventDetailRowsProps) {
       {redirectUrl ? (
         <div className="flex items-center gap-3 text-xs uppercase tracking-[0.26em] text-white/72 md:text-sm">
           <ExternalLink className="h-4 w-4" />
-          <span>{formatRedirectLabel(redirectUrl)}</span>
+          <span>
+            {formatRedirectLabel(
+              redirectUrl,
+              copy.home.visitHost,
+              copy.home.openEventPage,
+            )}
+          </span>
         </div>
       ) : null}
     </div>
@@ -189,20 +207,28 @@ export default function HomePageClient({
   heroContent,
   upcomingEvents,
 }: HomePageClientProps) {
+  const { locale, copy } = useLocale();
   const [hoveredEventId, setHoveredEventId] = useState<string | null>(null);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showEventTakeover, setShowEventTakeover] = useState(false);
   const [supportsHover, setSupportsHover] = useState(false);
 
-  const headline = heroContent.title || "Think.Before.You.Ink";
+  const headline =
+    locale === "de"
+      ? copy.home.heroTitle
+      : heroContent.title || copy.home.heroTitle;
   const description =
-    heroContent.description ||
-    heroContent.subtitle ||
-    "Custom tattoos connecting history and modern art. Specializing in Arabic calligraphy, Mesopotamian symbols, and elegant fine line art.";
+    locale === "de"
+      ? copy.home.heroDescription
+      : heroContent.description ||
+        heroContent.subtitle ||
+        copy.home.heroDescription;
   const bookingLabel =
-    heroContent.bookingButton.trim().toLowerCase() === "book appointment"
-      ? "Book Now"
-      : heroContent.bookingButton || "Book Now";
+    locale === "de"
+      ? copy.home.bookNow
+      : heroContent.bookingButton.trim().toLowerCase() === "book appointment"
+        ? copy.home.bookNow
+        : heroContent.bookingButton || copy.home.bookNow;
   const featuredEvent = upcomingEvents[0] ?? null;
 
   useEffect(() => {
@@ -232,11 +258,13 @@ export default function HomePageClient({
   const activeLabel =
     showEventTakeover && activeEvent != null
       ? timelineEvents.length > 1
-        ? "Upcoming Events"
-        : "Upcoming Event"
+        ? copy.home.upcomingEvents
+        : copy.home.upcomingEvent
       : null;
   const eventCtaLabel =
-    timelineEvents.length > 1 ? "View Upcoming Events" : "View Upcoming Event";
+    timelineEvents.length > 1
+      ? copy.home.viewUpcomingEvents
+      : copy.home.viewUpcomingEvent;
   const shouldKeepEventCtaVisible = supportsHover && showEventTakeover;
   const showEventCta =
     featuredEvent != null && (!showEventTakeover || shouldKeepEventCtaVisible);
@@ -348,7 +376,7 @@ export default function HomePageClient({
         <div className="absolute inset-0 z-0">
           <Image
             src="/1de18774-5b5c-4058-8ebc-26ad6594bdcf.png"
-            alt="Besho Tattoo Artist at Work"
+            alt={copy.home.heroImageAlt}
             fill
             sizes="100vw"
             fetchPriority="high"
@@ -385,7 +413,7 @@ export default function HomePageClient({
                   transition={{ ...heroSwapTransition, duration: 1.2 }}
                   className="text-[13px] leading-none uppercase tracking-[0.42em] text-white/60 md:text-[15px]"
                 >
-                  {activeLabel ?? "Upcoming Events"}
+                  {activeLabel ?? copy.home.upcomingEvents}
                 </motion.p>
               </div>
 
@@ -519,7 +547,7 @@ export default function HomePageClient({
                               ].join(" ")}
                             >
                               <p className="text-[11px] uppercase tracking-[0.28em] text-white/60">
-                                {formatTimelineDate(item.event_date)}
+                                {formatTimelineDate(locale, item.event_date)}
                               </p>
                               <p className="mx-auto max-w-[160px] overflow-hidden text-xs uppercase tracking-[0.16em] text-white/90 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
                                 {item.title}

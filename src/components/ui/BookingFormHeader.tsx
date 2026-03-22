@@ -1,5 +1,6 @@
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
-import { parseLocalDate } from "@/lib/utils";
+import { useLocale } from "@/contexts/LocaleContext";
+import { formatLocalDateForLocale, formatTimeForLocale } from "@/lib/i18n";
 import type { Availability } from "@/services/appointments";
 
 interface BookingFormHeaderProps {
@@ -9,30 +10,24 @@ interface BookingFormHeaderProps {
 export default function BookingFormHeader({
   selectedSlot,
 }: BookingFormHeaderProps) {
-  const formatTime = (timeStr: string): string => {
-    const [hours, minutes] = timeStr.split(":");
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const hour12 = hour % 12 || 12;
-    return `${hour12}:${minutes} ${ampm}`;
-  };
+  const { locale, copy } = useLocale();
 
   return (
     <CardHeader className="pb-4 sm:pb-6">
       <CardTitle className="text-lg sm:text-xl lg:text-2xl">
-        Complete Your Booking
+        {copy.booking.completeBooking}
       </CardTitle>
       <CardDescription className="text-sm sm:text-base">
-        Fill in your details to confirm your appointment for{" "}
+        {copy.booking.fillDetails}{" "}
         <span className="font-medium text-gray-900">
-          {parseLocalDate(selectedSlot.date).toLocaleDateString("en-US", {
+          {formatLocalDateForLocale(locale, selectedSlot.date, {
             weekday: "long",
             year: "numeric",
             month: "long",
             day: "numeric",
           })}{" "}
-          at {formatTime(selectedSlot.time_start)} -{" "}
-          {formatTime(selectedSlot.time_end)}
+          {formatTimeForLocale(locale, selectedSlot.time_start)} -{" "}
+          {formatTimeForLocale(locale, selectedSlot.time_end)}
         </span>
       </CardDescription>
     </CardHeader>

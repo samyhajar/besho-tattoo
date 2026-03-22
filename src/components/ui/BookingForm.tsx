@@ -1,10 +1,13 @@
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
+import { useLocale } from "@/contexts/LocaleContext";
 import BookingFormContent from "./BookingFormContent";
 import type { Availability, Appointment } from "@/services/appointments";
 
 // No Slot Selected Component
 function NoSlotSelected({ onCancel }: { onCancel: () => void }) {
+  const { copy } = useLocale();
+
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardContent className="text-center py-8 sm:py-12">
@@ -24,13 +27,13 @@ function NoSlotSelected({ onCancel }: { onCancel: () => void }) {
           </svg>
         </div>
         <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-2">
-          No Time Slot Selected
+          {copy.booking.noSlotSelected}
         </h3>
         <p className="text-sm sm:text-base text-gray-600 mb-6">
-          Please select an appointment slot first
+          {copy.booking.selectSlotFirst}
         </p>
         <Button onClick={onCancel} className="w-full sm:w-auto">
-          Back to Calendar
+          {copy.booking.backToCalendar}
         </Button>
       </CardContent>
     </Card>

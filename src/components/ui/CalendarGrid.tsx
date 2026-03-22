@@ -1,3 +1,5 @@
+import { useLocale } from "@/contexts/LocaleContext";
+import { formatTimeForLocale, getWeekdayLabels } from "@/lib/i18n";
 import type { Availability } from "@/services/appointments";
 
 interface CalendarDay {
@@ -19,25 +21,23 @@ export default function CalendarGrid({
   selectedDate,
   onDateSelect,
 }: CalendarGridProps) {
-  const formatTime = (timeStr: string): string => {
-    const [hours, minutes] = timeStr.split(":");
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const hour12 = hour % 12 || 12;
-    return `${hour12}:${minutes} ${ampm}`;
-  };
+  const { locale, copy } = useLocale();
+  const weekdayLabels = getWeekdayLabels(locale, "short").map((label) =>
+    label.replace(".", ""),
+  );
+  const compactWeekdayLabels = weekdayLabels.map((label) => label.slice(0, 2));
 
   return (
     <>
       {/* Calendar Header - Starting with Monday */}
       <div className="grid grid-cols-7 gap-1 mb-2">
-        {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
+        {weekdayLabels.map((day, index) => (
           <div
-            key={day}
+            key={`${day}-${index}`}
             className="text-center text-xs sm:text-sm font-medium text-gray-600 py-2"
           >
             <span className="hidden sm:inline">{day}</span>
-            <span className="sm:hidden">{day.substring(0, 1)}</span>
+            <span className="sm:hidden">{compactWeekdayLabels[index]}</span>
           </div>
         ))}
       </div>
@@ -84,13 +84,13 @@ export default function CalendarGrid({
             {day.slots.length > 0 && (
               <div className="space-y-1">
                 <div className="text-xs font-medium text-green-600">
-                  {day.slots.length} slot{day.slots.length > 1 ? "s" : ""}
+                  {copy.booking.slotCount(day.slots.length)}
                 </div>
                 <div className="text-xs text-gray-600 leading-tight">
-                  {formatTime(day.slots[0].time_start)}
+                  {formatTimeForLocale(locale, day.slots[0].time_start)}
                   {day.slots.length > 1 && (
                     <div className="text-xs opacity-75">
-                      +{day.slots.length - 1} more
+                      {copy.booking.moreSlots(day.slots.length - 1)}
                     </div>
                   )}
                 </div>

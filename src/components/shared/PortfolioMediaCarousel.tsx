@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Video } from "lucide-react";
+import { useLocale } from "@/contexts/LocaleContext";
 import type { PortfolioMedia, Tattoo } from "@/types/tattoo";
 
 interface PortfolioMediaCarouselProps {
@@ -28,6 +29,8 @@ function orderMedia(media: PortfolioMedia[]) {
 }
 
 function VideoThumbnail({ src, title }: { src: string; title: string }) {
+  const { copy } = useLocale();
+
   return (
     <div className="relative h-full w-full">
       <video
@@ -48,7 +51,7 @@ function VideoThumbnail({ src, title }: { src: string; title: string }) {
             // Keep the default first frame if seeking is not allowed.
           }
         }}
-        aria-label={`${title} video preview`}
+        aria-label={copy.portfolio.videoPreview(title)}
       />
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/20">
         <div className="rounded-full bg-black/60 p-2 text-white shadow-lg">
@@ -63,6 +66,7 @@ export default function PortfolioMediaCarousel({
   tattoo,
   theme = "dark",
 }: PortfolioMediaCarouselProps) {
+  const { copy } = useLocale();
   const orderedMedia = useMemo(
     () => orderMedia(tattoo.media || []),
     [tattoo.media],
@@ -115,7 +119,7 @@ export default function PortfolioMediaCarousel({
   if (!activeMedia) {
     return (
       <div className="flex aspect-square items-center justify-center rounded-2xl bg-gray-100 text-sm text-gray-500">
-        No media available
+        {copy.portfolio.noMediaAvailable}
       </div>
     );
   }
@@ -146,7 +150,9 @@ export default function PortfolioMediaCarousel({
               playsInline
             />
           ) : (
-            <div className="py-24 text-sm text-gray-500">Media unavailable</div>
+            <div className="py-24 text-sm text-gray-500">
+              {copy.portfolio.mediaUnavailable}
+            </div>
           )}
         </div>
 
@@ -160,7 +166,7 @@ export default function PortfolioMediaCarousel({
                   ? "bg-black/60 text-white hover:bg-black/80"
                   : "bg-white/90 text-gray-900 hover:bg-white"
               }`}
-              aria-label="Show previous media"
+              aria-label={copy.portfolio.showPreviousMedia}
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
@@ -172,7 +178,7 @@ export default function PortfolioMediaCarousel({
                   ? "bg-black/60 text-white hover:bg-black/80"
                   : "bg-white/90 text-gray-900 hover:bg-white"
               }`}
-              aria-label="Show next media"
+              aria-label={copy.portfolio.showNextMedia}
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -196,7 +202,7 @@ export default function PortfolioMediaCarousel({
                     ? "border-white/10 bg-white/5"
                     : "border-gray-200 bg-white"
               }`}
-              aria-label={`Show media ${index + 1}`}
+              aria-label={copy.portfolio.showMedia(index + 1)}
             >
               <div className="aspect-square bg-black/5">
                 {media.media_type === "image" && media.display_url ? (
@@ -216,7 +222,7 @@ export default function PortfolioMediaCarousel({
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center text-xs text-gray-400">
-                    Missing
+                    {copy.portfolio.missingMedia}
                   </div>
                 )}
               </div>

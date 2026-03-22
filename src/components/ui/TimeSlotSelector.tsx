@@ -7,7 +7,8 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import { Clock, ArrowRight } from "lucide-react";
-import { parseLocalDate } from "@/lib/utils";
+import { useLocale } from "@/contexts/LocaleContext";
+import { formatLocalDateForLocale, formatTimeForLocale } from "@/lib/i18n";
 import type { Availability } from "@/services/appointments";
 
 interface TimeSlotSelectorProps {
@@ -25,25 +26,19 @@ export default function TimeSlotSelector({
   onSlotSelect,
   onBookingStart,
 }: TimeSlotSelectorProps) {
-  const formatTime = (timeStr: string): string => {
-    const [hours, minutes] = timeStr.split(":");
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const hour12 = hour % 12 || 12;
-    return `${hour12}:${minutes} ${ampm}`;
-  };
+  const { locale, copy } = useLocale();
 
   return (
     <Card className="w-full bg-white border-gray-200">
       <CardHeader className="pb-3 sm:pb-4">
         <CardTitle className="flex items-center gap-2 text-lg sm:text-xl text-black">
           <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
-          {selectedDate ? "Available Times" : "Select a Date"}
+          {selectedDate ? copy.booking.availableTimes : copy.booking.selectDate}
         </CardTitle>
         <CardDescription className="text-sm text-gray-600">
           {selectedDate
-            ? "Choose your preferred time slot"
-            : "Click on a date with available slots"}
+            ? copy.booking.choosePreferredTime
+            : copy.booking.clickDateWithSlots}
         </CardDescription>
       </CardHeader>
       <CardContent className="p-3 sm:p-6">
@@ -52,7 +47,7 @@ export default function TimeSlotSelector({
             {/* Selected Date Display */}
             <div className="p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
               <div className="font-medium text-black text-sm sm:text-base">
-                {parseLocalDate(selectedDate).toLocaleDateString("en-US", {
+                {formatLocalDateForLocale(locale, selectedDate, {
                   weekday: "long",
                   year: "numeric",
                   month: "long",
@@ -64,7 +59,7 @@ export default function TimeSlotSelector({
             {/* Time Slots */}
             <div className="space-y-3 sm:space-y-4">
               <h4 className="font-medium text-black text-sm sm:text-base">
-                Available Time Slots:
+                {copy.booking.availableTimeSlots}
               </h4>
               <div className="grid gap-2 sm:gap-3">
                 {availableSlots
@@ -92,8 +87,8 @@ export default function TimeSlotSelector({
                                 : "text-black"
                             }`}
                           >
-                            {formatTime(slot.time_start)} -{" "}
-                            {formatTime(slot.time_end)}
+                            {formatTimeForLocale(locale, slot.time_start)} -{" "}
+                            {formatTimeForLocale(locale, slot.time_end)}
                           </div>
                           <div
                             className={`text-xs sm:text-sm mt-1 ${
@@ -112,7 +107,7 @@ export default function TimeSlotSelector({
                               const duration =
                                 (end.getTime() - start.getTime()) /
                                 (1000 * 60 * 60);
-                              return `${duration} hour${duration !== 1 ? "s" : ""}`;
+                              return copy.booking.durationHours(duration);
                             })()}
                           </div>
                         </div>
@@ -132,11 +127,10 @@ export default function TimeSlotSelector({
               <div className="pt-4 sm:pt-6 border-t border-gray-200 space-y-3 sm:space-y-4">
                 <div className="p-3 sm:p-4 bg-gray-50 rounded-lg">
                   <h4 className="font-medium text-black text-sm sm:text-base">
-                    Ready to book?
+                    {copy.booking.readyToBook}
                   </h4>
                   <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                    Click below to provide your contact information and any
-                    reference images.
+                    {copy.booking.readyToBookDescription}
                   </p>
                 </div>
                 <Button
@@ -144,7 +138,7 @@ export default function TimeSlotSelector({
                   className="w-full py-3 sm:py-4 text-sm sm:text-base font-medium"
                   size="lg"
                 >
-                  <span>Continue to Booking</span>
+                  <span>{copy.booking.continueToBooking}</span>
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </div>
@@ -155,11 +149,10 @@ export default function TimeSlotSelector({
           <div className="text-center py-8 sm:py-12">
             <Clock className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 text-gray-400" />
             <h3 className="text-base sm:text-lg font-medium text-black mb-2">
-              Select a Date First
+              {copy.booking.selectDateFirst}
             </h3>
             <p className="text-sm sm:text-base text-gray-600 max-w-sm mx-auto">
-              Choose an available date from the calendar above to see available
-              time slots.
+              {copy.booking.selectDateFirstDescription}
             </p>
           </div>
         )}
