@@ -37,6 +37,8 @@ export interface SiteContentFormData {
     seo_conclusion: string;
   };
   contact: {
+    title: string;
+    description: string;
     address: string;
     phone: string;
     email: string;

@@ -5,6 +5,8 @@ import {
   SiteContentFormData,
 } from "@/types/site-content";
 
+const CONTACT_HEADER_FIELDS = new Set(["title", "description"]);
+
 export async function getSiteContent(): Promise<SiteContent[]> {
   const supabase = createClient();
 
@@ -102,6 +104,8 @@ export function transformSiteContentToFormData(
       seo_conclusion: "",
     },
     contact: {
+      title: "",
+      description: "",
       address: "",
       phone: "",
       email: "",
@@ -118,7 +122,10 @@ export function transformSiteContentToFormData(
     } else if (item.page === "home" && item.section === "about") {
       formData.about[item.field_name as keyof typeof formData.about] =
         item.content;
-    } else if (item.page === "contact" && item.section === "info") {
+    } else if (
+      item.page === "contact" &&
+      (item.section === "info" || item.section === "header")
+    ) {
       formData.contact[item.field_name as keyof typeof formData.contact] =
         item.content;
     }
@@ -156,7 +163,7 @@ export function transformFormDataToUpdates(
   Object.entries(formData.contact).forEach(([field_name, content]) => {
     updates.push({
       page: "contact",
-      section: "info",
+      section: CONTACT_HEADER_FIELDS.has(field_name) ? "header" : "info",
       field_name,
       content,
     });

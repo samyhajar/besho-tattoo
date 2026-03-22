@@ -117,6 +117,23 @@ export function ContactSection({
       description="Contact details and the featured image displayed on the contact page."
       fields={[
         {
+          id: "contact-title",
+          label: "Page Title",
+          value: formData.contact.title,
+          onChange: (value) => onInputChange("contact", "title", value),
+          placeholder: "Enter the contact page title",
+          type: "input",
+        },
+        {
+          id: "contact-description",
+          label: "Page Description",
+          value: formData.contact.description,
+          onChange: (value) => onInputChange("contact", "description", value),
+          placeholder:
+            "Enter the intro text shown at the top of the contact page",
+          type: "textarea",
+        },
+        {
           id: "contact-address",
           label: "Studio Address",
           value: formData.contact.address,
@@ -230,8 +247,8 @@ export function ContactSection({
                 Recommended portrait crop, up to {PAGE_IMAGE_MAX_SIZE_MB}MB.
               </p>
               <p>
-                The uploaded image is saved immediately. Use Save Changes below
-                to publish it on the site.
+                The upload sets the image URL in the form. Use Save Changes
+                below to publish it on the site.
               </p>
             </div>
 

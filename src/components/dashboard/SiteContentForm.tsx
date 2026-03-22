@@ -16,11 +16,13 @@ import { SeoSection } from "@/components/dashboard/SiteContentSeoSection";
 interface SiteContentFormProps {
   content: SiteContent[];
   onContentUpdated: () => void;
+  mode?: "all" | "contact";
 }
 
 export function SiteContentForm({
   content,
   onContentUpdated,
+  mode = "all",
 }: SiteContentFormProps) {
   const [formData, setFormData] = useState<SiteContentFormData>(() =>
     transformSiteContentToFormData(content),
@@ -46,7 +48,9 @@ export function SiteContentForm({
   const handleSave = async () => {
     try {
       setSaving(true);
-      const updates = transformFormDataToUpdates(formData);
+      const updates = transformFormDataToUpdates(formData).filter((update) =>
+        mode === "contact" ? update.page === "contact" : true,
+      );
       await updateMultipleSiteContent(updates);
       setSaved(true);
       onContentUpdated();
@@ -68,19 +72,19 @@ export function SiteContentForm({
 
   return (
     <div className="space-y-6">
-      {/* Hero Section */}
-      <HeroSection formData={formData} onInputChange={handleInputChange} />
+      {mode === "all" ? (
+        <>
+          <HeroSection formData={formData} onInputChange={handleInputChange} />
+          <AboutSection formData={formData} onInputChange={handleInputChange} />
+        </>
+      ) : null}
 
-      {/* About Me Section */}
-      <AboutSection formData={formData} onInputChange={handleInputChange} />
-
-      {/* Contact Information Section */}
       <ContactSection formData={formData} onInputChange={handleInputChange} />
 
-      {/* SEO Section */}
-      <SeoSection formData={formData} onInputChange={handleInputChange} />
+      {mode === "all" ? (
+        <SeoSection formData={formData} onInputChange={handleInputChange} />
+      ) : null}
 
-      {/* Action Buttons */}
       <SiteContentActions
         saving={saving}
         saved={saved}
