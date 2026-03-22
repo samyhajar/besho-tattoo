@@ -217,6 +217,7 @@ export default function HomePageClient({
       return;
     }
 
+    setSelectedEventId(event.id);
     setHoveredEventId(event.id);
   };
 
@@ -441,7 +442,7 @@ export default function HomePageClient({
                                 onClick={(domEvent) =>
                                   handleLinkedEventClick(domEvent, item)
                                 }
-                                onFocus={() => setHoveredEventId(item.id)}
+                                onFocus={() => handleEventHover(item)}
                                 onMouseEnter={() => handleEventHover(item)}
                                 onMouseLeave={handleEventLeave}
                                 className="group flex h-full min-w-[176px] flex-col items-center justify-center text-center outline-none"
@@ -457,7 +458,7 @@ export default function HomePageClient({
                               type="button"
                               onBlur={handleEventLeave}
                               onClick={() => setSelectedEventId(item.id)}
-                              onFocus={() => setHoveredEventId(item.id)}
+                              onFocus={() => handleEventHover(item)}
                               onMouseEnter={() => handleEventHover(item)}
                               onMouseLeave={handleEventLeave}
                               className="group flex h-full min-w-[176px] flex-col items-center justify-center text-center outline-none"
