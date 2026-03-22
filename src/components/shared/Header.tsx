@@ -226,7 +226,7 @@ export default function Header({ variant = "default" }: HeaderProps) {
 
           <button
             onClick={toggleMenu}
-            className={`z-50 rounded-lg p-3 transition-colors sm:p-3.5 md:p-4 lg:hidden ${
+            className={`z-50 rounded-lg p-2.5 transition-colors sm:p-3 md:p-3.5 lg:hidden ${
               isHomeVariant
                 ? "text-white hover:bg-white/8"
                 : "text-white hover:bg-white/8"
@@ -237,8 +237,8 @@ export default function Header({ variant = "default" }: HeaderProps) {
               <X className="h-7 w-7 sm:h-8 sm:w-8" />
             ) : (
               <Menu
-                className="h-7 w-7 sm:h-8 sm:w-8 md:h-[2.1rem] md:w-[2.1rem]"
-                strokeWidth={1.5}
+                className="h-[1.4rem] w-[1.4rem] sm:h-[1.6rem] sm:w-[1.6rem] md:h-[1.8rem] md:w-[1.8rem]"
+                strokeWidth={1.3}
               />
             )}
           </button>
