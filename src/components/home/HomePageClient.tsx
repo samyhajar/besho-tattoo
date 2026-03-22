@@ -54,6 +54,7 @@ const heroSwapTransition = {
   ease: [0.22, 1, 0.36, 1] as const,
 };
 
+const APP_REDIRECT_FALLBACK_DELAY_MS = 900;
 const TIMELINE_SLOT_MIN_WIDTH = 176;
 
 function formatRedirectLabel(url: string) {
@@ -70,6 +71,43 @@ function formatTimelineDate(dateString: string) {
     month: "short",
     day: "numeric",
   }).format(new Date(`${dateString}T00:00:00`));
+}
+
+function getAppRedirectUrl(url: string) {
+  try {
+    const parsedUrl = new URL(url);
+    const hostname = parsedUrl.hostname.replace(/^www\./, "").toLowerCase();
+
+    if (hostname !== "instagram.com") {
+      return null;
+    }
+
+    const segments = parsedUrl.pathname.split("/").filter(Boolean);
+    const firstSegment = segments[0]?.toLowerCase();
+
+    if (!firstSegment) {
+      return "instagram://app";
+    }
+
+    if (
+      [
+        "p",
+        "reel",
+        "reels",
+        "stories",
+        "explore",
+        "accounts",
+        "direct",
+        "tv",
+      ].includes(firstSegment)
+    ) {
+      return "instagram://app";
+    }
+
+    return `instagram://user?username=${segments[0]}`;
+  } catch {
+    return null;
+  }
 }
 
 function renderHeadline(title: string): ReactNode {
@@ -98,9 +136,14 @@ function renderHeadline(title: string): ReactNode {
 
 interface EventDetailRowsProps {
   event: Event;
+  onRedirectClick?: (
+    domEvent: ReactMouseEvent<HTMLAnchorElement>,
+    url: string,
+  ) => void;
 }
 
-function EventDetailRows({ event }: EventDetailRowsProps) {
+function EventDetailRows({ event, onRedirectClick }: EventDetailRowsProps) {
+  const redirectUrl = event.redirect_url;
   const content = (
     <div className="mx-auto flex w-full max-w-[30rem] flex-col items-center gap-3">
       <div className="flex items-center gap-3 text-sm uppercase tracking-[0.24em] text-neutral-300 md:text-base">
@@ -111,22 +154,25 @@ function EventDetailRows({ event }: EventDetailRowsProps) {
         <MapPin className="h-4 w-4 text-white/65" />
         <span>{event.location}</span>
       </div>
-      {event.redirect_url ? (
+      {redirectUrl ? (
         <div className="flex items-center gap-3 text-xs uppercase tracking-[0.26em] text-white/72 md:text-sm">
           <ExternalLink className="h-4 w-4" />
-          <span>{formatRedirectLabel(event.redirect_url)}</span>
+          <span>{formatRedirectLabel(redirectUrl)}</span>
         </div>
       ) : null}
     </div>
   );
 
-  if (!event.redirect_url) {
+  if (!redirectUrl) {
     return <div>{content}</div>;
   }
 
   return (
     <a
-      href={event.redirect_url}
+      href={redirectUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={(domEvent) => onRedirectClick?.(domEvent, redirectUrl)}
       className="group inline-flex transition-opacity duration-300 hover:opacity-100"
     >
       <div className="opacity-90 transition-opacity duration-300 group-hover:opacity-100">
@@ -229,6 +275,56 @@ export default function HomePageClient({
     setHoveredEventId(null);
   };
 
+  const openEventRedirect = (url: string) => {
+    const appRedirectUrl = getAppRedirectUrl(url);
+
+    if (!appRedirectUrl) {
+      window.open(url, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    let fallbackTimer = 0;
+
+    const cleanup = () => {
+      if (fallbackTimer) {
+        window.clearTimeout(fallbackTimer);
+      }
+
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("pagehide", cleanup);
+      window.removeEventListener("blur", cleanup);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        cleanup();
+      }
+    };
+
+    fallbackTimer = window.setTimeout(() => {
+      cleanup();
+      window.open(url, "_blank", "noopener,noreferrer");
+    }, APP_REDIRECT_FALLBACK_DELAY_MS);
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("pagehide", cleanup);
+    window.addEventListener("blur", cleanup);
+
+    window.location.assign(appRedirectUrl);
+  };
+
+  const handleEventRedirectClick = (
+    domEvent: ReactMouseEvent<HTMLAnchorElement>,
+    url: string,
+  ) => {
+    if (supportsHover) {
+      return;
+    }
+
+    domEvent.preventDefault();
+    openEventRedirect(url);
+  };
+
   const handleLinkedEventClick = (
     domEvent: ReactMouseEvent<HTMLAnchorElement>,
     event: Event,
@@ -237,6 +333,12 @@ export default function HomePageClient({
 
     if (!supportsHover && selectedEventId !== event.id) {
       domEvent.preventDefault();
+      return;
+    }
+
+    if (!supportsHover && event.redirect_url) {
+      domEvent.preventDefault();
+      openEventRedirect(event.redirect_url);
     }
   };
 
@@ -274,14 +376,14 @@ export default function HomePageClient({
             className="space-y-8"
           >
             <div className="mx-auto flex min-h-[320px] max-w-4xl flex-col items-center justify-center gap-6 md:min-h-[360px]">
-              <div className="flex h-4 items-center justify-center">
+              <div className="flex h-6 items-center justify-center">
                 <motion.p
                   animate={{
                     opacity: activeLabel ? 1 : 0,
                     filter: activeLabel ? "blur(0px)" : "blur(8px)",
                   }}
                   transition={{ ...heroSwapTransition, duration: 1.2 }}
-                  className="text-[11px] uppercase tracking-[0.42em] text-white/60"
+                  className="text-[13px] leading-none uppercase tracking-[0.42em] text-white/60 md:text-[15px]"
                 >
                   {activeLabel ?? "Upcoming Events"}
                 </motion.p>
@@ -313,7 +415,10 @@ export default function HomePageClient({
                       transition={{ ...heroSwapTransition, duration: 1.2 }}
                       className="absolute inset-0 flex items-center justify-center"
                     >
-                      <EventDetailRows event={activeEvent} />
+                      <EventDetailRows
+                        event={activeEvent}
+                        onRedirectClick={handleEventRedirectClick}
+                      />
                     </motion.div>
                   ) : (
                     <motion.p
@@ -438,6 +543,8 @@ export default function HomePageClient({
                               <a
                                 key={item.id}
                                 href={item.redirect_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 onBlur={handleEventLeave}
                                 onClick={(domEvent) =>
                                   handleLinkedEventClick(domEvent, item)
