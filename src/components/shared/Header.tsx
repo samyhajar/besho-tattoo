@@ -142,14 +142,14 @@ export default function Header({ variant = "default" }: HeaderProps) {
               height={isHomeVariant ? 44 : 100}
               className={`w-auto ${
                 isHomeVariant
-                  ? "h-10 brightness-0 invert sm:h-11"
+                  ? "h-11 brightness-0 invert sm:h-11"
                   : "h-20 brightness-0 invert sm:h-24"
               }`}
               priority
             />
             {isHomeVariant ? (
               <div className="ml-4 flex flex-col justify-center text-white">
-                <span className="font-home-serif max-w-[210px] whitespace-nowrap text-[0.72rem] uppercase leading-none tracking-[0.08em] sm:hidden">
+                <span className="font-home-serif max-w-[210px] whitespace-nowrap text-[0.82rem] uppercase leading-none tracking-[0.09em] sm:hidden">
                   THINK.BEFORE.YOU.INK
                 </span>
                 <span className="font-home-serif hidden text-[24px] uppercase leading-none tracking-[0.22em] sm:block">
@@ -267,8 +267,8 @@ export default function Header({ variant = "default" }: HeaderProps) {
       <div
         className={`fixed left-0 top-0 z-[70] h-full transform transition-all duration-300 ease-in-out lg:hidden ${
           isHomeVariant
-            ? "w-[82vw] max-w-[31rem] border-r border-white/10 bg-[#0d0d0d] text-white sm:w-[25.5rem] md:w-[29rem]"
-            : "w-[82vw] max-w-[31rem] border-r border-white/10 bg-[#0d0d0d] text-white sm:w-[25.5rem] md:w-[29rem]"
+            ? "w-[82vw] max-w-[31rem] bg-[#0d0d0d] text-white shadow-[10px_0_28px_rgba(0,0,0,0.34)] sm:w-[25.5rem] md:w-[29rem]"
+            : "w-[82vw] max-w-[31rem] bg-[#0d0d0d] text-white shadow-[10px_0_28px_rgba(0,0,0,0.34)] sm:w-[25.5rem] md:w-[29rem]"
         } ${
           isMenuOpen
             ? "translate-x-0 opacity-100"
@@ -276,6 +276,10 @@ export default function Header({ variant = "default" }: HeaderProps) {
         }`}
       >
         <div className="relative flex h-full flex-col">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 -right-5 w-5 bg-gradient-to-r from-white/[0.05] via-white/[0.015] to-transparent opacity-70"
+          />
           <div className="flex items-center justify-between px-5 py-5 sm:px-6 sm:py-6 md:px-8 md:py-7">
             <Link href="/" className="flex items-center" onClick={closeMenu}>
               <Image

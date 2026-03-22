@@ -21,7 +21,7 @@ export default function Footer({ variant = "default" }: FooterProps) {
           Artistry in every needle. Stories in every line.
         </p>
 
-        <p className="mt-14 font-home-sans text-sm tracking-[0.03em] text-neutral-500">
+        <p className="mt-14 font-home-sans text-sm tracking-[0.03em] text-white/62">
           © 2014 THINK.BEFORE.YOU.INK. All rights reserved.
         </p>
       </div>
