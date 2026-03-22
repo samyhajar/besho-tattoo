@@ -90,8 +90,8 @@ export default function Header({ variant = "default" }: HeaderProps) {
     : "border border-white/10 bg-[#0d0d0d] text-white shadow-[0_24px_60px_rgba(0,0,0,0.45)]";
 
   const mobileLinkClassName = isHomeVariant
-    ? "font-home-sans text-sm uppercase tracking-[0.24em] text-white/85 hover:text-white"
-    : "font-home-sans px-2 text-sm uppercase tracking-[0.24em] text-white/85 hover:text-white";
+    ? "font-home-sans text-sm uppercase tracking-[0.24em] text-white/85 hover:text-white sm:text-[0.98rem] md:text-[1.04rem]"
+    : "font-home-sans px-2 text-sm uppercase tracking-[0.24em] text-white/85 hover:text-white sm:text-[0.98rem] md:text-[1.04rem]";
 
   const renderNavLink = (href: string, label: string) => (
     <Link
@@ -160,7 +160,7 @@ export default function Header({ variant = "default" }: HeaderProps) {
           </Link>
 
           <nav
-            className={`hidden items-center md:flex ${
+            className={`hidden items-center lg:flex ${
               isHomeVariant ? "gap-10 lg:gap-12" : "gap-12 lg:gap-16"
             }`}
           >
@@ -226,22 +226,31 @@ export default function Header({ variant = "default" }: HeaderProps) {
 
           <button
             onClick={toggleMenu}
-            className={`z-50 rounded-lg p-3 transition-colors md:hidden ${
+            className={`z-50 rounded-lg p-3 transition-colors sm:p-3.5 md:p-4 lg:hidden ${
               isHomeVariant
                 ? "text-white hover:bg-white/8"
                 : "text-white hover:bg-white/8"
-            }`}
+            } ${isMenuOpen ? "pointer-events-none opacity-0" : "opacity-100"}`}
             aria-label="Toggle menu"
           >
-            {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            {isMenuOpen ? (
+              <X className="h-7 w-7 sm:h-8 sm:w-8" />
+            ) : (
+              <Menu
+                className="h-7 w-7 sm:h-8 sm:w-8 md:h-[2.1rem] md:w-[2.1rem]"
+                strokeWidth={1.5}
+              />
+            )}
           </button>
         </div>
       </header>
 
       {isMenuOpen ? (
         <div
-          className={`fixed inset-0 z-40 md:hidden ${
-            isHomeVariant ? "bg-black/70" : "bg-black/70"
+          className={`fixed inset-0 z-[60] backdrop-blur-md lg:hidden ${
+            isHomeVariant
+              ? "bg-black/42 supports-[backdrop-filter]:bg-black/28"
+              : "bg-black/42 supports-[backdrop-filter]:bg-black/28"
           }`}
           onClick={closeMenu}
           onKeyDown={(event) => {
@@ -256,27 +265,49 @@ export default function Header({ variant = "default" }: HeaderProps) {
       ) : null}
 
       <div
-        className={`fixed left-0 top-0 z-40 h-full transform transition-all duration-300 ease-in-out md:hidden ${
+        className={`fixed left-0 top-0 z-[70] h-full transform transition-all duration-300 ease-in-out lg:hidden ${
           isHomeVariant
-            ? "w-80 max-w-[80vw] border-r border-white/10 bg-[#0d0d0d] text-white"
-            : "w-80 max-w-[80vw] border-r border-white/10 bg-[#0d0d0d] text-white"
+            ? "w-[82vw] max-w-[31rem] border-r border-white/10 bg-[#0d0d0d] text-white sm:w-[25.5rem] md:w-[29rem]"
+            : "w-[82vw] max-w-[31rem] border-r border-white/10 bg-[#0d0d0d] text-white sm:w-[25.5rem] md:w-[29rem]"
         } ${
           isMenuOpen
             ? "translate-x-0 opacity-100"
             : "pointer-events-none -translate-x-full opacity-100"
         }`}
       >
-        <div className="relative h-full">
-          <button
-            type="button"
-            onClick={closeMenu}
-            className="absolute right-5 top-5 z-10 rounded-full p-2 text-white/70 transition-colors duration-300 hover:bg-white/8 hover:text-white"
-            aria-label="Close menu panel"
-          >
-            <X size={18} strokeWidth={1.5} />
-          </button>
+        <div className="relative flex h-full flex-col">
+          <div className="flex items-center justify-between px-5 py-5 sm:px-6 sm:py-6 md:px-8 md:py-7">
+            <Link href="/" className="flex items-center" onClick={closeMenu}>
+              <Image
+                src="/lastlastlogo.png"
+                alt="Besho Tattoo Logo"
+                width={44}
+                height={44}
+                className="h-10 w-auto brightness-0 invert sm:h-11 md:h-[3.35rem]"
+              />
+              {isHomeVariant ? (
+                <div className="ml-4 flex flex-col justify-center text-white sm:ml-[1.1rem] md:ml-[1.25rem]">
+                  <span className="font-home-serif max-w-[170px] whitespace-nowrap text-[0.64rem] uppercase leading-none tracking-[0.08em] sm:max-w-none sm:text-[0.8rem] md:text-[1.06rem] md:tracking-[0.12em]">
+                    THINK.BEFORE.YOU.INK
+                  </span>
+                </div>
+              ) : null}
+            </Link>
 
-          <nav className="flex flex-col px-8 pt-24">
+            <button
+              type="button"
+              onClick={closeMenu}
+              className="rounded-full p-2 text-white/70 transition-colors duration-300 hover:bg-white/8 hover:text-white sm:p-2.5 md:p-3"
+              aria-label="Close menu panel"
+            >
+              <X
+                className="h-[1.15rem] w-[1.15rem] sm:h-5 sm:w-5 md:h-[1.35rem] md:w-[1.35rem]"
+                strokeWidth={1.35}
+              />
+            </button>
+          </div>
+
+          <nav className="flex flex-col px-8 pt-8 sm:px-10 sm:pt-10 md:px-12 md:pt-12">
             {navItems.map(({ href, label }) => {
               if (href !== "/portfolio") {
                 return (
@@ -298,7 +329,7 @@ export default function Header({ variant = "default" }: HeaderProps) {
               }
 
               return (
-                <div key={href} className="py-4">
+                <div key={href} className="py-4 sm:py-5">
                   <Link
                     href={href}
                     onClick={closeMenu}
@@ -317,7 +348,7 @@ export default function Header({ variant = "default" }: HeaderProps) {
                         key={item.href}
                         href={item.href}
                         onClick={closeMenu}
-                        className={`block py-3 text-sm uppercase tracking-[0.22em] transition-colors duration-300 ${
+                        className={`block py-3 text-sm uppercase tracking-[0.22em] transition-colors duration-300 sm:text-[0.94rem] md:text-[1rem] ${
                           isHomeVariant
                             ? pathname === item.href
                               ? "text-white"

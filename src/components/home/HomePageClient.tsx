@@ -344,7 +344,7 @@ export default function HomePageClient({
     <div className="min-h-screen bg-[#0d0d0d] text-white font-home-sans">
       <Header variant="home" />
 
-      <section className="relative flex min-h-[calc(100svh-80px)] items-center justify-center overflow-hidden bg-[#0d0d0d] md:min-h-[calc(100vh-84px)]">
+      <section className="relative flex min-h-[calc(100svh-92px)] items-center justify-center overflow-hidden bg-[#0d0d0d] lg:min-h-[calc(100vh-84px)]">
         <div className="absolute inset-0 z-0">
           <Image
             src="/1de18774-5b5c-4058-8ebc-26ad6594bdcf.png"
@@ -363,7 +363,9 @@ export default function HomePageClient({
         <div
           className={[
             "container relative z-10 px-6 text-center",
-            timelineEvents.length > 1 ? "py-10 md:py-16" : "py-14 md:py-20",
+            timelineEvents.length > 1
+              ? "py-6 sm:py-8 lg:py-16"
+              : "py-10 sm:py-12 lg:py-20",
           ].join(" ")}
         >
           <motion.div
@@ -371,9 +373,9 @@ export default function HomePageClient({
             whileInView="visible"
             viewport={pageMotionViewport}
             variants={heroContentVariants}
-            className="space-y-6 md:space-y-8"
+            className="-translate-y-10 space-y-5 sm:-translate-y-12 sm:space-y-6 lg:translate-y-0 lg:space-y-8"
           >
-            <div className="mx-auto flex min-h-[300px] max-w-4xl flex-col items-center justify-center gap-5 md:min-h-[360px] md:gap-6">
+            <div className="mx-auto flex min-h-[260px] max-w-4xl flex-col items-center justify-center gap-4 sm:min-h-[300px] sm:gap-5 lg:min-h-[360px] lg:gap-6">
               <div className="flex h-6 items-center justify-center">
                 <motion.p
                   animate={{
@@ -387,7 +389,7 @@ export default function HomePageClient({
                 </motion.p>
               </div>
 
-              <div className="relative flex min-h-[110px] w-full items-center justify-center md:min-h-[150px] lg:min-h-[190px]">
+              <div className="relative flex min-h-[104px] w-full items-center justify-center sm:min-h-[122px] lg:min-h-[190px]">
                 <AnimatePresence mode="sync" initial={false}>
                   <motion.h1
                     key={activeEvent?.id || headline}
@@ -396,7 +398,7 @@ export default function HomePageClient({
                     exit={{ opacity: 0, filter: "blur(14px)" }}
                     transition={heroSwapTransition}
                     className={[
-                      "absolute inset-0 flex items-center justify-center text-center font-home-serif leading-none text-white",
+                      "absolute inset-0 flex w-full items-center justify-center px-4 text-center font-home-serif leading-none text-white sm:px-8",
                       activeEvent
                         ? "text-5xl tracking-tight md:text-7xl lg:text-9xl"
                         : "whitespace-nowrap text-[clamp(2.2rem,9vw,4.5rem)] tracking-tight md:text-7xl lg:text-9xl",
@@ -407,7 +409,7 @@ export default function HomePageClient({
                 </AnimatePresence>
               </div>
 
-              <div className="relative flex min-h-[104px] w-full items-center justify-center md:min-h-[116px]">
+              <div className="relative flex min-h-[96px] w-full items-center justify-center sm:min-h-[108px] lg:min-h-[116px]">
                 <AnimatePresence mode="sync" initial={false}>
                   {activeEvent ? (
                     <motion.div
@@ -416,7 +418,7 @@ export default function HomePageClient({
                       animate={{ opacity: 1, filter: "blur(0px)" }}
                       exit={{ opacity: 0, filter: "blur(12px)" }}
                       transition={{ ...heroSwapTransition, duration: 1.2 }}
-                      className="absolute inset-0 flex items-center justify-center"
+                      className="absolute inset-0 flex items-center justify-center px-3 sm:px-6"
                     >
                       <EventDetailRows
                         event={activeEvent}
@@ -430,7 +432,7 @@ export default function HomePageClient({
                       animate={{ opacity: 1, filter: "blur(0px)" }}
                       exit={{ opacity: 0, filter: "blur(12px)" }}
                       transition={{ ...heroSwapTransition, duration: 1.2 }}
-                      className="absolute inset-0 mx-auto flex max-w-2xl items-center justify-center text-center text-lg font-light tracking-wide text-neutral-300 md:text-xl"
+                      className="absolute inset-0 mx-auto flex max-w-2xl items-center justify-center px-2 text-center text-lg font-light tracking-wide text-neutral-300 sm:px-6 md:text-xl"
                     >
                       {description}
                     </motion.p>
@@ -442,8 +444,10 @@ export default function HomePageClient({
             <motion.div
               variants={heroItemVariants}
               className={[
-                "flex flex-col items-center gap-5 md:gap-6",
-                timelineEvents.length > 1 ? "pt-1 md:pt-3" : "pt-6 md:pt-8",
+                "flex flex-col items-center gap-4 sm:gap-5 lg:gap-6",
+                timelineEvents.length > 1
+                  ? "pt-2 sm:pt-3 lg:pt-3"
+                  : "pt-4 sm:pt-5 lg:pt-8",
               ].join(" ")}
             >
               {showEventCta ? (
