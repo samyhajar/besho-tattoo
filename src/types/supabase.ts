@@ -95,6 +95,42 @@ export type Database = {
         };
         Relationships: [];
       };
+      events: {
+        Row: {
+          created_at: string;
+          display_order: number;
+          event_date: string;
+          id: string;
+          is_published: boolean;
+          location: string;
+          redirect_url: string | null;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          display_order?: number;
+          event_date: string;
+          id?: string;
+          is_published?: boolean;
+          location: string;
+          redirect_url?: string | null;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          display_order?: number;
+          event_date?: string;
+          id?: string;
+          is_published?: boolean;
+          location?: string;
+          redirect_url?: string | null;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       feature_images: {
         Row: {
           category: string;
