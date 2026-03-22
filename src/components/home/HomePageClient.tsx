@@ -344,7 +344,7 @@ export default function HomePageClient({
     <div className="min-h-screen bg-[#0d0d0d] text-white font-home-sans">
       <Header variant="home" />
 
-      <section className="relative flex min-h-[calc(100vh-84px)] items-center justify-center overflow-hidden bg-[#0d0d0d]">
+      <section className="relative flex min-h-[calc(100svh-80px)] items-center justify-center overflow-hidden bg-[#0d0d0d] md:min-h-[calc(100vh-84px)]">
         <div className="absolute inset-0 z-0">
           <Image
             src="/1de18774-5b5c-4058-8ebc-26ad6594bdcf.png"
@@ -363,7 +363,7 @@ export default function HomePageClient({
         <div
           className={[
             "container relative z-10 px-6 text-center",
-            timelineEvents.length > 1 ? "py-14 md:py-16" : "py-20",
+            timelineEvents.length > 1 ? "py-10 md:py-16" : "py-14 md:py-20",
           ].join(" ")}
         >
           <motion.div
@@ -371,9 +371,9 @@ export default function HomePageClient({
             whileInView="visible"
             viewport={pageMotionViewport}
             variants={heroContentVariants}
-            className="space-y-8"
+            className="space-y-6 md:space-y-8"
           >
-            <div className="mx-auto flex min-h-[320px] max-w-4xl flex-col items-center justify-center gap-6 md:min-h-[360px]">
+            <div className="mx-auto flex min-h-[300px] max-w-4xl flex-col items-center justify-center gap-5 md:min-h-[360px] md:gap-6">
               <div className="flex h-6 items-center justify-center">
                 <motion.p
                   animate={{
@@ -442,8 +442,8 @@ export default function HomePageClient({
             <motion.div
               variants={heroItemVariants}
               className={[
-                "flex flex-col items-center gap-6",
-                timelineEvents.length > 1 ? "pt-2 md:pt-3" : "pt-8",
+                "flex flex-col items-center gap-5 md:gap-6",
+                timelineEvents.length > 1 ? "pt-1 md:pt-3" : "pt-6 md:pt-8",
               ].join(" ")}
             >
               {showEventCta ? (
