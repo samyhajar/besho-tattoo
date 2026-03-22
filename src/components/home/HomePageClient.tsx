@@ -122,13 +122,11 @@ function renderHeadline(title: string): ReactNode {
 
   return segments.map((segment, index) => {
     const isLast = index === segments.length - 1;
-    const insertMobileBreak = index < segments.length - 2;
 
     return (
       <Fragment key={`${segment}-${index}`}>
         {segment}
         {!isLast ? <span className="text-neutral-500">.</span> : null}
-        {insertMobileBreak ? <br className="md:hidden" /> : null}
       </Fragment>
     );
   });
@@ -397,7 +395,12 @@ export default function HomePageClient({
                     animate={{ opacity: 1, filter: "blur(0px)" }}
                     exit={{ opacity: 0, filter: "blur(14px)" }}
                     transition={heroSwapTransition}
-                    className="absolute inset-0 flex items-center justify-center text-center font-home-serif text-5xl leading-none tracking-tight text-white md:text-7xl lg:text-9xl"
+                    className={[
+                      "absolute inset-0 flex items-center justify-center text-center font-home-serif leading-none text-white",
+                      activeEvent
+                        ? "text-5xl tracking-tight md:text-7xl lg:text-9xl"
+                        : "whitespace-nowrap text-[clamp(2.2rem,9vw,4.5rem)] tracking-tight md:text-7xl lg:text-9xl",
+                    ].join(" ")}
                   >
                     {renderHeadline(activeEvent?.title || headline)}
                   </motion.h1>
