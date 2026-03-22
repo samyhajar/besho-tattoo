@@ -125,116 +125,118 @@ export default function Header({ variant = "default" }: HeaderProps) {
   }`;
 
   return (
-    <header className={headerClassName}>
-      <div
-        className={`flex items-center justify-between ${
-          isHomeVariant
-            ? "px-5 py-5 sm:px-8 lg:px-16"
-            : "px-6 py-0 sm:px-8 lg:px-16"
-        }`}
-      >
-        <Link href="/" className="z-50 flex items-center" onClick={closeMenu}>
-          <Image
-            src="/lastlastlogo.png"
-            alt="Besho Tattoo Logo"
-            width={isHomeVariant ? 44 : 100}
-            height={isHomeVariant ? 44 : 100}
-            className={`w-auto ${
-              isHomeVariant
-                ? "h-10 brightness-0 invert sm:h-11"
-                : "h-20 brightness-0 invert sm:h-24"
-            }`}
-            priority
-          />
-          {isHomeVariant ? (
-            <div className="ml-4 flex flex-col justify-center text-white">
-              <span className="font-home-serif max-w-[210px] whitespace-nowrap text-[0.72rem] uppercase leading-none tracking-[0.08em] sm:hidden">
-                THINK.BEFORE.YOU.INK
-              </span>
-              <span className="font-home-serif hidden text-[24px] uppercase leading-none tracking-[0.22em] sm:block">
-                THINK.BEFORE.YOU.INK
-              </span>
-            </div>
-          ) : null}
-        </Link>
-
-        <nav
-          className={`hidden items-center md:flex ${
-            isHomeVariant ? "gap-10 lg:gap-12" : "gap-12 lg:gap-16"
+    <>
+      <header className={headerClassName}>
+        <div
+          className={`flex items-center justify-between ${
+            isHomeVariant
+              ? "px-5 py-5 sm:px-8 lg:px-16"
+              : "px-6 py-0 sm:px-8 lg:px-16"
           }`}
         >
-          {navItems.map(({ href, label }) => {
-            if (href !== "/portfolio") {
-              return renderNavLink(href, label);
-            }
+          <Link href="/" className="z-50 flex items-center" onClick={closeMenu}>
+            <Image
+              src="/lastlastlogo.png"
+              alt="Besho Tattoo Logo"
+              width={isHomeVariant ? 44 : 100}
+              height={isHomeVariant ? 44 : 100}
+              className={`w-auto ${
+                isHomeVariant
+                  ? "h-10 brightness-0 invert sm:h-11"
+                  : "h-20 brightness-0 invert sm:h-24"
+              }`}
+              priority
+            />
+            {isHomeVariant ? (
+              <div className="ml-4 flex flex-col justify-center text-white">
+                <span className="font-home-serif max-w-[210px] whitespace-nowrap text-[0.72rem] uppercase leading-none tracking-[0.08em] sm:hidden">
+                  THINK.BEFORE.YOU.INK
+                </span>
+                <span className="font-home-serif hidden text-[24px] uppercase leading-none tracking-[0.22em] sm:block">
+                  THINK.BEFORE.YOU.INK
+                </span>
+              </div>
+            ) : null}
+          </Link>
 
-            return (
-              <div key={href} className="group relative">
-                <Link
-                  href={href}
-                  className={`group relative flex items-center gap-2 pb-2 transition-all duration-300 ${desktopLinkClassName}`}
-                >
-                  {label}
-                  <ChevronDown
-                    className={`h-4 w-4 transition-transform duration-300 group-hover:rotate-180 group-focus-within:rotate-180 ${
-                      isHomeVariant ? "text-white/70" : "text-white/70"
-                    }`}
-                  />
-                  <span
-                    className={`absolute bottom-0 left-0 h-px transition-all duration-300 ${
-                      isActiveLink(href)
-                        ? isHomeVariant
-                          ? "w-full bg-white"
-                          : "w-full bg-white"
-                        : isHomeVariant
-                          ? "w-0 bg-white group-hover:w-full"
-                          : "w-0 bg-white group-hover:w-full"
-                    }`}
-                  />
-                </Link>
+          <nav
+            className={`hidden items-center md:flex ${
+              isHomeVariant ? "gap-10 lg:gap-12" : "gap-12 lg:gap-16"
+            }`}
+          >
+            {navItems.map(({ href, label }) => {
+              if (href !== "/portfolio") {
+                return renderNavLink(href, label);
+              }
 
-                <div className="pointer-events-none absolute left-1/2 top-full z-50 w-60 -translate-x-1/2 translate-y-2 pt-4 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100">
-                  <div className={`rounded-none ${desktopDropdownClassName}`}>
-                    {portfolioItems.map((item) => {
-                      const isActive = pathname === item.href;
+              return (
+                <div key={href} className="group relative">
+                  <Link
+                    href={href}
+                    className={`group relative flex items-center gap-2 pb-2 transition-all duration-300 ${desktopLinkClassName}`}
+                  >
+                    {label}
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform duration-300 group-hover:rotate-180 group-focus-within:rotate-180 ${
+                        isHomeVariant ? "text-white/70" : "text-white/70"
+                      }`}
+                    />
+                    <span
+                      className={`absolute bottom-0 left-0 h-px transition-all duration-300 ${
+                        isActiveLink(href)
+                          ? isHomeVariant
+                            ? "w-full bg-white"
+                            : "w-full bg-white"
+                          : isHomeVariant
+                            ? "w-0 bg-white group-hover:w-full"
+                            : "w-0 bg-white group-hover:w-full"
+                      }`}
+                    />
+                  </Link>
 
-                      return (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          className={`block px-5 py-4 text-sm uppercase tracking-[0.22em] transition-colors duration-200 ${
-                            isHomeVariant
-                              ? isActive
-                                ? "bg-white/[0.06] text-white"
-                                : "text-white/72 hover:bg-white/[0.04] hover:text-white"
-                              : isActive
-                                ? "bg-white/[0.06] text-white"
-                                : "text-white/72 hover:bg-white/[0.04] hover:text-white"
-                          }`}
-                        >
-                          {item.label}
-                        </Link>
-                      );
-                    })}
+                  <div className="pointer-events-none absolute left-1/2 top-full z-50 w-60 -translate-x-1/2 translate-y-2 pt-4 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100">
+                    <div className={`rounded-none ${desktopDropdownClassName}`}>
+                      {portfolioItems.map((item) => {
+                        const isActive = pathname === item.href;
+
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            className={`block px-5 py-4 text-sm uppercase tracking-[0.22em] transition-colors duration-200 ${
+                              isHomeVariant
+                                ? isActive
+                                  ? "bg-white/[0.06] text-white"
+                                  : "text-white/72 hover:bg-white/[0.04] hover:text-white"
+                                : isActive
+                                  ? "bg-white/[0.06] text-white"
+                                  : "text-white/72 hover:bg-white/[0.04] hover:text-white"
+                            }`}
+                          >
+                            {item.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </nav>
+              );
+            })}
+          </nav>
 
-        <button
-          onClick={toggleMenu}
-          className={`z-50 rounded-lg p-3 transition-colors md:hidden ${
-            isHomeVariant
-              ? "text-white hover:bg-white/8"
-              : "text-white hover:bg-white/8"
-          }`}
-          aria-label="Toggle menu"
-        >
-          {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
-      </div>
+          <button
+            onClick={toggleMenu}
+            className={`z-50 rounded-lg p-3 transition-colors md:hidden ${
+              isHomeVariant
+                ? "text-white hover:bg-white/8"
+                : "text-white hover:bg-white/8"
+            }`}
+            aria-label="Toggle menu"
+          >
+            {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
+      </header>
 
       {isMenuOpen ? (
         <div
@@ -264,66 +266,77 @@ export default function Header({ variant = "default" }: HeaderProps) {
             : "pointer-events-none -translate-x-full opacity-100"
         }`}
       >
-        <nav className="flex flex-col px-8 pt-24">
-          {navItems.map(({ href, label }) => {
-            if (href !== "/portfolio") {
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={closeMenu}
-                  className={`${mobileLinkClassName} py-4 transition-all duration-300 ${
-                    isActiveLink(href)
-                      ? isHomeVariant
-                        ? "text-white"
-                        : "text-white"
-                      : ""
-                  }`}
-                >
-                  {label}
-                </Link>
-              );
-            }
+        <div className="relative h-full">
+          <button
+            type="button"
+            onClick={closeMenu}
+            className="absolute right-5 top-5 z-10 rounded-full p-2 text-white/70 transition-colors duration-300 hover:bg-white/8 hover:text-white"
+            aria-label="Close menu panel"
+          >
+            <X size={18} strokeWidth={1.5} />
+          </button>
 
-            return (
-              <div key={href} className="py-4">
-                <Link
-                  href={href}
-                  onClick={closeMenu}
-                  className={`flex items-center gap-2 transition-all duration-300 ${mobileLinkClassName}`}
-                >
-                  {label}
-                  <ChevronDown className="h-4 w-4" />
-                </Link>
-                <div
-                  className={`mt-3 border-l pl-4 ${
-                    isHomeVariant ? "border-white/12" : "border-white/12"
-                  }`}
-                >
-                  {portfolioItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={closeMenu}
-                      className={`block py-3 text-sm uppercase tracking-[0.22em] transition-colors duration-300 ${
-                        isHomeVariant
-                          ? pathname === item.href
-                            ? "text-white"
-                            : "text-white/72 hover:text-white"
-                          : pathname === item.href
-                            ? "text-white"
-                            : "text-white/72 hover:text-white"
-                      }`}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
+          <nav className="flex flex-col px-8 pt-24">
+            {navItems.map(({ href, label }) => {
+              if (href !== "/portfolio") {
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={closeMenu}
+                    className={`${mobileLinkClassName} py-4 transition-all duration-300 ${
+                      isActiveLink(href)
+                        ? isHomeVariant
+                          ? "text-white"
+                          : "text-white"
+                        : ""
+                    }`}
+                  >
+                    {label}
+                  </Link>
+                );
+              }
+
+              return (
+                <div key={href} className="py-4">
+                  <Link
+                    href={href}
+                    onClick={closeMenu}
+                    className={`flex items-center gap-2 transition-all duration-300 ${mobileLinkClassName}`}
+                  >
+                    {label}
+                    <ChevronDown className="h-4 w-4" />
+                  </Link>
+                  <div
+                    className={`mt-3 border-l pl-4 ${
+                      isHomeVariant ? "border-white/12" : "border-white/12"
+                    }`}
+                  >
+                    {portfolioItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={closeMenu}
+                        className={`block py-3 text-sm uppercase tracking-[0.22em] transition-colors duration-300 ${
+                          isHomeVariant
+                            ? pathname === item.href
+                              ? "text-white"
+                              : "text-white/72 hover:text-white"
+                            : pathname === item.href
+                              ? "text-white"
+                              : "text-white/72 hover:text-white"
+                        }`}
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </nav>
+              );
+            })}
+          </nav>
+        </div>
       </div>
-    </header>
+    </>
   );
 }
